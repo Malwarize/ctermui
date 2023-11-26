@@ -22,6 +22,10 @@ void clearScreen() {
 
 ctermui ctermui_new(){
     ctermui c = malloc(sizeof(struct ctermui));
+    if (c == NULL){
+        printf("ERROR: failed to allocate memory for ctermui\n");
+        exit(EXIT_FAILURE);
+    }
     return c;
 }
 
@@ -29,8 +33,16 @@ void ctermui_init(ctermui c){
     winsize w = __get_terminal_size();
     c->size = w;
     c->buffer = malloc(sizeof(char*) * c->size.ws_row);
+    if (c->buffer == NULL){
+        printf("ERROR: failed to allocate memory for the buffer\n");
+        exit(EXIT_FAILURE);
+    }
     for(int i = 0; i < c->size.ws_row; i++){
         c->buffer[i] = malloc(sizeof(char) * c->size.ws_col);
+        if (c->buffer[i] == NULL){
+            printf("ERROR: failed to allocate memory for the buffer\n");
+            exit(EXIT_FAILURE);
+        }
     }
     for(int i = 0; i < c->size.ws_row; i++){
         for(int j = 0; j < c->size.ws_col; j++){
@@ -43,8 +55,35 @@ void __resize_buffer(ctermui c){
     winsize w = __get_terminal_size();
     c->size = w;
     c->buffer = realloc(c->buffer, sizeof(char*) * c->size.ws_row);
+
+    if (c->buffer == NULL){
+        printf("ERROR: failed to reallocate memory for the buffer\n");
+        exit(EXIT_FAILURE);
+    }
+
     for(int i = 0; i < c->size.ws_row; i++){
         c->buffer[i] = realloc(c->buffer[i], sizeof(char) * c->size.ws_col);
+        if (c->buffer[i] == NULL){
+            printf("ERROR: failed to reallocate memory for the buffer\n");
+            exit(EXIT_FAILURE);
+        }
+
+        for (int j = c->size.ws_col - 1; j >= 0; j--) {
+            if (j >= c->size.ws_col) {
+                c->buffer[i][j] = EMPTY;
+            }
+        }
+    }
+}
+//refresh widgets when terminal is resized
+void __refresh_widgets(ctermui c){
+    if (c->relative_widgets == NULL){
+        return;
+    }
+    for(int i = 0; i < sizeof(c->relative_widgets) / sizeof(ctermui_widget_relative_t); i++){
+        ctermui_widget_relative_t w = c->relative_widgets[i];
+        ctermui_widget_t w2 = ctermui_widget_new((c->size.ws_row * w->row_relative) / 100, (c->size.ws_col * w->col_relative) / 100, (c->size.ws_col * w->width_relative) / 100, (c->size.ws_row * w->height_relative) / 100);
+        ctermui_widget(c, w2);
     }
 }
 
@@ -52,6 +91,7 @@ void ctermui_display_buffer(ctermui c){
     winsize w = __get_terminal_size();
     if (w.ws_row != c->size.ws_row || w.ws_col != c->size.ws_col){
         __resize_buffer(c);
+        __refresh_widgets(c);
     }
 
     for(int i = 0; i < w.ws_row; i++){
@@ -74,19 +114,29 @@ void start(ctermui c){
     while(1){
         clearScreen();
         ctermui_display_buffer(c);
-
         sleep(1);
     }
 }
 
-void __add_widget(ctermui c, ctermui_widget_t w){
-    ctermui_widget_t* widgets = malloc(sizeof(ctermui_widget_t) * (sizeof(c->widgets) + 1));
+void __add_widget(ctermui c, ctermui_widget_relative_t w){
+   // add widget to the list of widgets
+   if (c->relative_widgets == NULL){
+       c->relative_widgets = malloc(sizeof(ctermui_widget_relative_t));
+       c->relative_widgets[0] = ctermui_widget_relative_new(w->row_relative, w->col_relative, w->width_relative, w->height_relative);
+    }else{
+        c->relative_widgets = realloc(c->relative_widgets, sizeof(ctermui_widget_relative_t) * (sizeof(c->relative_widgets) / sizeof(ctermui_widget_relative_t) + 1));
+        c->relative_widgets[sizeof(c->relative_widgets) / sizeof(ctermui_widget_relative_t)] = ctermui_widget_relative_new(w->row_relative, w->col_relative, w->width_relative, w->height_relative); 
+    }
+    if (c->relative_widgets == NULL){
+        printf("ERROR: failed to allocate memory for the widgets\n");
+        exit(EXIT_FAILURE);
+    }
 }
 
 void __ctermui_set_char(ctermui c, unsigned int row, unsigned int col, char ch){
     // check if the cell is out of bounds
     if (row > c->size.ws_row || col > c->size.ws_col){
-        printf("ERROR: you are trying to draw cell on row:%d, col:%d which is out of bounds terminal dimensions\n", row, col);
+        printf("ERROR: you are trying to draw cell on row:%d, col:%d which is out of bounds terminal dimensions %d,%d\n", row, col, c->size.ws_row, c->size.ws_col);
         exit(EXIT_FAILURE);
     }
     if (c->buffer[row][col] != EMPTY){
@@ -146,6 +196,10 @@ void ctermui_line_absolute(ctermui c, unsigned int row, unsigned int col, unsign
 
 ctermui_widget_t ctermui_widget_new(unsigned int row, unsigned int col, unsigned int width, unsigned int height){
     ctermui_widget_t w = malloc(sizeof(struct ctermui_widget_t));
+    if (w == NULL){
+        printf("ERROR: failed to allocate memory for the widget\n");
+        exit(EXIT_FAILURE);
+    }
     w->row = row;
     w->col = col;
     w->width = width;
@@ -184,6 +238,10 @@ void ctermui_widget(ctermui c, ctermui_widget_t w){
 
 ctermui_text_box_t ctermui_text_box_new(ctermui c, ctermui_widget_t w, char* str){
     ctermui_text_box_t t = malloc(sizeof(struct ctermui_text_box_t));
+    if (t == NULL){
+        printf("ERROR: failed to allocate memory for the text box\n");
+        exit(EXIT_FAILURE);
+    }
     if(strlen(str) > w->width){
         printf("ERROR: text is too long for the widget\n");
         exit(EXIT_FAILURE);
@@ -204,3 +262,30 @@ void ctermui_text_box(ctermui c, ctermui_widget_t w, char* str){
     ctermui_widget(c, w);
     ctermui_text_absolute(c, w->row + (w->height / 2), w->col + (w->width / 2) - (strlen(str) / 2), str);
 }
+
+// typedef struct ctermui_widget_relative_t{
+//     unsigned int row_relative;
+//     unsigned int col_relative;
+//     unsigned int width_relative;
+//     unsigned int height_relative;
+// }*ctermui_widget_relative_t;
+
+ctermui_widget_relative_t ctermui_widget_relative_new(unsigned int row_relative, unsigned int col_relative, unsigned int width_relative, unsigned int height_relative){
+    ctermui_widget_relative_t w = malloc(sizeof(struct ctermui_widget_relative_t));
+    if (w == NULL){
+        printf("ERROR: failed to allocate memory for the widget\n");
+        exit(EXIT_FAILURE);
+    }
+    w->row_relative = row_relative;
+    w->col_relative = col_relative;
+    w->width_relative = width_relative;
+    w->height_relative = height_relative;
+    return w;
+}
+
+void ctermui_widget_relative(ctermui c, ctermui_widget_relative_t w){
+    __add_widget(c, w);
+    ctermui_widget_t w2 = ctermui_widget_new((c->size.ws_row * w->row_relative) / 100, (c->size.ws_col * w->col_relative) / 100, (c->size.ws_col * w->width_relative) / 100, (c->size.ws_row * w->height_relative) / 100);
+    ctermui_widget(c, w2);
+}
+

@@ -12,10 +12,20 @@ typedef struct ctermui_widget_t{
     unsigned int width;
     unsigned int height;
 }*ctermui_widget_t;
+
+
+typedef struct ctermui_widget_relative_t{
+    unsigned int row_relative;
+    unsigned int col_relative;
+    unsigned int width_relative;
+    unsigned int height_relative;
+}*ctermui_widget_relative_t;
+
+
 typedef struct ctermui{
     char** buffer;
     winsize size;
-    ctermui_widget_t* widgets;
+    ctermui_widget_relative_t* relative_widgets;
 }*ctermui;
 
 typedef struct ctermui_text_box_t{
@@ -42,5 +52,11 @@ void ctermui_widget(ctermui c, ctermui_widget_t w);
 
 ctermui_text_box_t ctermui_text_box_new(ctermui c, ctermui_widget_t w, char* str);
 void ctermui_text_box(ctermui c, ctermui_widget_t w, char* str);
+
+
+
+
+ctermui_widget_relative_t ctermui_widget_relative_new(unsigned int row_relative, unsigned int col_relative, unsigned int width_relative, unsigned int height_relative);
+void ctermui_widget_relative(ctermui c, ctermui_widget_relative_t w);
 
 #endif
