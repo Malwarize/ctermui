@@ -289,3 +289,37 @@ void ctermui_widget_relative(ctermui c, ctermui_widget_relative_t w){
     ctermui_widget(c, w2);
 }
 
+
+
+
+ctermui_frame ctermui_create_frame(char* name){
+    ctermui_frame frame = malloc(sizeof(struct ctermui));
+    if(!frame){
+        fprintf(stderr,"ERROR: malloc: error alocation memory");
+    }
+    for (size_t i = 0; i < 100; i++)
+    {
+        frame->children[i]=NULL;   
+    }
+    strcpy(frame->Name,name);
+    
+    return frame;
+}
+
+
+void ctermui_add_frame(ctermui_frame child, ctermui_frame parent){
+    size_t  i;
+    for (i = 0; i < 100; i++)
+    {
+        if(!(parent->children[i])){
+            break;
+        }   
+    }
+    if(i < 100){
+        parent->children[i] = child;
+    }
+}
+
+void __display_screen_tree(ctermui c){
+
+}

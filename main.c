@@ -3,13 +3,21 @@
 
 
 int main(){
-    ctermui c = ctermui_new();
-    ctermui_init(c);
-    // ctermui_widget_relative_t w = ctermui_widget_relative_new(1, 1, 99, 99);
-    // ctermui_widget_relative(c, w);
-    char** new_buffer = malloc(sizeof(char*) * c->size.ws_row);
-    ctermui_widget_t w = ctermui_widget_new(1, 1, 10, 20);
-    ctermui_widget(c, w);
-    start(c);
+    
+    ctermui_frame root = ctermui_create_frame("frame_1");
+    ctermui_frame c1 = ctermui_create_frame("frame_2");
+    ctermui_frame c2 = ctermui_create_frame("frame_3");
+    ctermui_add_frame(c1,root);
+    ctermui_add_frame(c2,root);
+
+    for (size_t i = 0; i < 100; i++)
+    {
+        if(root->children[i] == NULL){
+            break;
+        }
+        printf("%s ", root->children[i]->Name);
+    }
+    
+
     return 0;
 }   

@@ -5,6 +5,14 @@
 #include <stdlib.h>
 #include <sys/ioctl.h>
 
+
+typedef struct ctermui_frame{
+    char Name[100];
+    struct ctermui_frame* children[100];
+    size_t num_children;
+}*ctermui_frame;
+
+
 typedef struct winsize winsize;
 typedef struct ctermui_widget_t{
     unsigned int row;
@@ -59,4 +67,6 @@ void ctermui_text_box(ctermui c, ctermui_widget_t w, char* str);
 ctermui_widget_relative_t ctermui_widget_relative_new(unsigned int row_relative, unsigned int col_relative, unsigned int width_relative, unsigned int height_relative);
 void ctermui_widget_relative(ctermui c, ctermui_widget_relative_t w);
 
+ctermui_frame ctermui_create_frame(char* name);
+void ctermui_add_frame(ctermui_frame child, ctermui_frame parent);
 #endif
