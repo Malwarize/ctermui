@@ -1,0 +1,22 @@
+{
+    "files.associations": {
+        "ctermui.h": "c",
+        "compare": "c",
+        "cstdint": "c",
+        "ctermui_component.h": "c",
+        "any": "c",
+        "complex": "c",
+        "stdint.h": "c",
+        "string.h": "c",
+        "ctermui_widget.h": "c",
+        "ctermui_pencil.h": "c",
+        "ctermui_screen.h": "c"
+    },
+    "makefile.launchConfigurations": [
+        {
+            "cwd": "/home/xorbit/Desktop/github/ctermui/build/bin",
+            "binaryPath": "/home/xorbit/Desktop/github/ctermui/build/bin/ctermui",
+            "binaryArgs": []
+        }
+    ]
+}
