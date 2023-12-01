@@ -1,14 +1,14 @@
 #include "ctermui_widget.h"
 
-ctermui_widget ctermui_widget_new_root(uint16_t type, uint16_t percentage) {
+ctermui_widget ctermui_widget_new_root(uint16_t type, int width, int height) {
     ctermui_widget widget = malloc(sizeof(struct ctermui_widget));
     widget->type = type;
-    widget->percentage = percentage;
+    widget->percentage = 100;
     widget->cc = 0;
     widget->x = 0;
     widget->y = 0;
-    widget->width = 100;
-    widget->height = 100;
+    widget->width = width;
+    widget->height = height;
     return widget;
 }
 

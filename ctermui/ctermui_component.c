@@ -11,11 +11,13 @@ ctermui_component ctermui_new_button(char* text, void (*on_click)(void)) {
 }
 
 
-ctermui_component ctermui_new_text(char* text) {
+ctermui_component ctermui_new_text(char* text, int color, int bg_color) {
     ctermui_component c = malloc(sizeof(struct ctermui_component));
     c->type = TEXT;
     Text* text_component = malloc(sizeof(Text));
     strcpy(text_component->text, text);
+    text_component->color = color;
+    text_component->bg_color = bg_color;
     c->core_component = text_component;
     return c;
 }

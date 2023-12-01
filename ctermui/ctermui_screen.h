@@ -11,6 +11,7 @@ typedef struct ctermui_screen{
     char*** buffer; // 3D array of chars
     uint32_t width;
     uint32_t height;
+    ctermui_widget root;
 }*ctermui_screen_t;
 
 //\033[48;5;%dm\033[38;5;%dm%c\033[0m
@@ -49,4 +50,6 @@ void ctermui_screen_test(ctermui_screen_t s);
 void ctermui_screen_clear(ctermui_screen_t s);
 void ctermui_screen_free(ctermui_screen_t s);   
 void ctermui_start(ctermui_screen_t s);
+void ctermui_screen_set_widget_root(ctermui_screen_t s, ctermui_widget root);
+int ctermui_screen_draw_component_text(ctermui_screen_t s,  ctermui_component c);
 #endif // CTERMUI_SCREEN_H

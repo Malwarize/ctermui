@@ -27,9 +27,11 @@ typedef struct button {
 
 typedef struct text {
     char text[100];
+    int color;
+    int bg_color;
 } Text;
 
 ctermui_component ctermui_new_button(char* text, void (*on_click)(void));
-ctermui_component ctermui_new_text(char* text);
+ctermui_component ctermui_new_text(char* text, int color, int bg_color);
 
 #endif 

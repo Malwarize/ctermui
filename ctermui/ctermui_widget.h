@@ -24,7 +24,7 @@ typedef struct ctermui_widget {
     int height;
 } *ctermui_widget;
 
-ctermui_widget ctermui_widget_new_root(uint16_t type, uint16_t percentage);
+ctermui_widget ctermui_widget_new_root(uint16_t type,int width, int height);
 ctermui_widget ctermui_widget_new(uint16_t type, uint16_t percentage);
 int ctermui_widget_add_child(ctermui_widget parent, ctermui_widget child);
 int ctermui_widget_add_component(ctermui_widget widget, ctermui_component ctermui_component);

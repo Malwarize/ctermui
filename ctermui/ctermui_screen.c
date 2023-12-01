@@ -41,7 +41,7 @@ ctermui_screen_t ctermui_screen_new()
             screen->buffer[i][j] = (char *)malloc(3 * sizeof(char));
             screen->buffer[i][j][0] = EMPTY_CHAR;
             screen->buffer[i][j][1] = CTERMUI_WHITE;
-            screen->buffer[i][j][2] = CTERMUI_EMPTY;
+            screen->buffer[i][j][2] = CTERMUI_BLUE;
         }
     }
 
@@ -63,11 +63,13 @@ void ctermui_screen_free(ctermui_screen_t s)
 
 void ctermui_screen_clear(ctermui_screen_t s)
 {
-    for (int i = 0; i < s->height; i++)
+    for (uint32_t x = 0; x < s->width; ++x)
     {
-        for (int j = 0; j < s->width; j++)
+        for (uint32_t y = 0; y < s->height; ++y)
         {
-            s->buffer[i][j][0] = EMPTY_CHAR;
+            s->buffer[x][y][0] = EMPTY_CHAR;
+            s->buffer[x][y][1] = CTERMUI_WHITE;
+            s->buffer[x][y][2] = CTERMUI_EMPTY;
         }
     }
 }
@@ -89,12 +91,50 @@ void sigint_handler(int sig)
     __restore_term();
     exit(0);
 }
+void ctermui_screen_set_widget_root(ctermui_screen_t s, ctermui_widget root)
+{
+    s->root = root;
+}
+void ctermui_screen_draw_component(ctermui_screen_t s, ctermui_component c)
+{
+    if (c->type == TEXT)
+    {
+        ctermui_screen_draw_component_text(s, c);
+    }
+    else if (c->type == BUTTON)
+    {
+        // ctermui_screen_draw_component_button(s, c);
+    }
+    else
+    {
+        fprintf(stderr, "ctermui_screen_draw_component: invalid component type\n");
+        exit(EXIT_FAILURE);
+    }
+}
+
+void reload_screen_with_widgets(ctermui_screen_t s, ctermui_widget w)
+{
+    if (w->type == LEAF && w->component != NULL)
+    {
+        ctermui_screen_draw_component(s, w->component);
+    }
+    else
+    {
+        for (int i = 0; i < w->cc; i++)
+        {
+            reload_screen_with_widgets(s, w->children[i]);
+        }
+    }
+}
+
 void ctermui_start(ctermui_screen_t s)
 {
     signal(SIGINT, sigint_handler);
-    while (1)
-    {
+    while(1){
         __ctermui_screen_clean_term(s);
+        //traverse tree s->root and draw components
+        ctermui_screen_clear(s);
+        reload_screen_with_widgets(s, s->root);
         ctermui_screen_display(s);
         sleep(1);
     }
@@ -106,7 +146,7 @@ int ctermui_screen_draw_char(ctermui_screen_t s, int x, int y, char c, int fg_co
 {
     if (x < 0 || x >= s->width || y < 0 || y >= s->height)
     {
-        fprintf(stderr, "ctermui_screen_draw_char: x or y out of bounds\n");
+        fprintf(stderr, "ctermui_screen_draw_char: x=%d, y=%d out of bounds knowing that width=%d and height=%d\n", x, y, s->width, s->height);
         exit(EXIT_FAILURE);
     }
     s->buffer[x][y][0] = c;
@@ -161,8 +201,17 @@ int ctermui_screen_draw_rect(ctermui_screen_t s, int x, int y, int width, int he
     return 0;
 }
 
-// DRAWING COMPONENTS
-// Text ctermui_componentomponentomponent
+
+int __ctermui_screen_draw_text(ctermui_screen_t s, int x, int y, char* text, int color, int bg_color){
+    int i = 0;
+    while (text[i] != '\0')
+    {
+        ctermui_screen_draw_char(s, x + i, y, text[i], color, bg_color);
+        i++;
+    }
+    return 0;
+}
+
 int ctermui_screen_draw_component_text(ctermui_screen_t s,  ctermui_component c)
 {
     if (c->type != TEXT)
@@ -170,6 +219,9 @@ int ctermui_screen_draw_component_text(ctermui_screen_t s,  ctermui_component c)
         fprintf(stderr, "ctermui_screen_draw_component_text: invalid component type\n");
         exit(EXIT_FAILURE);
     }
+
+    Text *text = (Text *)c->core_component;
+    __ctermui_screen_draw_text(s, c->x, c->y, text->text, text->color, text->bg_color);
     return 0;
 }
 
