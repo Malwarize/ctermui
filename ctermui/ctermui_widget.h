@@ -9,6 +9,11 @@ enum ORIENTATION {
     CTERMUI_HORIZONTAL,
     CTERMUI_VERTICAL,
     LEAF,
+    CTERMUI_CENTER,
+    CTERMUI_TOP_LEFT_CORNER,
+    CTERMUI_TOP_RIGHT_CORNER,
+    CTERMUI_BOTTOM_LEFT_CORNER,
+    CTERMUI_BOTTOM_RIGHT_CORNER
 };
 
 typedef struct ctermui_widget {
@@ -16,8 +21,8 @@ typedef struct ctermui_widget {
     struct ctermui_widget* children[10];
     uint16_t type;
     uint16_t cc;
-    ctermui_component component;
-
+    struct ctermui_component* component[10];
+    uint16_t component_count;
     int x;
     int y;
     int width;

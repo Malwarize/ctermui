@@ -9,6 +9,8 @@
 enum CTYPES {
     TEXT,
     BUTTON,
+    FRAME,
+    BACKGROUND
 };
 
 typedef struct ctermui_component {
@@ -32,7 +34,15 @@ typedef struct text {
     int bg_color;
 } Text;
 
+typedef struct Frame{
+    int color;
+    int bg_color;
+} Frame;
+typedef struct Background{
+    int color;
+} Background;
 ctermui_component ctermui_new_button(char* text, void (*on_click)(void));
-ctermui_component ctermui_new_text(char* text, int color, int bg_color);
-
+ctermui_component ctermui_new_text(char* text,int color, int bg_color);
+ctermui_component ctermui_new_frame(int color, int bg_color, int width, int height);
+ctermui_component ctermui_new_background(int color,int width, int height);
 #endif 

@@ -115,6 +115,12 @@ void ctermui_screen_draw_component(ctermui_screen_t s, ctermui_component c)
     {
         // ctermui_screen_draw_component_button(s, c);
     }
+    else if(c->type == FRAME)
+    {
+        ctermui_screen_draw_frame(s,c);
+    }else if(c->type == BACKGROUND){
+        ctermui_screen_draw_background(s,c);
+    }
     else
     {
         fprintf(stderr, "ctermui_screen_draw_component: invalid component type\n");
@@ -124,34 +130,34 @@ void ctermui_screen_draw_component(ctermui_screen_t s, ctermui_component c)
 
 void reload_screen_with_widgets(ctermui_screen_t s, ctermui_widget w)
 {
-    if (w->type == LEAF && w->component != NULL)
+    int i =0;
+    for (i = 0; i < w->component_count; i++)
     {
-        ctermui_screen_draw_component(s, w->component);
+        ctermui_screen_draw_component(s, w->component[i]);
     }
-    else
+    for (int i = 0; i < w->cc; i++)
     {
-        for (int i = 0; i < w->cc; i++)
-        {
-            reload_screen_with_widgets(s, w->children[i]);
-        }
+        reload_screen_with_widgets(s, w->children[i]);
     }
+}
+
+void ctermui_screen_refresh(ctermui_screen_t s)
+{
+    __ctermui_screen_clean_term(s);
+    ctermui_screen_clear(s);
+    reload_screen_with_widgets(s, s->root);
+    ctermui_screen_display(s);
 }
 
 void ctermui_start(ctermui_screen_t s)
 {
     signal(SIGINT, sigint_handler);
+    ctermui_screen_refresh(s);
     while(1){
-        __ctermui_screen_clean_term(s);
-        //traverse tree s->root and draw components
-        ctermui_screen_clear(s);
-        reload_screen_with_widgets(s, s->root);
-        ctermui_screen_display(s);
         sleep(1);
     }
 }
-
 // DRAWING FUNCTIONS
-
 int ctermui_screen_draw_char(ctermui_screen_t s, int x, int y, char c, int fg_color, int bg_color)
 {
     if (x < 0 || x >= s->width || y < 0 || y >= s->height)
@@ -192,12 +198,12 @@ int ctermui_screen_draw_rect(ctermui_screen_t s, int x, int y, int width, int he
 {
     if (x < 0 || x >= s->width || y < 0 || y >= s->height)
     {
-        fprintf(stderr, "ctermui_screen_draw_rect: x or y out of bounds\n");
+        fprintf(stderr, "ctermui_screen_draw_rect: x=%d, y=%d out of bounds knowing that width=%d and height=%d\n", x, y, s->width, s->height);
         exit(EXIT_FAILURE);
     }
     if (x + width >= s->width || y + height >= s->height)
     {
-        fprintf(stderr, "ctermui_screen_draw_rect: width or height out of bounds\n");
+        fprintf(stderr, "ctermui_screen_draw_rect: width=%d, height=%d out of bounds knowing that width=%d and height=%d\n", width, height, s->width, s->height);
         exit(EXIT_FAILURE);
     }
     ctermui_screen_draw_char(s, x, y, CTERMUI_TOP_LEFT_CORNER, color, bg_color);
@@ -210,7 +216,6 @@ int ctermui_screen_draw_rect(ctermui_screen_t s, int x, int y, int width, int he
     ctermui_screen_draw_line(s, CTERMUI_VERTICAL, x + width, y + 1, height - 1, CTERMUI_VERTICAL_LINE, color, bg_color);
     return 0;
 }
-
 
 int __ctermui_screen_draw_text(ctermui_screen_t s, int x, int y, char* text, int color, int bg_color){
     int i = 0;
@@ -235,6 +240,37 @@ int ctermui_screen_draw_component_text(ctermui_screen_t s,  ctermui_component c)
     return 0;
 }
 
+int ctermui_screen_draw_frame(ctermui_screen_t s, ctermui_component c)
+{
+    if (c->type != FRAME)
+    {
+        fprintf(stderr, "ctermui_screen_draw_frame: invalid component type\n");
+        exit(EXIT_FAILURE);
+    }
+
+    Frame *frame = (Frame *)c->core_component;
+    ctermui_screen_draw_rect(s, c->x, c->y, c->width, c->height, frame->color, frame->bg_color);
+    return 0;
+}
+int ctermui_screen_draw_background(ctermui_screen_t s, ctermui_component c)
+{
+    if (c->type != BACKGROUND)
+    {
+        fprintf(stderr, "ctermui_screen_draw_background: invalid component type\n");
+        exit(EXIT_FAILURE);
+    }
+
+    Background *background = (Background *)c->core_component;
+    for (int y = c->y; y < c->y + c->height; ++y)
+    {
+        for (int x = c->x; x < c->x + c->width; ++x)
+        {
+            ctermui_screen_draw_char(s, x, y, s->buffer[x][y][0], s->buffer[x][y][1], background->color);
+        }
+    }
+    
+    return 0;
+}
 void ctermui_screen_test(ctermui_screen_t s)
 {
     ctermui_screen_draw_rect(s,0,0,10,10,CTERMUI_WHITE,CTERMUI_BLACK);

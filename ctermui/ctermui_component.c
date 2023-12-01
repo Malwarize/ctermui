@@ -14,7 +14,7 @@ ctermui_component ctermui_new_button(char* text, void (*on_click)(void)) {
 }
 
 
-ctermui_component ctermui_new_text(char* text, int color, int bg_color) {
+ctermui_component ctermui_new_text(char* text,int color, int bg_color){
     ctermui_component c = malloc(sizeof(struct ctermui_component));
     c->type = TEXT;
     Text* text_component = malloc(sizeof(Text));
@@ -25,6 +25,45 @@ ctermui_component ctermui_new_text(char* text, int color, int bg_color) {
     text_component->color = color;
     text_component->bg_color = bg_color;
     c->core_component = text_component;
+    c->width = strlen(text);
+    c->height = 1;
+    return c;
+}
+
+// Frame component
+ctermui_component ctermui_new_frame(int color, int bg_color, int width, int height) {
+    ctermui_component c = malloc(sizeof(struct ctermui_component));
+    c->type = FRAME;
+    Frame* frame_component = malloc(sizeof(Frame));
+    if(frame_component == NULL){
+        fprintf(stderr, "Error: could not allocate memory for frame component\n");
+    }
+    frame_component->color = color;
+    frame_component->bg_color = bg_color;
+    c->core_component = frame_component;
+    c->width = width;
+    c->height = height;
+    return c;
+}
+
+ctermui_component ctermui_new_background(int color,int width, int height) {
+    ctermui_component c = malloc(sizeof(struct ctermui_component));
+    if(c==NULL){
+        fprintf(stderr, "Error: could not allocate memory for background component\n");
+    }
+    Background* background_component = malloc(sizeof(Background));
+
+    if(background_component == NULL){
+        fprintf(stderr, "Error: could not allocate memory for background component\n");
+    }
+
+    background_component->color = color;
+    c->core_component = background_component;
+    c->type = BACKGROUND;
+
+
+    c->width = width;
+    c->height = height;
     return c;
 }
 

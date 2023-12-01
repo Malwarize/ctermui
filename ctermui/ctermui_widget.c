@@ -59,13 +59,15 @@ int ctermui_widget_add_child(ctermui_widget parent, ctermui_widget child) {
 }
 
 int ctermui_widget_add_component(ctermui_widget widget, ctermui_component c) {
-    if (widget->type != LEAF) {
-        return -1;
+    //if Text center it
+    if(c->type == TEXT){
+        c->x = widget->x + (widget->width - c->width)/2;
+        c->y = widget->y + (widget->height - c->height)/2;
     }
-    c->x = widget->x;
-    c->y = widget->y;
-    c->width = widget->width;
-    c->height = widget->height;
-    widget->component = c;
+    if(c->type == FRAME){
+        c->x = widget->x;
+        c->y = widget->y;
+    }
+    widget->component[widget->component_count++] = c;
     return 0;
 }
