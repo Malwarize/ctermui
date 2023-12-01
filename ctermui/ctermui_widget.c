@@ -2,6 +2,9 @@
 
 ctermui_widget ctermui_widget_new_root(uint16_t type, int width, int height) {
     ctermui_widget widget = malloc(sizeof(struct ctermui_widget));
+    if(widget == NULL){
+        fprintf(stderr, "Error: could not allocate memory for widget\n");
+    }
     widget->type = type;
     widget->percentage = 100;
     widget->cc = 0;
@@ -14,6 +17,9 @@ ctermui_widget ctermui_widget_new_root(uint16_t type, int width, int height) {
 
 ctermui_widget ctermui_widget_new(uint16_t type, uint16_t percentage) {
     ctermui_widget widget = malloc(sizeof(struct ctermui_widget));
+    if(widget == NULL){
+        fprintf(stderr, "Error: could not allocate memory for widget\n");
+    }
     widget->type = type;
     widget->percentage = percentage;
     widget->cc = 0;

@@ -33,12 +33,22 @@ ctermui_screen_t ctermui_screen_new()
     screen->height = w.ws_row;
 
     screen->buffer = (char ***)malloc(screen->width * sizeof(char **));
+    if (!screen->buffer)
+    {
+        fprintf(stderr, "Error: could not allocate memory for screen buffer\n");
+        exit(EXIT_FAILURE);
+    }
     for (uint32_t i = 0; i < screen->width; ++i)
     {
         screen->buffer[i] = (char **)malloc(screen->height * sizeof(char *));
         for (uint32_t j = 0; j < screen->height; ++j)
         {
             screen->buffer[i][j] = (char *)malloc(3 * sizeof(char));
+            if (!screen->buffer[i][j])
+            {
+                fprintf(stderr, "Error: could not allocate memory for screen buffer\n");
+                exit(EXIT_FAILURE);
+            }
             screen->buffer[i][j][0] = EMPTY_CHAR;
             screen->buffer[i][j][1] = CTERMUI_WHITE;
             screen->buffer[i][j][2] = CTERMUI_BLUE;
