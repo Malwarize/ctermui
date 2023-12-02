@@ -42,11 +42,6 @@ typedef struct ctermui_component {
     void* core_component;
 } *ctermui_component;
 
-typedef struct button {
-    char text[100];
-    void (*on_click)(void);
-} Button;
-
 typedef struct text {
     char text[100];
     int color;
@@ -58,11 +53,20 @@ typedef struct text {
 typedef struct Frame{
     int color;
     int bg_color;
+
 } Frame;
 typedef struct Background{
     int color;
 } Background;
-ctermui_component ctermui_new_button(char* text, void (*on_click)(void));
+
+typedef struct button {
+    char* text;
+    int align;
+    int text_color;
+    int bg_color;
+} Button;
+
+ctermui_component ctermui_new_button(char* text, int align, int text_color, int bg_color);
 ctermui_component ctermui_new_text(char* text,int color, int bg_color, int align);
 ctermui_component ctermui_new_frame(int color, int bg_color);
 ctermui_component ctermui_new_background(int color,int width, int height);

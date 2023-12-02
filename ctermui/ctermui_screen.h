@@ -6,15 +6,16 @@
 #include <stdio.h>
 #include <signal.h>
 #include "ctermui_widget.h"
+#include "ctermui_events.h"
+#include <termios.h>
 typedef struct winsize winsize;
 typedef struct ctermui_screen{
-    char*** buffer; // 3D array of chars
+    char*** buffer; // 3D array of chars + color
     uint32_t width;
     uint32_t height;
     ctermui_widget root;
+    ctermui_screen_keyboard_events_t keyboard_events;
 }*ctermui_screen_t;
-
-//\033[48;5;%dm\033[38;5;%dm%c\033[0m
 
 enum ctermui_color{
     CTERMUI_EMPTY = -1,
@@ -54,4 +55,5 @@ void ctermui_screen_set_widget_root(ctermui_screen_t s, ctermui_widget root);
 int ctermui_screen_draw_component_text(ctermui_screen_t s,  ctermui_component c);
 int ctermui_screen_draw_frame(ctermui_screen_t s, ctermui_component c);
 int ctermui_screen_draw_background(ctermui_screen_t s, ctermui_component c);
+void ctermui_screen_refresh(ctermui_screen_t s);
 #endif // CTERMUI_SCREEN_H

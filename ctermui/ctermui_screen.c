@@ -1,6 +1,7 @@
 #include "ctermui_screen.h"
 #include <unistd.h>
 
+int ctermui_screen_draw_component_button(ctermui_screen_t s, ctermui_component c);
 winsize __get_term_size()
 {
     winsize w;
@@ -31,7 +32,7 @@ ctermui_screen_t ctermui_screen_new()
     winsize w = __get_term_size();
     screen->width = w.ws_col;
     screen->height = w.ws_row;
-
+    screen->keyboard_events = ctermui_screen_keyboard_events_new();
     screen->buffer = (char ***)malloc(screen->width * sizeof(char **));
     if (!screen->buffer)
     {
@@ -115,7 +116,7 @@ void ctermui_screen_draw_component(ctermui_screen_t s, ctermui_component c)
     }
     else if (c->type == BUTTON)
     {
-        // ctermui_screen_draw_component_button(s, c);
+        ctermui_screen_draw_component_button(s, c);
     }
     else if(c->type == FRAME)
     {
@@ -171,13 +172,31 @@ void ctermui_on_resize_listener(ctermui_screen_t* s)
     }
 }
 
+void set_nonblocking() {
+    struct termios ttystate;
+    tcgetattr(STDIN_FILENO, &ttystate);
+    ttystate.c_lflag &= ~ICANON;
+    ttystate.c_cc[VMIN] = 0;
+    tcsetattr(STDIN_FILENO, TCSANOW, &ttystate);
+}
+
+
+void ctermui_on_keybord_listener(ctermui_screen_t* s)
+{
+    char c;
+    if(read(STDIN_FILENO, &c, 1) == 1){
+        ctermui_screen_keyboard_events_handle((*s)->keyboard_events, c);
+    }
+}
+
 void ctermui_start(ctermui_screen_t s)
 {
     signal(SIGINT, ctermui_sigint_handler);
-    
     ctermui_screen_refresh(s);
+    set_nonblocking();
     while(1){
         ctermui_on_resize_listener(&s);
+        ctermui_on_keybord_listener(&s);
         usleep(1000);
     }
 }
@@ -282,6 +301,19 @@ int ctermui_screen_draw_frame(ctermui_screen_t s, ctermui_component c)
     ctermui_screen_draw_rect(s, c->absolute_x, c->absolute_y, c->absolute_width, c->absolute_height, frame->color, frame->bg_color);
     return 0;
 }
+
+int __ctermui_screen_draw_background(ctermui_screen_t s, int x, int y, int width, int height, int color)
+{
+    for (int i = 0; i < height; i++)
+    {
+        for (int j = 0; j < width ; j++)
+        {
+            ctermui_screen_draw_char(s, x + j, y + i, s->buffer[x][y][0], s->buffer[x][y][1], color);
+        }
+    }
+    return 0;
+}
+
 int ctermui_screen_draw_background(ctermui_screen_t s, ctermui_component c)
 {
     if (c->type != BACKGROUND)
@@ -301,6 +333,24 @@ int ctermui_screen_draw_background(ctermui_screen_t s, ctermui_component c)
     
     return 0;
 }
+
+int ctermui_screen_draw_component_button(ctermui_screen_t s, ctermui_component c)
+{
+    if (c->type != BUTTON)
+    {
+        fprintf(stderr, "ctermui_screen_draw_component_button: invalid component type\n");
+        exit(EXIT_FAILURE);
+    }
+
+    Button *button = (Button *)c->core_component;
+    int text_width = strlen(button->text);
+    int frame_width = text_width + 2;
+    int frame_height = 3;
+    __ctermui_screen_draw_background(s, c->absolute_x, c->absolute_y, frame_width, frame_height, button->bg_color);
+    __ctermui_screen_draw_text(s, c->absolute_x + (frame_width - text_width) / 2, c->absolute_y + (frame_height - 1) / 2, button->text, button->text_color, button->bg_color);
+    return 0;
+}
+
 void ctermui_screen_test(ctermui_screen_t s)
 {
     ctermui_screen_draw_rect(s,0,0,10,10,CTERMUI_WHITE,CTERMUI_BLACK);
