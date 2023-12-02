@@ -96,11 +96,13 @@ void ctermui_screen_display(ctermui_screen_t s)
     }
 }
 
-void sigint_handler(int sig)
+void ctermui_sigint_handler(int sig)
 {
     __restore_term();
     exit(0);
 }
+
+
 void ctermui_screen_set_widget_root(ctermui_screen_t s, ctermui_widget root)
 {
     s->root = root;
@@ -145,16 +147,38 @@ void ctermui_screen_refresh(ctermui_screen_t s)
 {
     __ctermui_screen_clean_term(s);
     ctermui_screen_clear(s);
+    ctermui_calculate_abs_position(s->root);
     reload_screen_with_widgets(s, s->root);
     ctermui_screen_display(s);
 }
 
+void ctermui_screen_on_resize(ctermui_screen_t* s)
+{
+    ctermui_screen_free(*s);
+    ctermui_widget root = (*s)->root;
+    root->absolute_width = __get_term_size().ws_col;
+    root->absolute_height = __get_term_size().ws_row;
+    *s = ctermui_screen_new();
+    ctermui_screen_set_widget_root(*s, root);
+    ctermui_screen_refresh(*s);
+}
+
+void ctermui_on_resize_listener(ctermui_screen_t* s)
+{
+    winsize w = __get_term_size();
+    if(w.ws_col != (*s)->width || w.ws_row != (*s)->height){
+        ctermui_screen_on_resize(s);
+    }
+}
+
 void ctermui_start(ctermui_screen_t s)
 {
-    signal(SIGINT, sigint_handler);
+    signal(SIGINT, ctermui_sigint_handler);
+    
     ctermui_screen_refresh(s);
     while(1){
-        sleep(1);
+        ctermui_on_resize_listener(&s);
+        usleep(1000);
     }
 }
 // DRAWING FUNCTIONS
@@ -196,6 +220,12 @@ int ctermui_screen_draw_line(ctermui_screen_t s, uint16_t orientaion, int x, int
 
 int ctermui_screen_draw_rect(ctermui_screen_t s, int x, int y, int width, int height, int color, int bg_color)
 {
+    if(x + width == s->width){
+        width--;
+    }
+    if(y + height == s->height){
+        height--;
+    }
     if (x < 0 || x >= s->width || y < 0 || y >= s->height)
     {
         fprintf(stderr, "ctermui_screen_draw_rect: x=%d, y=%d out of bounds knowing that width=%d and height=%d\n", x, y, s->width, s->height);
@@ -203,7 +233,7 @@ int ctermui_screen_draw_rect(ctermui_screen_t s, int x, int y, int width, int he
     }
     if (x + width >= s->width || y + height >= s->height)
     {
-        fprintf(stderr, "ctermui_screen_draw_rect: width=%d, height=%d out of bounds knowing that width=%d and height=%d\n", width, height, s->width, s->height);
+        fprintf(stderr, "ctermui_screen_draw_rect: x=%d, y=%d, width=%d, height=%d out of bounds knowing that width=%d and height=%d\n", x, y, width, height, s->width, s->height);
         exit(EXIT_FAILURE);
     }
     ctermui_screen_draw_char(s, x, y, CTERMUI_TOP_LEFT_CORNER, color, bg_color);
@@ -236,7 +266,7 @@ int ctermui_screen_draw_component_text(ctermui_screen_t s,  ctermui_component c)
     }
 
     Text *text = (Text *)c->core_component;
-    __ctermui_screen_draw_text(s, c->x, c->y, text->text, text->color, text->bg_color);
+    __ctermui_screen_draw_text(s, c->absolute_x, c->absolute_y, text->text, text->color, text->bg_color);
     return 0;
 }
 
@@ -249,7 +279,7 @@ int ctermui_screen_draw_frame(ctermui_screen_t s, ctermui_component c)
     }
 
     Frame *frame = (Frame *)c->core_component;
-    ctermui_screen_draw_rect(s, c->x, c->y, c->width, c->height, frame->color, frame->bg_color);
+    ctermui_screen_draw_rect(s, c->absolute_x, c->absolute_y, c->absolute_width, c->absolute_height, frame->color, frame->bg_color);
     return 0;
 }
 int ctermui_screen_draw_background(ctermui_screen_t s, ctermui_component c)
@@ -261,9 +291,9 @@ int ctermui_screen_draw_background(ctermui_screen_t s, ctermui_component c)
     }
 
     Background *background = (Background *)c->core_component;
-    for (int y = c->y; y < c->y + c->height; ++y)
+    for (int y = c->absolute_y; y < c->absolute_y + c->absolute_height; ++y)
     {
-        for (int x = c->x; x < c->x + c->width; ++x)
+        for (int x = c->absolute_x; x < c->absolute_x + c->absolute_width; ++x)
         {
             ctermui_screen_draw_char(s, x, y, s->buffer[x][y][0], s->buffer[x][y][1], background->color);
         }

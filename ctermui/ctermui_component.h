@@ -20,6 +20,11 @@ typedef struct ctermui_component {
     int width;
     int height;
 
+    int absolute_x;
+    int absolute_y;
+    int absolute_width;
+    int absolute_height;
+
     void* core_component;
 } *ctermui_component;
 

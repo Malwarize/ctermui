@@ -54,8 +54,6 @@ void its_test(){
 
 
 void SomeSquares(){
-    // 10 x 10 squares 
-    // devide the screen into 10 x 10 squares
     ctermui_screen_t s = ctermui_screen_new();
     ctermui_widget root = ctermui_widget_new_root(CTERMUI_HORIZONTAL,s->width, s->height);
 
@@ -79,11 +77,67 @@ void SomeSquares(){
     }
 
     ctermui_screen_set_widget_root(s, root);
+    ctermui_calculate_abs_position(root);
     ctermui_start(s);
 }
 
 
+void four_squares(){
+    ctermui_screen_t s = ctermui_screen_new();
+    ctermui_widget root = ctermui_widget_new_root(CTERMUI_HORIZONTAL,s->width, s->height);
 
+    ctermui_widget child1 = ctermui_widget_new(CTERMUI_VERTICAL, 50);
+    ctermui_widget child2 = ctermui_widget_new(CTERMUI_VERTICAL, 50);
+    ctermui_widget_add_child(root, child1);
+    ctermui_widget_add_child(root, child2);
+
+    ctermui_widget child3 = ctermui_widget_new(LEAF, 50);
+    ctermui_widget child4 = ctermui_widget_new(LEAF, 50);
+    ctermui_widget_add_child(child1, child3);
+    ctermui_widget_add_child(child1, child4);
+
+    ctermui_widget child5 = ctermui_widget_new(LEAF, 50);
+    ctermui_widget child6 = ctermui_widget_new(LEAF, 50);
+    ctermui_widget_add_child(child2, child5);
+    ctermui_widget_add_child(child2, child6);
+
+    ctermui_component c = ctermui_new_frame(
+        CTERMUI_BLUE,
+        CTERMUI_BRIGHT_YELLOW,
+        child3->width,
+        child3->height
+    );
+    ctermui_widget_add_component(child3, c);
+
+    ctermui_component c2 = ctermui_new_frame(
+        CTERMUI_BLUE,
+        CTERMUI_BRIGHT_YELLOW,
+        child4->width,
+        child4->height
+    );
+    ctermui_widget_add_component(child4, c2);
+
+    ctermui_component c3 = ctermui_new_frame(
+        CTERMUI_BLUE,
+        CTERMUI_BRIGHT_YELLOW,
+        child5->width,
+        child5->height
+    );
+    ctermui_widget_add_component(child5, c3);
+
+    ctermui_component c4 = ctermui_new_frame(
+        CTERMUI_BLUE,
+        CTERMUI_BRIGHT_YELLOW,
+        child6->width,
+        child6->height
+    );
+    ctermui_widget_add_component(child6, c4);
+
+    ctermui_screen_set_widget_root(s, root);
+    ctermui_calculate_abs_position(root);
+    ctermui_start(s);
+}
 int main() {
+    four_squares();
     return 0;
 }

@@ -9,11 +9,11 @@ enum ORIENTATION {
     CTERMUI_HORIZONTAL,
     CTERMUI_VERTICAL,
     LEAF,
-    CTERMUI_CENTER,
-    CTERMUI_TOP_LEFT_CORNER,
-    CTERMUI_TOP_RIGHT_CORNER,
-    CTERMUI_BOTTOM_LEFT_CORNER,
-    CTERMUI_BOTTOM_RIGHT_CORNER
+};
+enum ALIGN {
+    CTERMUI_LEFT,
+    CTERMUI_RIGHT,
+    CTERMUI_CENTER
 };
 
 typedef struct ctermui_widget {
@@ -27,6 +27,13 @@ typedef struct ctermui_widget {
     int y;
     int width;
     int height;
+
+    int absolute_x;
+    int absolute_y;
+    int absolute_width;
+    int absolute_height;
+
+    int align; 
 } *ctermui_widget;
 
 ctermui_widget ctermui_widget_new_root(uint16_t type,int width, int height);
@@ -34,4 +41,5 @@ ctermui_widget ctermui_widget_new(uint16_t type, uint16_t percentage);
 int ctermui_widget_add_child(ctermui_widget parent, ctermui_widget child);
 int ctermui_widget_add_component(ctermui_widget widget, ctermui_component ctermui_component);
 void ctermui_widget_draw(ctermui_widget widget);
+void ctermui_calculate_abs_position(ctermui_widget root_widget);
 #endif
