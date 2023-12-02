@@ -10,11 +10,7 @@ enum ORIENTATION {
     CTERMUI_VERTICAL,
     LEAF,
 };
-enum ALIGN {
-    CTERMUI_LEFT,
-    CTERMUI_RIGHT,
-    CTERMUI_CENTER
-};
+
 
 typedef struct ctermui_widget {
     uint16_t percentage;

@@ -14,7 +14,7 @@ ctermui_component ctermui_new_button(char* text, void (*on_click)(void)) {
 }
 
 
-ctermui_component ctermui_new_text(char* text,int color, int bg_color){
+ctermui_component ctermui_new_text(char* text,int color, int bg_color, int align) {
     ctermui_component c = malloc(sizeof(struct ctermui_component));
     c->type = TEXT;
     Text* text_component = malloc(sizeof(Text));
@@ -24,6 +24,7 @@ ctermui_component ctermui_new_text(char* text,int color, int bg_color){
     strcpy(text_component->text, text);
     text_component->color = color;
     text_component->bg_color = bg_color;
+    text_component->align = align;
     c->core_component = text_component;
     c->width = strlen(text);
     c->height = 1;
@@ -31,7 +32,7 @@ ctermui_component ctermui_new_text(char* text,int color, int bg_color){
 }
 
 // Frame component
-ctermui_component ctermui_new_frame(int color, int bg_color, int width, int height) {
+ctermui_component ctermui_new_frame(int color, int bg_color) {
     ctermui_component c = malloc(sizeof(struct ctermui_component));
     c->type = FRAME;
     Frame* frame_component = malloc(sizeof(Frame));
@@ -41,8 +42,6 @@ ctermui_component ctermui_new_frame(int color, int bg_color, int width, int heig
     frame_component->color = color;
     frame_component->bg_color = bg_color;
     c->core_component = frame_component;
-    c->width = width;
-    c->height = height;
     return c;
 }
 

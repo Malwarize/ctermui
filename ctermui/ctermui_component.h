@@ -13,6 +13,20 @@ enum CTYPES {
     BACKGROUND
 };
 
+enum ALIGN {
+    CTERMUI_ALIGN_LEFT_CENTER,
+    CTERMUI_ALIGN_RIGHT_CENTER,
+    CTERMUI_ALIGN_CENTER,
+    CTERMUI_ALIGN_LEFT_TOP,
+    CTERMUI_ALIGN_RIGHT_TOP,
+    CTERMUI_ALIGN_TOP,
+    CTERMUI_ALIGN_LEFT_BOTTOM,
+    CTERMUI_ALIGN_RIGHT_BOTTOM,
+    CTERMUI_ALIGN_BOTTOM,
+    CTERMUI_ALIGN_TOP_CENTER,
+    CTERMUI_ALIGN_BOTTOM_CENTER
+};
+
 typedef struct ctermui_component {
     uint16_t type;
     int x;
@@ -37,6 +51,8 @@ typedef struct text {
     char text[100];
     int color;
     int bg_color;
+
+    int align;
 } Text;
 
 typedef struct Frame{
@@ -47,7 +63,7 @@ typedef struct Background{
     int color;
 } Background;
 ctermui_component ctermui_new_button(char* text, void (*on_click)(void));
-ctermui_component ctermui_new_text(char* text,int color, int bg_color);
-ctermui_component ctermui_new_frame(int color, int bg_color, int width, int height);
+ctermui_component ctermui_new_text(char* text,int color, int bg_color, int align);
+ctermui_component ctermui_new_frame(int color, int bg_color);
 ctermui_component ctermui_new_background(int color,int width, int height);
 #endif 

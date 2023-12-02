@@ -21,23 +21,20 @@ void its_test(){
     ctermui_component c = ctermui_new_text(
         "Hello World",
         CTERMUI_BRIGHT_YELLOW,
-        CTERMUI_BRIGHT_BLUE
+        CTERMUI_BRIGHT_BLUE,
+        CTERMUI_ALIGN_BOTTOM_CENTER
     );
     ctermui_widget_add_component(child5, c);
     ctermui_component c2 = ctermui_new_frame(
         CTERMUI_BLUE,
-        CTERMUI_BRIGHT_YELLOW,
-        child5->width,
-        child5->height
+        CTERMUI_BRIGHT_YELLOW
     );
     ctermui_widget_add_component(child5, c2);
 
 
     ctermui_component c4 = ctermui_new_frame(
         CTERMUI_BLUE,
-        CTERMUI_BRIGHT_YELLOW,
-        child4->width,
-        child4->height
+        CTERMUI_BRIGHT_YELLOW
     );
     ctermui_widget_add_component(child4, c4);
 
@@ -68,9 +65,7 @@ void SomeSquares(){
 
             ctermui_component c = ctermui_new_frame(
                 CTERMUI_BLUE,
-                CTERMUI_BRIGHT_YELLOW,
-                child2->width,
-                child2->height
+                CTERMUI_BRIGHT_YELLOW
             );
             ctermui_widget_add_component(child2, c);
         }
@@ -103,33 +98,25 @@ void four_squares(){
 
     ctermui_component c = ctermui_new_frame(
         CTERMUI_BLUE,
-        CTERMUI_BRIGHT_YELLOW,
-        child3->width,
-        child3->height
+        CTERMUI_BRIGHT_YELLOW
     );
     ctermui_widget_add_component(child3, c);
 
     ctermui_component c2 = ctermui_new_frame(
         CTERMUI_BLUE,
-        CTERMUI_BRIGHT_YELLOW,
-        child4->width,
-        child4->height
+        CTERMUI_BRIGHT_YELLOW
     );
     ctermui_widget_add_component(child4, c2);
 
     ctermui_component c3 = ctermui_new_frame(
         CTERMUI_BLUE,
-        CTERMUI_BRIGHT_YELLOW,
-        child5->width,
-        child5->height
+        CTERMUI_BRIGHT_YELLOW
     );
     ctermui_widget_add_component(child5, c3);
 
     ctermui_component c4 = ctermui_new_frame(
         CTERMUI_BLUE,
-        CTERMUI_BRIGHT_YELLOW,
-        child6->width,
-        child6->height
+        CTERMUI_BRIGHT_YELLOW
     );
     ctermui_widget_add_component(child6, c4);
 
@@ -138,6 +125,6 @@ void four_squares(){
     ctermui_start(s);
 }
 int main() {
-    four_squares();
+    its_test();
     return 0;
 }
