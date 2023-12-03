@@ -149,6 +149,13 @@ void ctermui_screen_refresh(ctermui_screen_t s)
     __ctermui_screen_clean_term(s);
     ctermui_screen_clear(s);
     ctermui_calculate_abs_position(s->root);
+    ctermui_screen_display(s);
+}
+void ctermui_screen_refresh_widgets(ctermui_screen_t s)
+{
+    __ctermui_screen_clean_term(s);
+    ctermui_screen_clear(s);
+    ctermui_calculate_abs_position(s->root);
     reload_screen_with_widgets(s, s->root);
     ctermui_screen_display(s);
 }
@@ -161,7 +168,7 @@ void ctermui_screen_on_resize(ctermui_screen_t* s)
     root->absolute_height = __get_term_size().ws_row;
     *s = ctermui_screen_new();
     ctermui_screen_set_widget_root(*s, root);
-    ctermui_screen_refresh(*s);
+    ctermui_screen_refresh_widgets(*s);
 }
 
 void ctermui_on_resize_listener(ctermui_screen_t* s)
@@ -192,7 +199,7 @@ void ctermui_on_keybord_listener(ctermui_screen_t* s)
 void ctermui_start(ctermui_screen_t s)
 {
     signal(SIGINT, ctermui_sigint_handler);
-    ctermui_screen_refresh(s);
+    ctermui_screen_refresh_widgets(s);
     set_nonblocking();
     while(1){
         ctermui_on_resize_listener(&s);

@@ -8,7 +8,7 @@ int bindex = 0;
 void on_click(void* arg){
     Button* btn =   btnList[bindex];
     btn->text = "clicked";
-    ctermui_screen_refresh(s);
+    ctermui_screen_refresh_widgets(s);
 }
 
 void select_button(Button* btn){
@@ -27,13 +27,13 @@ void on_select_arrow_up(void* arg){
         bindex = 3;
     }
     select_button(btnList[bindex]);
-    ctermui_screen_refresh(s);
+    ctermui_screen_refresh_widgets(s);
 }
 void on_select_arrow_down(void* arg){
     unselect_button(btnList[bindex]);
     bindex = (bindex+1)%4;
     select_button(btnList[bindex]);
-    ctermui_screen_refresh(s);
+    ctermui_screen_refresh_widgets(s);
 }
 
 void ButtonSelectionExample(){

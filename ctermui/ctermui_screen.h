@@ -55,5 +55,9 @@ void ctermui_screen_set_widget_root(ctermui_screen_t s, ctermui_widget root);
 int ctermui_screen_draw_component_text(ctermui_screen_t s,  ctermui_component c);
 int ctermui_screen_draw_frame(ctermui_screen_t s, ctermui_component c);
 int ctermui_screen_draw_background(ctermui_screen_t s, ctermui_component c);
+void ctermui_screen_refresh_widgets(ctermui_screen_t s);
+int ctermui_screen_draw_char(ctermui_screen_t s, int x, int y, char c, int fg_color, int bg_color);
 void ctermui_screen_refresh(ctermui_screen_t s);
+void ctermui_on_keybord_listener(ctermui_screen_t* s);
+void __ctermui_screen_clean_term();
 #endif // CTERMUI_SCREEN_H
