@@ -6,32 +6,7 @@
 #include <fcntl.h>
 
 #define ENEMY_NUMBER 10 
-int kbhit(void)
-{
-    struct termios oldt, newt;
-    int ch;
-    int oldf;
 
-    tcgetattr(STDIN_FILENO, &oldt);
-    newt = oldt;
-    newt.c_lflag &= ~(ICANON | ECHO);
-    tcsetattr(STDIN_FILENO, TCSANOW, &newt);
-    oldf = fcntl(STDIN_FILENO, F_GETFL, 0);
-    fcntl(STDIN_FILENO, F_SETFL, oldf | O_NONBLOCK);
-
-    ch = getchar();
-
-    tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
-    fcntl(STDIN_FILENO, F_SETFL, oldf);
-
-    if(ch != EOF)
-    {
-        ungetc(ch, stdin);
-        return 1;
-    }
-
-    return 0;
-}
 ctermui_screen_t s;
 
 typedef struct enemy{
@@ -97,7 +72,7 @@ void draw_bullet(int target) {
     if (game.bullets[target].y < 0) {
         return;
     }
-    ctermui_screen_draw_char(s, game.bullets[target].x, game.bullets[target].y, ' ', CTERMUI_BRIGHT_YELLOW, CTERMUI_BRIGHT_YELLOW);
+    ctermui_pencil_draw_char(s->buffer, game.bullets[target].x, game.bullets[target].y, ' ', CTERMUI_BRIGHT_YELLOW, CTERMUI_BRIGHT_YELLOW);
 }
 
 void draw_bullets() {
@@ -132,18 +107,19 @@ void draw_enemys() {
         if (game.enemys[i].y < 0) {
             continue;
         }
-        ctermui_screen_draw_char(s, game.enemys[i].x, game.enemys[i].y, ' ', CTERMUI_BRIGHT_RED, CTERMUI_BRIGHT_RED);
+        ctermui_pencil_draw_char(s->buffer, game.enemys[i].x, game.enemys[i].y, ' ', CTERMUI_BRIGHT_RED, CTERMUI_BRIGHT_RED);
     }
 }
 
 void draw_player() {
-    ctermui_screen_draw_char(s, game.player.x, game.player.y, ' ', CTERMUI_BRIGHT_GREEN, CTERMUI_BRIGHT_GREEN);
+    ctermui_pencil_draw_char(s->buffer, game.player.x, game.player.y, ' ', CTERMUI_BRIGHT_GREEN, CTERMUI_BRIGHT_GREEN);
 }
 
 void game_animate() {
     draw_enemys();
     draw_player();
     draw_bullets_and_move();
+    enemy_horizontal_move();
 }
 void move_player_left() {
     game.player.x = (game.player.x - 1)%(s->width);
@@ -168,7 +144,8 @@ void check_if_win(){
         win = 0;
     }
     if(win){
-        fprintf(stderr, "You Win\n");
+        ctermui_restore_cursor();
+        fprintf(stderr, "You Win !\n");
         exit(0);
     }
 }
@@ -189,53 +166,53 @@ void check_if_bullet_hit_enemy() {
     }
 }
 
-void check_if_enemy_hit_player() {
+void check_if_enemy_hit_ground() {
     for (int i = 0; i < ENEMY_NUMBER; i++) {
         if (game.enemys[i].y < 0) {
             continue;
         }
-        if (game.enemys[i].x == game.player.x && game.enemys[i].y == game.player.y) {
-            fprintf(stderr, "Game Over\n");
+        if (game.enemys[i].y == s->height-1) {
+            ctermui_restore_cursor();
+            fprintf(stderr, "You Lose !\n");
+            exit(0);
         }
     }
 }
+void periodic(ctermui_screen_t s){
+    if(s->loop_count%100 == 0){
+            move_enmeies_down();
+    }
+    check_if_bullet_hit_enemy();
+    check_if_enemy_hit_ground();
+    check_if_win();
+    ctermui_screen_refresh_widget(s, s->root, 0, 0, s->width, s->height);
+}
 
+void draw_game(ctermui_screen_t s, ctermui_component c){
+    game_animate();
+}
 int main() {
     s = ctermui_screen_new();
+    ctermui_widget root = ctermui_widget_new_root(LEAF,s->width, s->height);
+    ctermui_screen_set_widget_root(s, root);
+    ctermui_component ctermui_new_custom_component(char* id, void (*draw)(ctermui_screen_t s, ctermui_component c));
+    ctermui_widget_add_component(root, ctermui_new_custom_component("game", draw_game));
+    // ctermui_widget_add_component(
+    //     root,
+    //     ctermui_new_background(
+    //         "background",
+    //         CTERMUI_BRIGHT_BLACK,
+    //         root->absolute_width,
+    //         root->absolute_height
+    //     )
+    // );
     game_create();
-    int i = 0;
-    while (1) {
-        if (kbhit()) {
-            char c = getchar();
-            if (c == '\033') { // if the first value is esc
-                getchar(); 
-                switch(getchar()) {
-                    case 'C':
-                        move_player_right();
-                        break;
-                    case 'D':
-                        move_player_left();
-                }
-            }
-            if (c == ' ') {
-                shoot();
-            }
-            if (c == 'q') {
-                exit(0);
-            }
-        }
-        __ctermui_screen_clean_term();
-        game_animate();
-        ctermui_screen_display(s);
-        enemy_horizontal_move();
-        ctermui_screen_clear(s);
-        if(i++%100 == 0){
-            move_enmeies_down();
-        }
-        check_if_bullet_hit_enemy();
-        check_if_enemy_hit_player();
-        check_if_win();
-        usleep(10000);
-    }
+    
+    ctermui_screen_keyboard_events_register(s->keyboard_events, 'q', (void*) exit, s);
+    ctermui_screen_keyboard_events_register(s->keyboard_events, ' ', (void*) shoot, NULL);
+    ctermui_screen_keyboard_events_register(s->keyboard_events,CTERMUI_KEY_RIGHT, move_player_right, NULL);
+    ctermui_screen_keyboard_events_register(s->keyboard_events, CTERMUI_KEY_LEFT, move_player_left, NULL); 
+    
+    ctermui_screen_loop_start(s, periodic, 10000);
     return 0;
 }

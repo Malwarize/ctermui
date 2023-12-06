@@ -6,32 +6,7 @@
 #include <fcntl.h>
 
 #define ENEMY_NUMBER 10 
-int kbhit(void)
-{
-    struct termios oldt, newt;
-    int ch;
-    int oldf;
 
-    tcgetattr(STDIN_FILENO, &oldt);
-    newt = oldt;
-    newt.c_lflag &= ~(ICANON | ECHO);
-    tcsetattr(STDIN_FILENO, TCSANOW, &newt);
-    oldf = fcntl(STDIN_FILENO, F_GETFL, 0);
-    fcntl(STDIN_FILENO, F_SETFL, oldf | O_NONBLOCK);
-
-    ch = getchar();
-
-    tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
-    fcntl(STDIN_FILENO, F_SETFL, oldf);
-
-    if(ch != EOF)
-    {
-        ungetc(ch, stdin);
-        return 1;
-    }
-
-    return 0;
-}
 ctermui_screen_t s;
 
 typedef struct enemy{
@@ -97,7 +72,7 @@ void draw_bullet(int target) {
     if (game.bullets[target].y < 0) {
         return;
     }
-    ctermui_screen_draw_char(s, game.bullets[target].x, game.bullets[target].y, ' ', CTERMUI_BRIGHT_YELLOW, CTERMUI_BRIGHT_YELLOW);
+    ctermui_pencil_draw_char(s, game.bullets[target].x, game.bullets[target].y, ' ', CTERMUI_BRIGHT_YELLOW, CTERMUI_BRIGHT_YELLOW);
 }
 
 void draw_bullets() {
@@ -132,12 +107,12 @@ void draw_enemys() {
         if (game.enemys[i].y < 0) {
             continue;
         }
-        ctermui_screen_draw_char(s, game.enemys[i].x, game.enemys[i].y, ' ', CTERMUI_BRIGHT_RED, CTERMUI_BRIGHT_RED);
+        ctermui_pencil_draw_char(s, game.enemys[i].x, game.enemys[i].y, ' ', CTERMUI_BRIGHT_RED, CTERMUI_BRIGHT_RED);
     }
 }
 
 void draw_player() {
-    ctermui_screen_draw_char(s, game.player.x, game.player.y, ' ', CTERMUI_BRIGHT_GREEN, CTERMUI_BRIGHT_GREEN);
+    ctermui_pencil_draw_char(s, game.player.x, game.player.y, ' ', CTERMUI_BRIGHT_GREEN, CTERMUI_BRIGHT_GREEN);
 }
 
 void game_animate() {
@@ -168,7 +143,8 @@ void check_if_win(){
         win = 0;
     }
     if(win){
-        fprintf(stderr, "You Win\n");
+        ctermui_restore_cursor();
+        fprintf(stderr, "You Win !\n");
         exit(0);
     }
 }
@@ -189,7 +165,7 @@ void check_if_bullet_hit_enemy() {
     }
 }
 
-void check_if_enemy_hit_player() {
+void check_if_enemy_hit_ground() {
     for (int i = 0; i < ENEMY_NUMBER; i++) {
         if (game.enemys[i].y < 0) {
             continue;
@@ -204,37 +180,25 @@ int main() {
     s = ctermui_screen_new();
     game_create();
     int i = 0;
+
+    ctermui_screen_keyboard_events_register(s->keyboard_events, 'q', (void*) exit, s);
+    ctermui_screen_keyboard_events_register(s->keyboard_events, ' ', (void*) shoot, NULL);
+    ctermui_screen_keyboard_events_register(s->keyboard_events,CTERMUI_KEY_RIGHT, move_player_right, NULL);
+    ctermui_screen_keyboard_events_register(s->keyboard_events, CTERMUI_KEY_LEFT, move_player_left, NULL);  
     while (1) {
-        if (kbhit()) {
-            char c = getchar();
-            if (c == '\033') { // if the first value is esc
-                getchar(); 
-                switch(getchar()) {
-                    case 'C':
-                        move_player_right();
-                        break;
-                    case 'D':
-                        move_player_left();
-                }
-            }
-            if (c == ' ') {
-                shoot();
-            }
-            if (c == 'q') {
-                exit(0);
-            }
-        }
-        __ctermui_screen_clean_term();
-        game_animate();
-        ctermui_screen_display(s);
+        ctermui_screen_clean_term();
+        ctermui_on_keybord_listener(&s);
         enemy_horizontal_move();
-        ctermui_screen_clear(s);
         if(i++%100 == 0){
             move_enmeies_down();
         }
+        game_animate();
+        ctermui_screen_display(s);
         check_if_bullet_hit_enemy();
-        check_if_enemy_hit_player();
+        check_if_enemy_hit_ground();
         check_if_win();
+    
+        ctermui_screen_clear(s);
         usleep(10000);
     }
     return 0;

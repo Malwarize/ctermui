@@ -3,6 +3,19 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdio.h>
+
+enum CTERMUI_KEY {
+    CTERMUI_KEY_UP = 65,
+    CTERMUI_KEY_DOWN = 66,
+    CTERMUI_KEY_RIGHT = 67,
+    CTERMUI_KEY_LEFT = 68,
+    CTERMUI_KEY_ENTER = 10,
+    CTERMUI_KEY_SPACE = 32,
+    CTERMUI_KEY_ESC = 27,
+    CTERMUI_KEY_BACKSPACE = 127,
+    CTERMUI_KEY_TAB = 9
+};
+
 typedef struct ctermui_screen_keyboard_event{
     char key;
     void (*callback)(void*);
