@@ -113,7 +113,6 @@ void ctermui_screen_display(ctermui_screen_t s)
         {
             printf("\033[48;5;%dm\033[38;5;%dm%c\033[0m", s->buffer[x][y][2], s->buffer[x][y][1], s->buffer[x][y][0]);
         }
-        printf("\n");
     }
 }
 
@@ -201,15 +200,14 @@ void ctermui_on_resize_listener(ctermui_screen_t *s)
     }
 }
 
-int ctemui_kbhit()
-{
+int ctermui_kbhit() {
     struct termios oldt, newt;
     int ch;
     int oldf;
 
     tcgetattr(STDIN_FILENO, &oldt);
     newt = oldt;
-    newt.c_lflag &= ~(ICANON | ECHO);
+    newt.c_lflag &= ~(ICANON | ECHO);  // Disable canonical mode and echo
     tcsetattr(STDIN_FILENO, TCSANOW, &newt);
     oldf = fcntl(STDIN_FILENO, F_GETFL, 0);
     fcntl(STDIN_FILENO, F_SETFL, oldf | O_NONBLOCK);
@@ -219,8 +217,7 @@ int ctemui_kbhit()
     tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
     fcntl(STDIN_FILENO, F_SETFL, oldf);
 
-    if(ch != EOF)
-    {
+    if (ch != EOF) {
         ungetc(ch, stdin);
         return 1;
     }
@@ -231,7 +228,7 @@ int ctemui_kbhit()
 void ctermui_on_keybord_listener(ctermui_screen_t *s)
 {
     char c;
-    if (ctemui_kbhit())
+    if (ctermui_kbhit())
     {
         c = getchar();
         // arrows have 3 chars
@@ -262,12 +259,9 @@ void ctermui_on_keybord_listener(ctermui_screen_t *s)
                     break;
                 case 'Z':
                     c = CTERMUI_KEY_TAB;
-                    break;
-                default:
-                    break;
+                    break;                 
             }
         }
-
         ctermui_screen_keyboard_events_handle((*s)->keyboard_events, c);
     }
 }
@@ -281,7 +275,6 @@ void ctermui_screen_display_part(ctermui_screen_t s, int x, int y, int width, in
         {
             printf("\033[48;5;%dm\033[38;5;%dm%c\033[0m", s->buffer[j][i][2], s->buffer[j][i][1], s->buffer[j][i][0]);   
         }
-        printf("\n");
     }
 }
 
@@ -303,8 +296,33 @@ void ctermui_screen_loop_resume(ctermui_screen_t s)
 {
     s->loop_idle = 0;
 }
+
+
+struct termios orig_termios;
+
+void ctermui_disable_raw_mode() {
+    // Restore the original terminal settings
+    tcsetattr(STDIN_FILENO, TCSAFLUSH, &orig_termios);
+}
+
+void ctermui_enable_raw_mode() {
+    tcgetattr(STDIN_FILENO, &orig_termios);
+    atexit(ctermui_disable_raw_mode); // Ensure disableRawMode is called at exit
+
+    struct termios raw = orig_termios;
+
+    // Modify the settings for raw mode
+    raw.c_lflag &= ~(ECHO | ICANON);
+
+    // Apply the modified settings
+    tcsetattr(STDIN_FILENO, TCSAFLUSH, &raw);
+}
+
+
+
 void ctermui_screen_loop_start(ctermui_screen_t s, void (*periodic_func)(ctermui_screen_t), int every)
 {
+    ctermui_enable_raw_mode();
     signal(SIGINT, ctermui_sigint_handler);
     ctermui_screen_refresh_widgets(s);
     while (1)

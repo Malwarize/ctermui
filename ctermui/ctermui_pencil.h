@@ -15,4 +15,5 @@ int ctermui_pencil_draw_line(screen_buffer b, int orientaion, int x, int y, int 
 int ctermui_pencil_draw_rect(screen_buffer b, int x, int y, int width, int height, int color, int bg_color);
 int ctermui_pencil_draw_text(screen_buffer b, int x, int y, char* text, int color, int bg_color);
 int ctermui_pencil_colorify_background(screen_buffer b, int x, int y, int width, int height, int color);
+int ctermui_pencil_bucket(screen_buffer b, int x,int y, int width, int height, int color);
 #endif

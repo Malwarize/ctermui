@@ -62,3 +62,19 @@ int ctermui_pencil_colorify_background(screen_buffer b, int x, int y, int width,
     }
     return 0;
 }
+//paint bucket, (don't overwrite other colors)  just the EMPTY color
+int ctermui_pencil_bucket(screen_buffer b, int x,int y, int width, int height, int color)
+{
+    if(x < 0 || y < 0 || x >= width || y >= height){
+        return 0;
+    }
+    if(b[x][y][1] != -1){ // if not empty
+        return 0;
+    }
+    ctermui_pencil_draw_char(b, x, y, b[x][y][0], color, b[x][y][2]);
+    ctermui_pencil_bucket(b, x + 1, y, width, height, color);
+    ctermui_pencil_bucket(b, x - 1, y, width, height, color);
+    ctermui_pencil_bucket(b, x, y + 1, width, height, color);
+    ctermui_pencil_bucket(b, x, y - 1, width, height, color);
+    return 0;
+}

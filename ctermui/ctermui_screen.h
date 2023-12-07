@@ -73,6 +73,7 @@ void ctermui_screen_loop_start(ctermui_screen_t s, void (*periodic_func)(ctermui
 void ctermui_screen_loop_shutdown(ctermui_screen_t s);
 void ctermui_screen_loop_pause(ctermui_screen_t s);
 void ctermui_screen_loop_resume(ctermui_screen_t s);
+int ctermui_kbhit();
 ctermui_component ctermui_new_custom_component(char* id, void (*draw)(ctermui_screen_t s, ctermui_component c));
 
 #endif // CTERMUI_SCREEN_H

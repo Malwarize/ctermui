@@ -58,7 +58,7 @@ void ctermui_component_draw_background(ctermui_screen_t s, ctermui_component c)
     }
     return;
 }
-
+ 
 ctermui_component ctermui_new_button(char* id, char* text,int align, int text_color, int bg_color) {
     ctermui_component c = malloc(sizeof(struct ctermui_component));
     c->type = BUTTON;
@@ -110,7 +110,6 @@ ctermui_component ctermui_new_frame(char* id,int color, int bg_color) {
     return c;
 }
 ctermui_component ctermui_new_background(char* id,int color,int width, int height) {
-
     ctermui_component c = malloc(sizeof(struct ctermui_component));
     if(c==NULL){
         fprintf(stderr, "Error: could not allocate memory for background component\n");

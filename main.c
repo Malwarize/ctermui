@@ -185,7 +185,7 @@ void periodic(ctermui_screen_t s){
     check_if_bullet_hit_enemy();
     check_if_enemy_hit_ground();
     check_if_win();
-    ctermui_screen_refresh_widget(s, s->root, 0, 0, s->width, s->height);
+    ctermui_screen_refresh_widget(s, s->root, s->root->absolute_x, s->root->absolute_y, s->root->absolute_width, s->root->absolute_height);
 }
 
 void draw_game(ctermui_screen_t s, ctermui_component c){
@@ -193,6 +193,12 @@ void draw_game(ctermui_screen_t s, ctermui_component c){
 }
 int main() {
     s = ctermui_screen_new();
+        
+    ctermui_screen_keyboard_events_register(s->keyboard_events, 'q', (void*) exit, s);
+    ctermui_screen_keyboard_events_register(s->keyboard_events, ' ', (void*) shoot, NULL);
+    ctermui_screen_keyboard_events_register(s->keyboard_events,CTERMUI_KEY_RIGHT, move_player_right, NULL);
+    ctermui_screen_keyboard_events_register(s->keyboard_events, CTERMUI_KEY_LEFT, move_player_left, NULL); 
+    
     ctermui_widget root = ctermui_widget_new_root(LEAF,s->width, s->height);
     ctermui_screen_set_widget_root(s, root);
     ctermui_component ctermui_new_custom_component(char* id, void (*draw)(ctermui_screen_t s, ctermui_component c));
@@ -207,12 +213,8 @@ int main() {
     //     )
     // );
     game_create();
-    
-    ctermui_screen_keyboard_events_register(s->keyboard_events, 'q', (void*) exit, s);
-    ctermui_screen_keyboard_events_register(s->keyboard_events, ' ', (void*) shoot, NULL);
-    ctermui_screen_keyboard_events_register(s->keyboard_events,CTERMUI_KEY_RIGHT, move_player_right, NULL);
-    ctermui_screen_keyboard_events_register(s->keyboard_events, CTERMUI_KEY_LEFT, move_player_left, NULL); 
-    
+
     ctermui_screen_loop_start(s, periodic, 10000);
     return 0;
 }
+
