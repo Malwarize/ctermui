@@ -26,6 +26,7 @@ ctermui_widget ctermui_widget_new(char* id, uint16_t type, uint16_t percentage) 
     widget->type = type;
     widget->percentage = percentage;
     widget->children_count = 0;
+    widget->component_count = 0;
     strcpy(widget->id, id);
     return widget;
 }
@@ -100,57 +101,15 @@ void ctermui_calculate_abs_position(ctermui_widget root_widget)
         }else if(c->type == FRAME){
             c->absolute_x = root_widget->absolute_x;
             c->absolute_y = root_widget->absolute_y;
-            c->absolute_width = root_widget->absolute_width;
-            c->absolute_height = root_widget->absolute_height;
-        }else if(c->type == BACKGROUND){
+            c->absolute_width = root_widget->absolute_width - 1; // -1 for border
+            c->absolute_height = root_widget->absolute_height - 1; // -1 for border
+        }else if(c->type == SOLID_BACKGROUND || c->type == SOFT_BACKGROUND){
             c->absolute_x = root_widget->absolute_x;
             c->absolute_y = root_widget->absolute_y;
             c->absolute_width = root_widget->absolute_width;
             c->absolute_height = root_widget->absolute_height;
         }else if(c->type == BUTTON){
-            int text_width = strlen(((Button*)c->core_component)->text);
-            //frame width text_width + 2
-            //frame height 3
-            if(((Button*)c->core_component)->align == CTERMUI_ALIGN_CENTER){
-                c->absolute_x = root_widget->absolute_x + (root_widget->absolute_width - text_width)/2;
-                c->absolute_y = root_widget->absolute_y + (root_widget->absolute_height - 3)/2;
-            }else if(((Button*)c->core_component)->align == CTERMUI_ALIGN_LEFT_TOP){
-                c->absolute_x = root_widget->absolute_x ;
-                c->absolute_y = root_widget->absolute_y ;
-            }else if(((Button*)c->core_component)->align == CTERMUI_ALIGN_RIGHT_TOP){
-                c->absolute_x = root_widget->absolute_x + root_widget->absolute_width - text_width - 2;
-                c->absolute_y = root_widget->absolute_y ;
-            }else if(((Button*)c->core_component)->align == CTERMUI_ALIGN_TOP){
-                c->absolute_x = root_widget->absolute_x + (root_widget->absolute_width - text_width)/2;
-                c->absolute_y = root_widget->absolute_y;
-            }else if(((Button*)c->core_component)->align == CTERMUI_ALIGN_LEFT_BOTTOM){
-                c->absolute_x = root_widget->absolute_x;
-                c->absolute_y = root_widget->absolute_y + root_widget->absolute_height - 3;
-            }else if(((Button*)c->core_component)->align == CTERMUI_ALIGN_RIGHT_BOTTOM){
-                c->absolute_x = root_widget->absolute_x + root_widget->absolute_width - text_width - 2;
-                c->absolute_y = root_widget->absolute_y + root_widget->absolute_height - 3;
-            }else if(((Button*)c->core_component)->align == CTERMUI_ALIGN_BOTTOM){
-                c->absolute_x = root_widget->absolute_x + (root_widget->absolute_width - text_width)/2;
-                c->absolute_y = root_widget->absolute_y + root_widget->absolute_height - 3;
-            }else if(((Button*)c->core_component)->align == CTERMUI_ALIGN_LEFT_CENTER){
-                c->absolute_x = root_widget->absolute_x;
-                c->absolute_y = root_widget->absolute_y + (root_widget->absolute_height - 3)/2;
-            }else if(((Button*)c->core_component)->align == CTERMUI_ALIGN_RIGHT_CENTER){
-                c->absolute_x = root_widget->absolute_x + root_widget->absolute_width - text_width - 2;
-                c->absolute_y = root_widget->absolute_y + (root_widget->absolute_height - 3)/2;
-            }else if(((Button*)c->core_component)->align == CTERMUI_ALIGN_TOP_CENTER){
-                c->absolute_x = root_widget->absolute_x + (root_widget->absolute_width - text_width)/2;
-                c->absolute_y = root_widget->absolute_y;
-            }else if(((Button*)c->core_component)->align == CTERMUI_ALIGN_BOTTOM_CENTER){
-                c->absolute_x = root_widget->absolute_x + (root_widget->absolute_width - text_width)/2;
-                c->absolute_y = root_widget->absolute_y + root_widget->absolute_height - 3;
-            }
-            else{
-                c->absolute_x = root_widget->absolute_x + (root_widget->absolute_width - text_width)/2;
-                c->absolute_y = root_widget->absolute_y + (root_widget->absolute_height - 3)/2;
-            }
-            c->absolute_width = text_width + 2;
-            c->absolute_height = 3;
+            c->calculate_absolute_position(c, root_widget->absolute_x, root_widget->absolute_y, root_widget->absolute_width, root_widget->absolute_height);
         }else if(c->type == CUSTOM){
             c->absolute_x = root_widget->absolute_x;
             c->absolute_y = root_widget->absolute_y;
@@ -189,6 +148,9 @@ ctermui_widget ctermui_widget_find(ctermui_widget root, char* id){
 
 ctermui_component ctermui_widget_find_component(ctermui_widget widget, char* id)
 {
+    if(widget == NULL){
+        return NULL;
+    }
     for (size_t i = 0; i < widget->component_count; i++)
     {
         if(strcmp(widget->component[i]->id, id) == 0){
@@ -197,3 +159,4 @@ ctermui_component ctermui_widget_find_component(ctermui_widget widget, char* id)
     }
     return NULL;
 }
+

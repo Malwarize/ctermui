@@ -21,6 +21,44 @@ void ctermui_restore_cursor()
     printf("\033[?25h");
 }
 
+
+void allocate_screen_buffer(ctermui_screen_t s)
+{
+    s->buffer = (char ***)malloc(s->width * sizeof(char **));
+    if (!s->buffer)
+    {
+        fprintf(stderr, "Error: could not allocate memory for screen buffer\n");
+        exit(EXIT_FAILURE);
+    }
+    for (uint32_t i = 0; i < s->width; i++)
+    {
+        s->buffer[i] = (char **)malloc(s->height * sizeof(char *));
+        if (!s->buffer[i])
+        {
+            fprintf(stderr, "Error: could not allocate memory for screen buffer\n");
+            exit(EXIT_FAILURE);
+        }
+        for (uint32_t j = 0; j < s->height; j++)
+        {
+            s->buffer[i][j] = (char *)malloc(3 * sizeof(char));
+            if (!s->buffer[i][j])
+            {
+                fprintf(stderr, "Error: could not allocate memory for screen buffer\n");
+                exit(EXIT_FAILURE);
+            }
+            s->buffer[i][j][0] = EMPTY_CHAR;
+            s->buffer[i][j][1] = CTERMUI_WHITE;
+            s->buffer[i][j][2] = CTERMUI_BLUE;
+        }
+    }
+    if(!s->buffer)
+    {
+        fprintf(stderr, "Error: could not allocate memory for screen buffer\n");
+        exit(EXIT_FAILURE);
+    }
+}
+
+
 ctermui_screen_t ctermui_screen_new()
 {
     ctermui_screen_t screen = (ctermui_screen_t)malloc(sizeof(struct ctermui_screen));
@@ -32,37 +70,14 @@ ctermui_screen_t ctermui_screen_new()
     winsize w = __get_term_size();
     screen->width = w.ws_col;
     screen->height = w.ws_row;
+
     screen->keyboard_events = ctermui_screen_keyboard_events_new();
-    screen->buffer = (char ***)malloc(screen->width * sizeof(char **));
-    
     // loop state
     screen->loop_count = 0;
     screen->loop_running = 0;
     screen->loop_stop = 0;
     screen->loop_idle = 0;
-
-    if (!screen->buffer)
-    {
-        fprintf(stderr, "Error: could not allocate memory for screen buffer\n");
-        exit(EXIT_FAILURE);
-    }
-    for (uint32_t i = 0; i < screen->width; ++i)
-    {
-        screen->buffer[i] = (char **)malloc(screen->height * sizeof(char *));
-        for (uint32_t j = 0; j < screen->height; ++j)
-        {
-            screen->buffer[i][j] = (char *)malloc(3 * sizeof(char));
-            if (!screen->buffer[i][j])
-            {
-                fprintf(stderr, "Error: could not allocate memory for screen buffer\n");
-                exit(EXIT_FAILURE);
-            }
-            screen->buffer[i][j][0] = EMPTY_CHAR;
-            screen->buffer[i][j][1] = CTERMUI_WHITE;
-            screen->buffer[i][j][2] = CTERMUI_BLUE;
-        }
-    }
-
+    allocate_screen_buffer(screen);
     return screen;
 }
 
@@ -72,11 +87,17 @@ void ctermui_screen_set_character(ctermui_screen_t s, uint32_t x, uint32_t y, ch
     s->buffer[x][y][1] = fg_color;
     s->buffer[x][y][2] = bg_color;
 }
-
-void ctermui_screen_free(ctermui_screen_t s)
-{
+int ctermui_screen_free_buffer(ctermui_screen_t s) {
+    for(size_t i = 0; i <  s->width; i++)
+    {
+        for(size_t j = 0; j <s->height; j++)
+        {
+            free(s->buffer[i][j]);
+        }
+        free(s->buffer[i]);
+    }
     free(s->buffer);
-    free(s);
+    s->buffer = NULL;
 }
 
 void ctermui_screen_clear(ctermui_screen_t s)
@@ -116,8 +137,19 @@ void ctermui_screen_display(ctermui_screen_t s)
     }
 }
 
-void ctermui_sigint_handler(int sig)
+
+void clean_up(ctermui_screen_t s){
+    // fprintf(stderr,"cleaning up\n");
+    // fprintf(stderr,"freeing buffer\n");
+    // ctermui_screen_free_buffer(s);
+    // ctermui_screen_keyboard_events_free(s->keyboard_events);
+    // free(s);
+}
+
+void ctermui_sigint_handler(int sig, void *data)
 {
+    ctermui_screen_t s = (ctermui_screen_t)data;
+    clean_up(s);
     ctermui_restore_cursor();
     exit(0);
 }
@@ -155,8 +187,12 @@ void ctermui_screen_redraw_all_components_of_widget(ctermui_screen_t s, ctermui_
     ctermui_screen_draw_all_components_of_widget(s, new_w);
 }
 
-void ctermui_screen_refresh_widget(ctermui_screen_t s, ctermui_widget w, uint32_t old_x, uint32_t old_y, uint32_t old_width, uint32_t old_height)
+void ctermui_screen_refresh_widget(ctermui_screen_t s, ctermui_widget w)
 {
+    int old_x = w->absolute_x;
+    int old_y = w->absolute_y;
+    int old_width = w->absolute_width;
+    int old_height = w->absolute_height;
     ctermui_calculate_abs_position(s->root);
     ctermui_screen_redraw_all_components_of_widget(s, w, old_x, old_y, old_width, old_height);
     ctermui_screen_display_widget(s, w);
@@ -164,39 +200,38 @@ void ctermui_screen_refresh_widget(ctermui_screen_t s, ctermui_widget w, uint32_
 
 void ctermui_screen_refresh_widgets(ctermui_screen_t s)
 {
-    ctermui_screen_clean_term(s);
+    ctermui_screen_clean_term();
     ctermui_screen_clear(s);
     ctermui_calculate_abs_position(s->root);
     ctermui_screen_draw_all_components_of_widget(s, s->root);
     ctermui_screen_display(s);
 }
 
-void ctermui_screen_on_resize(ctermui_screen_t *s)
+void ctermui_screen_on_resize(ctermui_screen_t* sp)
 {
-    ctermui_widget root = (*s)->root;
-    int loop_count = (*s)->loop_count;
-    int loop_running = (*s)->loop_running;
-    int loop_stop = (*s)->loop_stop;
-    int loop_idle = (*s)->loop_idle;
-
-    ctermui_screen_free(*s);
-    root->absolute_width = __get_term_size().ws_col;
-    root->absolute_height = __get_term_size().ws_row;
-    *s = ctermui_screen_new();
-    ctermui_screen_set_widget_root(*s, root);
-    ctermui_screen_refresh_widgets(*s);
-    (*s)->loop_count = loop_count;
-    (*s)->loop_running = loop_running;
-    (*s)->loop_stop = loop_stop;
-    (*s)->loop_idle = loop_idle;
+    winsize w = __get_term_size();
+    int width = w.ws_col;
+    int height = w.ws_row;
+    ctermui_screen_free_buffer(*sp);
+    (*sp)->width = width;
+    (*sp)->height = height;
+    (*sp)->root->absolute_width = width;
+    (*sp)->root->absolute_height = height;
+    allocate_screen_buffer(*sp);
+    ctermui_screen_refresh_widgets(*sp);
 }
 
-void ctermui_on_resize_listener(ctermui_screen_t *s)
+int ctermui_on_resize_listener(ctermui_screen_t *s)
 {
     winsize w = __get_term_size();
     if (w.ws_col != (*s)->width || w.ws_row != (*s)->height)
     {
         ctermui_screen_on_resize(s);
+        return 1;
+    }
+    else
+    {
+        return 0;
     }
 }
 
@@ -304,7 +339,9 @@ void ctermui_disable_raw_mode() {
     // Restore the original terminal settings
     tcsetattr(STDIN_FILENO, TCSAFLUSH, &orig_termios);
 }
-
+void exit_trigger(void){
+    ctermui_disable_raw_mode();
+}
 void ctermui_enable_raw_mode() {
     tcgetattr(STDIN_FILENO, &orig_termios);
     atexit(ctermui_disable_raw_mode); // Ensure disableRawMode is called at exit
@@ -317,13 +354,10 @@ void ctermui_enable_raw_mode() {
     // Apply the modified settings
     tcsetattr(STDIN_FILENO, TCSAFLUSH, &raw);
 }
-
-
-
-void ctermui_screen_loop_start(ctermui_screen_t s, void (*periodic_func)(ctermui_screen_t), int every)
+void ctermui_screen_loop_start(ctermui_screen_t s, void (*periodic_func)(ctermui_screen_t*), int every)
 {
     ctermui_enable_raw_mode();
-    signal(SIGINT, ctermui_sigint_handler);
+    signal(SIGINT,(void (*)(int))ctermui_sigint_handler);
     ctermui_screen_refresh_widgets(s);
     while (1)
     {
@@ -332,11 +366,13 @@ void ctermui_screen_loop_start(ctermui_screen_t s, void (*periodic_func)(ctermui
             usleep(every);
             continue;
         }
-        ctermui_on_resize_listener(&s);
-        ctermui_on_keybord_listener(&s);
-        if(periodic_func)
-            periodic_func(s);
 
+        if(ctermui_on_resize_listener(&s))
+            continue;
+
+        if(periodic_func)
+            periodic_func(&s);
+        ctermui_on_keybord_listener(&s);
         if (s->loop_stop)
         {
             break;
@@ -344,16 +380,5 @@ void ctermui_screen_loop_start(ctermui_screen_t s, void (*periodic_func)(ctermui
         usleep(every);
         s->loop_count++;
     }
-}
-ctermui_component ctermui_new_custom_component(char* id, void (*draw)(ctermui_screen_t s, ctermui_component c)){
-    ctermui_component c = (ctermui_component)malloc(sizeof(struct ctermui_component));
-    if(!c){
-        fprintf(stderr, "Error: could not allocate memory for component\n");
-        exit(EXIT_FAILURE);
-    }
-    c->type = CUSTOM;
-    strcpy(c->id, id);
-    c->draw = draw;
-    return c;
 }
 
