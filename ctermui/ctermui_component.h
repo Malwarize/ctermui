@@ -2,10 +2,6 @@
 #define CTERMUI_COMPONENT_H
 typedef struct ctermui_screen *ctermui_screen_t;
 #include <stdint.h>
-#include <string.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include "ctermui_pencil.h"
 
 enum CTYPES {
     TEXT,
@@ -13,6 +9,7 @@ enum CTYPES {
     FRAME,
     SOFT_BACKGROUND,
     SOLID_BACKGROUND,
+    PROGRESS_BAR,
     CUSTOM
 };
 
@@ -59,6 +56,18 @@ typedef struct {
     int bg_color;
 } Button;
 
+#define PROGRESS_BAR_CHAR "█"
+
+typedef struct {
+    char symbol; // default is █
+    int bar_color;
+    int bg_color;
+    int max;
+    int progress;
+    char* text;
+    int text_color;
+} ProgressBar;
+
 typedef struct{
     // TODO: implement custom component
 } Custom;
@@ -84,9 +93,21 @@ ctermui_component ctermui_new_button(char* id,char* text, int align, int text_co
 ctermui_component ctermui_new_text(char* id,char* text,int color, int bg_color, int align);
 ctermui_component ctermui_new_frame(char* id,int color, int bg_color);
 ctermui_component ctermui_new_solid_background(char* id,int color,int width, int height);
-ctermui_component ctermui_new_soft_background(char* id,int color,int width, int height);
-ctermui_component ctermui_new_custom_component(char* id, void (*draw)(ctermui_screen_t s, ctermui_component c));
 
+ctermui_component ctermui_new_soft_background(char* id,int color,int width, int height);
+
+ctermui_component ctermui_new_custom_component(
+    char* id,
+    void (*draw)(ctermui_screen_t s,ctermui_component c),
+    void (*calculate_absolute_position)(
+        ctermui_component c,
+        int parent_x,
+        int parent_y,
+        int parent_width,
+        int parent_height
+    )
+);
+ctermui_component ctermui_new_progress_bar(char* id, int bar_color, int bg_color, int max, int progress, char* text, int text_color);
 void ctermui_component_draw_button(ctermui_screen_t s, ctermui_component c);
 void ctermui_component_draw_label(ctermui_screen_t s,  ctermui_component c);
 void ctermui_component_draw_frame(ctermui_screen_t s, ctermui_component c);

@@ -209,15 +209,12 @@ void ctermui_screen_refresh_widgets(ctermui_screen_t s)
 
 void ctermui_screen_on_resize(ctermui_screen_t* sp)
 {
-    winsize w = __get_term_size();
-    int width = w.ws_col;
-    int height = w.ws_row;
     ctermui_screen_free_buffer(*sp);
-    (*sp)->width = width;
-    (*sp)->height = height;
-    (*sp)->root->absolute_width = width;
-    (*sp)->root->absolute_height = height;
+    (*sp)->width =  __get_term_size().ws_col;
+    (*sp)->height = __get_term_size().ws_row;
     allocate_screen_buffer(*sp);
+    (*sp)->root->absolute_width = (*sp)->width;
+    (*sp)->root->absolute_height = (*sp)->height;
     ctermui_screen_refresh_widgets(*sp);
 }
 
@@ -368,7 +365,9 @@ void ctermui_screen_loop_start(ctermui_screen_t s, void (*periodic_func)(ctermui
         }
 
         if(ctermui_on_resize_listener(&s))
+        {
             continue;
+        }
 
         if(periodic_func)
             periodic_func(&s);

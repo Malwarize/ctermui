@@ -5,7 +5,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 
-#define ENEMY_NUMBER 10 
+#define ENEMY_NUMBER 20
 
 ctermui_screen_t s;
 
@@ -155,6 +155,7 @@ void check_if_win(ctermui_screen_t s, ctermui_component c) {
         exit(0);
     }
 }
+
 void check_if_bullet_hit_enemy(ctermui_screen_t s, ctermui_component c) {
     for (int i = 0; i < ENEMY_NUMBER; i++) {
         if (game.bullets[i].y < c->absolute_y) {
@@ -185,7 +186,8 @@ void check_if_enemy_hit_ground(ctermui_screen_t s, ctermui_component c) {
     }
 }
 
-void periodic(ctermui_screen_t s){
+void periodic(ctermui_screen_t* sp){
+    ctermui_screen_t s = *sp;
     if(s->loop_count == 0){
         game_create(s, ctermui_widget_find_component(s->root, "game"));
     }
@@ -195,42 +197,53 @@ void periodic(ctermui_screen_t s){
     check_if_bullet_hit_enemy(s, ctermui_widget_find_component(s->root, "game"));
     check_if_enemy_hit_ground(s, ctermui_widget_find_component(s->root, "game"));
     check_if_win(s, ctermui_widget_find_component(s->root, "game"));
-    ctermui_screen_refresh_widget(s, s->root, s->root->absolute_x, s->root->absolute_y, s->root->absolute_width, s->root->absolute_height);
+    ctermui_screen_refresh_widget(s, s->root);
 }
 
 void draw_game(ctermui_screen_t s, ctermui_component c){
     game_animate(s,c);
 }
 
+void calculate_absolute_position(ctermui_component c, int x, int y, int width, int height){
+    c->absolute_x = x;
+    c->absolute_y = y;
+    c->absolute_width =width;
+    c->absolute_height = height;
+    game.player.x = (game.player.x * c->absolute_width) / width;
+    game.player.y = c->absolute_height-1;
+    for (int i = 0; i < ENEMY_NUMBER; i++) {
+        game.enemys[i].x = (game.enemys[i].x * c->absolute_width) / width % c->absolute_width;
+        game.enemys[i].y = (game.enemys[i].y * c->absolute_height) / height % c->absolute_height;
+    }
+
+}
+
 int main() {
     s = ctermui_screen_new();
-
     ctermui_screen_keyboard_events_register(
         s->keyboard_events,
         'q', 
         (void*) exit,
         0
     );
-
     ctermui_screen_keyboard_events_register(
         s->keyboard_events, ' ', (void*) shoot, NULL
     );
-
     ctermui_widget root = ctermui_widget_new_root(
         LEAF,s->width, s->height
     );
-
     ctermui_screen_set_widget_root(
         s, root
     );
-
-    ctermui_widget_add_component(root, ctermui_new_custom_component("game", draw_game));
-
+    ctermui_widget_add_component(root, ctermui_new_custom_component("game", draw_game, calculate_absolute_position));
     ctermui_widget_add_component(
-        root,
-        ctermui_new_soft_background("background", CTERMUI_BLACK, s->width, s->height)
+            root,
+            ctermui_new_soft_background("background", CTERMUI_BLACK, s->width, s->height)
     );
-
+    /* ctermui_widget_add_component( */
+    /*         root, */
+    /*         ctermui_new_frame("frame", CTERMUI_WHITE, CTERMUI_WHITE) */
+    /* ); */
     ctermui_screen_keyboard_events_register(
         s->keyboard_events,CTERMUI_KEY_RIGHT, move_player_right,
         ctermui_widget_find_component(s->root, "game")
@@ -243,6 +256,6 @@ int main() {
         ctermui_widget_find_component(s->root, "game")
     ); 
     
-    ctermui_screen_loop_start(s, periodic, 1000);
+    ctermui_screen_loop_start(s, periodic, 10000);
     return 0;
 }

@@ -58,74 +58,17 @@ void ctermui_calculate_abs_position(ctermui_widget root_widget)
     }
     for (int i = 0; i < root_widget->component_count; ++i){
         ctermui_component c = root_widget->component[i];
-        if(c->type == TEXT){
-            int text_width = strlen(((Text*)c->core_component)->text);
-            if(((Text*)c->core_component)->align == CTERMUI_ALIGN_CENTER){
-                c->absolute_x = root_widget->absolute_x + (root_widget->absolute_width - text_width)/2;
-                c->absolute_y = root_widget->absolute_y + (root_widget->absolute_height - 1)/2;
-            }else if(((Text*)c->core_component)->align == CTERMUI_ALIGN_LEFT_TOP){
-                c->absolute_x = root_widget->absolute_x + 1;
-                c->absolute_y = root_widget->absolute_y + 1;
-            }else if(((Text*)c->core_component)->align == CTERMUI_ALIGN_RIGHT_TOP){
-                c->absolute_x = root_widget->absolute_x + root_widget->absolute_width - text_width;
-                c->absolute_y = root_widget->absolute_y + 1;
-            }else if(((Text*)c->core_component)->align == CTERMUI_ALIGN_TOP){
-                c->absolute_x = root_widget->absolute_x + (root_widget->absolute_width - text_width)/2;
-                c->absolute_y = root_widget->absolute_y;
-            }else if(((Text*)c->core_component)->align == CTERMUI_ALIGN_LEFT_BOTTOM){
-                c->absolute_x = root_widget->absolute_x;
-                c->absolute_y = root_widget->absolute_y + root_widget->absolute_height - 1;
-            }else if(((Text*)c->core_component)->align == CTERMUI_ALIGN_RIGHT_BOTTOM){
-                c->absolute_x = root_widget->absolute_x + root_widget->absolute_width - text_width;
-                c->absolute_y = root_widget->absolute_y + root_widget->absolute_height - 1;
-            }else if(((Text*)c->core_component)->align == CTERMUI_ALIGN_BOTTOM){
-                c->absolute_x = root_widget->absolute_x + (root_widget->absolute_width - text_width)/2;
-                c->absolute_y = root_widget->absolute_y + root_widget->absolute_height - 1;
-            }else if(((Text*)c->core_component)->align == CTERMUI_ALIGN_LEFT_CENTER){
-                c->absolute_x = root_widget->absolute_x + 1;
-                c->absolute_y = root_widget->absolute_y + (root_widget->absolute_height - 1)/2;
-            }else if(((Text*)c->core_component)->align == CTERMUI_ALIGN_RIGHT_CENTER){
-                c->absolute_x = root_widget->absolute_x + root_widget->absolute_width - text_width;
-                c->absolute_y = root_widget->absolute_y + (root_widget->absolute_height - 1)/2;
-            }else if(((Text*)c->core_component)->align == CTERMUI_ALIGN_TOP_CENTER){
-                c->absolute_x = root_widget->absolute_x + (root_widget->absolute_width - text_width)/2;
-                c->absolute_y = root_widget->absolute_y+1;
-            }else if(((Text*)c->core_component)->align == CTERMUI_ALIGN_BOTTOM_CENTER){
-                c->absolute_x = root_widget->absolute_x + (root_widget->absolute_width - text_width)/2;
-                c->absolute_y = root_widget->absolute_y + root_widget->absolute_height - 1;
-            }
-            else{
-                c->absolute_x = root_widget->absolute_x + (root_widget->absolute_width - text_width)/2;
-                c->absolute_y = root_widget->absolute_y + (root_widget->absolute_height - 1)/2;
-            }
-        }else if(c->type == FRAME){
-            c->absolute_x = root_widget->absolute_x;
-            c->absolute_y = root_widget->absolute_y;
-            c->absolute_width = root_widget->absolute_width - 1; // -1 for border
-            c->absolute_height = root_widget->absolute_height - 1; // -1 for border
-        }else if(c->type == SOLID_BACKGROUND || c->type == SOFT_BACKGROUND){
-            c->absolute_x = root_widget->absolute_x;
-            c->absolute_y = root_widget->absolute_y;
-            c->absolute_width = root_widget->absolute_width;
-            c->absolute_height = root_widget->absolute_height;
-        }else if(c->type == BUTTON){
-            c->calculate_absolute_position(c, root_widget->absolute_x, root_widget->absolute_y, root_widget->absolute_width, root_widget->absolute_height);
-        }else if(c->type == CUSTOM){
-            c->absolute_x = root_widget->absolute_x;
-            c->absolute_y = root_widget->absolute_y;
-            c->absolute_width = root_widget->absolute_width;
-            c->absolute_height = root_widget->absolute_height;
-        }
+        c->calculate_absolute_position(c, root_widget->absolute_x, root_widget->absolute_y, root_widget->absolute_width, root_widget->absolute_height);
     }   
 
     for (int i = 0; i < root_widget->children_count; ++i){
         ctermui_calculate_abs_position(root_widget->children[i]);
     }
-
 }
 
 int ctermui_widget_add_child(ctermui_widget parent, ctermui_widget child) {
-    parent->children[parent->children_count++] = child;
+        parent->children[parent->children_count++] = child;
+    return 0;
 }
 
 int ctermui_widget_add_component(ctermui_widget widget, ctermui_component c) {
@@ -159,4 +102,5 @@ ctermui_component ctermui_widget_find_component(ctermui_widget widget, char* id)
     }
     return NULL;
 }
+
 
