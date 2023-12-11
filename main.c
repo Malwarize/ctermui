@@ -64,7 +64,8 @@ int main() {
             100, 
             i, 
             "Loading...", 
-            CTERMUI_WHITE
+            CTERMUI_WHITE,
+            CTERMUI_HORIZONTAL
         );
         ctermui_widget progress_widget = ctermui_widget_new(id, LEAF, 10);
         ctermui_widget_add_component(progress_widget, progress_bar);

@@ -66,6 +66,7 @@ typedef struct {
     int progress;
     char* text;
     int text_color;
+    int orientation; // 0 = horizontal, 1 = vertical
 } ProgressBar;
 
 typedef struct{
@@ -96,6 +97,7 @@ ctermui_component ctermui_new_solid_background(char* id,int color,int width, int
 
 ctermui_component ctermui_new_soft_background(char* id,int color,int width, int height);
 
+ctermui_component ctermui_new_progress_bar(char* id, int bar_color, int bg_color, int max, int progress, char* text, int text_color, int orientation);
 ctermui_component ctermui_new_custom_component(
     char* id,
     void (*draw)(ctermui_screen_t s,ctermui_component c),
@@ -107,7 +109,6 @@ ctermui_component ctermui_new_custom_component(
         int parent_height
     )
 );
-ctermui_component ctermui_new_progress_bar(char* id, int bar_color, int bg_color, int max, int progress, char* text, int text_color);
 void ctermui_component_draw_button(ctermui_screen_t s, ctermui_component c);
 void ctermui_component_draw_label(ctermui_screen_t s,  ctermui_component c);
 void ctermui_component_draw_frame(ctermui_screen_t s, ctermui_component c);

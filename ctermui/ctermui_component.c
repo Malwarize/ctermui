@@ -294,24 +294,40 @@ void ctermui_component_draw_progress_bar(ctermui_screen_t s, ctermui_component c
         fprintf(stderr, "ctermui_pencil_draw_progress_bar: invalid component type\n");
         exit(EXIT_FAILURE);
     }
-    // TODO: dimension Validation
     ProgressBar *progress_bar = (ProgressBar *)c->core_component;
-    ctermui_pencil_solid_background(s->buffer, c->absolute_x, c->absolute_y, c->absolute_width, c->absolute_height, progress_bar->bg_color);
-    int progress_width = (int)((float)progress_bar->progress / (float)progress_bar->max * (float)c->absolute_width);
-    ctermui_pencil_solid_background(s->buffer, c->absolute_x, c->absolute_y, progress_width, c->absolute_height, progress_bar->bar_color);
-    int text_width = strlen(progress_bar->text);
-    int text_x = c->absolute_x + (c->absolute_width - text_width) / 2;
-    int text_y = c->absolute_y + (c->absolute_height - 1) / 2;
-    for(int i = 0; i < text_width; ++i){
-        if(i + text_x < progress_width){
-            ctermui_pencil_draw_char(s->buffer, text_x + i, text_y, progress_bar->text[i], progress_bar->text_color, progress_bar->bar_color);
-        }else{
-            ctermui_pencil_draw_char(s->buffer, text_x + i, text_y, progress_bar->text[i], progress_bar->text_color, progress_bar->bg_color);
+    if(progress_bar->orientation == CTERMUI_HORIZONTAL){
+        ctermui_pencil_solid_background(s->buffer, c->absolute_x, c->absolute_y, c->absolute_width, c->absolute_height, progress_bar->bg_color);
+        int progress_width = (int)((float)progress_bar->progress / (float)progress_bar->max * (float)c->absolute_width);
+        ctermui_pencil_solid_background(s->buffer, c->absolute_x, c->absolute_y, progress_width, c->absolute_height, progress_bar->bar_color);
+        int text_width = strlen(progress_bar->text);
+        int text_x = c->absolute_x + (c->absolute_width - text_width) / 2;
+        int text_y = c->absolute_y + (c->absolute_height - 1) / 2;
+        for(int i = 0; i < text_width; ++i){
+            if(i + text_x < progress_width){
+                ctermui_pencil_draw_char(s->buffer, text_x + i, text_y, progress_bar->text[i], progress_bar->text_color, progress_bar->bar_color);
+            }else{
+                ctermui_pencil_draw_char(s->buffer, text_x + i, text_y, progress_bar->text[i], progress_bar->text_color, progress_bar->bg_color);
+            }
+        }
+    }else{
+        ctermui_pencil_solid_background(s->buffer, c->absolute_x, c->absolute_y, c->absolute_width, c->absolute_height, progress_bar->bg_color);
+        int progress_height = (int)((float)progress_bar->progress / (float)progress_bar->max * (float)c->absolute_height);
+        ctermui_pencil_solid_background(s->buffer, c->absolute_x, c->absolute_y + c->absolute_height - progress_height, c->absolute_width, progress_height, progress_bar->bar_color);
+        int text_width = strlen(progress_bar->text);
+        int text_x = c->absolute_x + (c->absolute_width - text_width) / 2;
+        int text_y = c->absolute_y + (c->absolute_height - 1) / 2;
+        for(int i = 0; i < text_width; ++i){
+            if(i + text_x < progress_height){
+                ctermui_pencil_draw_char(s->buffer, text_x + i, text_y, progress_bar->text[i], progress_bar->text_color, progress_bar->bar_color);
+            }else{
+                ctermui_pencil_draw_char(s->buffer, text_x + i, text_y, progress_bar->text[i], progress_bar->text_color, progress_bar->bg_color);
+            }
         }
     }
 }
 
-ctermui_component ctermui_new_progress_bar(char* id, int bar_color, int bg_color, int max, int progress, char* text, int text_color) {
+ctermui_component ctermui_new_progress_bar(char* id, int bar_color, int bg_color, int max, int progress, char* text, int text_color, int orientation)
+{
     ctermui_component c = malloc(sizeof(struct ctermui_component));
     if(c==NULL){
         fprintf(stderr, "Error: could not allocate memory for progress bar component\n");
@@ -329,6 +345,7 @@ ctermui_component ctermui_new_progress_bar(char* id, int bar_color, int bg_color
     progress_bar_component->progress = progress;
     progress_bar_component->text = text;
     progress_bar_component->text_color = text_color;
+    progress_bar_component->orientation = orientation;
     
     c->core_component = progress_bar_component;
     c->type = PROGRESS_BAR;
