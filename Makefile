@@ -3,7 +3,7 @@ CFLAGS=-g
 .PHONY: all run clean 
 
 run : all
-	@./build/bin/ctermui
+	./build/bin/ctermui
 
 all: ctermui_widget.o ctermui_component.o ctermui_screen.o ctermui_events.o ctermui_pencil.o main.o 
 	@$(CC) $(CFLAGS) build/ctermui_widget.o build/ctermui_component.o build/ctermui_screen.o build/ctermui_events.o build/ctermui_pencil.o build/main.o -o build/bin/ctermui 
