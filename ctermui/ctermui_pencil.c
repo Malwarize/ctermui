@@ -1,6 +1,6 @@
 #include "ctermui_pencil.h"
-#include <stdlib.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 int ctermui_pencil_draw_char(screen_buffer b,
                              int x,

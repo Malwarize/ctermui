@@ -1,9 +1,9 @@
 #ifndef CTERMUI_EVENTS_H
 #define CTERMUI_EVENTS_H
 #include <stdint.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include <stdio.h>
 
 enum CTERMUI_KEY {
   CTERMUI_KEY_UP = 65,
@@ -22,12 +22,12 @@ typedef struct ctermui_screen_keyboard_event {
   char key;
   void (*callback)(void*);
   void* arg;
-} * ctermui_screen_keyboard_event_t;
+}* ctermui_screen_keyboard_event_t;
 
 typedef struct ctermui_screen_keyboard_events {
   ctermui_screen_keyboard_event_t events[100];
   uint32_t ec;
-} * ctermui_screen_keyboard_events_t;
+}* ctermui_screen_keyboard_events_t;
 
 ctermui_screen_keyboard_events_t
 ctermui_screen_keyboard_events_new();

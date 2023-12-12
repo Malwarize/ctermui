@@ -1,6 +1,6 @@
 #include "ctermui_component.h"
-#include "ctermui_screen.h"
 #include "ctermui_pencil.h"
+#include "ctermui_screen.h"
 void ctermui_component_draw_button(ctermui_screen_t s,
                                    ctermui_component c)
 {
@@ -570,8 +570,7 @@ void ctermui_text_input_draw(ctermui_screen_t s,
       "ctermui_pencil_draw_text_input: invalid component type\n");
     exit(EXIT_FAILURE);
   }
-  TextInput* text_input =
-    (TextInput*)c->core_component;
+  TextInput* text_input = (TextInput*)c->core_component;
   int text_width = strlen(text_input->text);
   int frame_width = text_width + 2;
   int frame_height = 3;
@@ -593,7 +592,7 @@ void ctermui_text_input_draw(ctermui_screen_t s,
 }
 
 
-struct comp_key{
+struct comp_key {
   ctermui_component c;
   int key;
 };
@@ -609,9 +608,8 @@ void ctermui_text_input_write(void* args)
       "ctermui_pencil_draw_text_input: invalid component type\n");
     exit(EXIT_FAILURE);
   }
-  TextInput* text_input =
-    (TextInput*)c->core_component;
-  if(text_input->selected != 1){
+  TextInput* text_input = (TextInput*)c->core_component;
+  if (text_input->selected != 1) {
     return;
   }
   int text_length = strlen(text_input->text);
@@ -665,21 +663,21 @@ void ctermui_text_input_calculate_absolute_position(
   int parent_width,
   int parent_height)
 {
-  TextInput* text_input =
-    (TextInput*)c->core_component;
+  TextInput* text_input = (TextInput*)c->core_component;
   c->absolute_x = parent_x;
   c->absolute_y = parent_y;
   c->absolute_width = parent_width;
   c->absolute_height = parent_height;
 }
 
-//Signeture help 
-ctermui_component ctermui_new_text_input(char* id,
-                                         int text_color,
-                                         int bg_color,
-                                         int width,
-                                         int height,
-                                         ctermui_screen_keyboard_events_t events)
+//Signeture help
+ctermui_component ctermui_new_text_input(
+  char* id,
+  int text_color,
+  int bg_color,
+  int width,
+  int height,
+  ctermui_screen_keyboard_events_t events)
 {
   ctermui_component c =
     malloc(sizeof(struct ctermui_component));
@@ -703,13 +701,14 @@ ctermui_component ctermui_new_text_input(char* id,
   c->type = TEXT_INPUT;
   strcpy(c->id, id);
   c->draw = ctermui_text_input_draw;
-  c->calculate_absolute_position = ctermui_text_input_calculate_absolute_position;
+  c->calculate_absolute_position =
+    ctermui_text_input_calculate_absolute_position;
 
   // Add to screen all keyboard events
   ctermui_screen_keyboard_events_register(
     events, 127, ctemrui_text_input_delete, c);
-  
-  for(int i = 32; i < 127; i++){
+
+  for (int i = 32; i < 127; i++) {
     struct comp_key* ck = malloc(sizeof(struct comp_key));
     if (ck == NULL) {
       fprintf(
@@ -767,7 +766,6 @@ ctermui_component ctermui_new_soft_background(char* id,
   c->draw = ctermui_component_draw_soft_background;
   c->calculate_absolute_position =
     ctermui_soft_background_calculate_absolute_position;
-
 
 
   return c;

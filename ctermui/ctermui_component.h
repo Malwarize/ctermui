@@ -1,8 +1,8 @@
 #ifndef CTERMUI_COMPONENT_H
 #define CTERMUI_COMPONENT_H
 typedef struct ctermui_screen* ctermui_screen_t;
-#include <stdint.h>
 #include <signal.h>
+#include <stdint.h>
 #include <unistd.h>
 
 enum CTYPES {
@@ -105,7 +105,7 @@ typedef struct ctermui_component {
     int parent_width,
     int parent_height);
   void* core_component;
-} * ctermui_component;
+}* ctermui_component;
 
 ctermui_component ctermui_new_button(char* id,
                                      char* text,
@@ -163,12 +163,13 @@ void ctermui_component_draw_solid_background(
 *  @ return: a component
 */
 #include "ctermui_events.h"
-ctermui_component ctermui_new_text_input(char* id,
-                                         int text_color,
-                                         int bg_color,
-                                         int width,
-                                         int height,
-                                         ctermui_screen_keyboard_events_t events);
+ctermui_component ctermui_new_text_input(
+  char* id,
+  int text_color,
+  int bg_color,
+  int width,
+  int height,
+  ctermui_screen_keyboard_events_t events);
 void ctermui_component_draw_soft_background(
   ctermui_screen_t s, ctermui_component c);
 #endif  // CTERMUI_COMPONENT_H

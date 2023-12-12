@@ -19,7 +19,7 @@ typedef struct ctermui_screen {
   uint8_t loop_running;
   int loop_stop;
   int loop_idle;
-} * ctermui_screen_t;
+}* ctermui_screen_t;
 
 
 enum ctermui_color {

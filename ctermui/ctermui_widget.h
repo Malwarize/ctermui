@@ -23,7 +23,7 @@ typedef struct ctermui_widget {
   int absolute_width;
   int absolute_height;
   int align;
-} * ctermui_widget;
+}* ctermui_widget;
 enum ORIENTATION {
   CTERMUI_HORIZONTAL,
   CTERMUI_VERTICAL,
