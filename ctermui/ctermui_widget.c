@@ -99,14 +99,14 @@ void ctermui_calculate_abs_position(
       root_widget->children[i]);
   }
 }
-size_t ctermui_widget_add_child(ctermui_widget parent,
+int ctermui_widget_add_child(ctermui_widget parent,
                              ctermui_widget child)
 {
   parent->children[parent->children_count++] = child;
   return 0;
 }
 
-size_t ctermui_widget_add_component(ctermui_widget widget,
+int ctermui_widget_add_component(ctermui_widget widget,
                                  ctermui_component c)
 {
   widget->component[widget->component_count++] = c;

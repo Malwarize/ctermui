@@ -283,7 +283,7 @@ void calculate_absolute_position(
   }
 }
 
-size_t main()
+int main()
 {
   s = ctermui_screen_new();
   ctermui_screen_keyboard_events_register(

@@ -95,7 +95,7 @@ void ButtonSelectionExample()
   ctermui_screen_loop_start(s, periodic, 10000);
 }
 
-size_t main()
+int main()
 {
   ButtonSelectionExample();
   return 0;

@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-size_t ctermui_pencil_draw_char(screen_buffer b,
+int ctermui_pencil_draw_char(screen_buffer b,
                              size_t x,
                              size_t y,
                              char c,
@@ -14,7 +14,7 @@ size_t ctermui_pencil_draw_char(screen_buffer b,
   b[x][y][2] = (char) bg_color;
   return 0;
 }
-size_t ctermui_pencil_draw_line(screen_buffer b,
+int ctermui_pencil_draw_line(screen_buffer b,
                              size_t orientation,
                              size_t x,
                              size_t y,
@@ -43,7 +43,7 @@ size_t ctermui_pencil_draw_line(screen_buffer b,
   }
   return 0;
 }
-size_t ctermui_pencil_draw_rect(screen_buffer b,
+int ctermui_pencil_draw_rect(screen_buffer b,
                              size_t x,
                              size_t y,
                              size_t width,
@@ -105,7 +105,7 @@ size_t ctermui_pencil_draw_rect(screen_buffer b,
                            bg_color);
   return 0;
 }
-size_t ctermui_pencil_draw_text(screen_buffer b,
+int ctermui_pencil_draw_text(screen_buffer b,
                              size_t x,
                              size_t y,
                              char* text,
@@ -120,7 +120,7 @@ size_t ctermui_pencil_draw_text(screen_buffer b,
   }
   return 0;
 }
-size_t ctermui_pencil_solid_background(screen_buffer b,
+int ctermui_pencil_solid_background(screen_buffer b,
                                     size_t x,
                                     size_t y,
                                     size_t width,
@@ -136,7 +136,7 @@ size_t ctermui_pencil_solid_background(screen_buffer b,
   return 0;
 }
 
-size_t ctermui_pencil_bucket(screen_buffer b,
+int ctermui_pencil_bucket(screen_buffer b,
                           size_t x,
                           size_t y,
                           size_t width,

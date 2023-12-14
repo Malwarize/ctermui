@@ -33,9 +33,9 @@ ctermui_widget ctermui_widget_new(char* id,
                                   uint16_t percentage);
 ctermui_widget ctermui_widget_find(ctermui_widget root,
                                    char* id);
-size_t ctermui_widget_add_child(ctermui_widget parent,
+int ctermui_widget_add_child(ctermui_widget parent,
                              ctermui_widget child);
-size_t ctermui_widget_add_component(
+int ctermui_widget_add_component(
   ctermui_widget widget,
   ctermui_component ctermui_component);
 void ctermui_widget_draw(ctermui_widget widget);

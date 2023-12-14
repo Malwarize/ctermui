@@ -81,6 +81,6 @@ void ctermui_screen_loop_start(
 void ctermui_screen_loop_shutdown(ctermui_screen_t s);
 void ctermui_screen_loop_pause(ctermui_screen_t s);
 void ctermui_screen_loop_resume(ctermui_screen_t s);
-size_t ctermui_kbhit();
+int ctermui_kbhit();
 
 #endif  // CTERMUI_SCREEN_H

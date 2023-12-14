@@ -27,7 +27,7 @@ void periodic(ctermui_screen_t* screen_p)
     }
   }
 }
-size_t main()
+int main()
 {
   /* ctermui_screen_t screen = ctermui_screen_new(); */
   /* ctermui_widget root = ctermui_widget_new_root(CTERMUI_VERTICAL, screen->width, screen->height); */

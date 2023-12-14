@@ -230,7 +230,7 @@ void ctermui_screen_on_resize(ctermui_screen_t* sp)
   ctermui_screen_refresh_widgets(*sp);
 }
 
-size_t ctermui_on_resize_listener(ctermui_screen_t* s)
+int ctermui_on_resize_listener(ctermui_screen_t* s)
 {
   winsize w = get_term_size();
   if (w.ws_col != (*s)->width || w.ws_row != (*s)->height) {
@@ -242,7 +242,7 @@ size_t ctermui_on_resize_listener(ctermui_screen_t* s)
   }
 }
 
-size_t ctermui_kbhit()
+int ctermui_kbhit()
 {
   struct termios oldt, newt;
   int ch;
