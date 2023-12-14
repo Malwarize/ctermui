@@ -1,7 +1,7 @@
 #include "ctermui_screen.h"
 
 
-winsize __get_term_size()
+winsize get_term_size()
 {
   winsize w;
   ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
@@ -50,12 +50,6 @@ void allocate_screen_buffer(ctermui_screen_t s)
       s->buffer[i][j][2] = CTERMUI_BLUE;
     }
   }
-  if (!s->buffer) {
-    fprintf(
-      stderr,
-      "Error: could not allocate memory for screen buffer\n");
-    exit(EXIT_FAILURE);
-  }
 }
 
 
@@ -69,7 +63,7 @@ ctermui_screen_t ctermui_screen_new()
       "Error: could not allocate memory for screen\n");
     exit(EXIT_FAILURE);
   }
-  winsize w = __get_term_size();
+  winsize w = get_term_size();
   screen->width = w.ws_col;
   screen->height = w.ws_row;
 
@@ -88,14 +82,14 @@ void ctermui_screen_set_character(ctermui_screen_t s,
                                   uint32_t x,
                                   uint32_t y,
                                   char character,
-                                  int fg_color,
-                                  int bg_color)
+                                  size_t fg_color,
+                                  size_t bg_color)
 {
   s->buffer[x][y][0] = character;
-  s->buffer[x][y][1] = fg_color;
-  s->buffer[x][y][2] = bg_color;
+  s->buffer[x][y][1] =(char) fg_color;
+  s->buffer[x][y][2] = (char) bg_color;
 }
-int ctermui_screen_free_buffer(ctermui_screen_t s)
+void ctermui_screen_free_buffer(ctermui_screen_t s)
 {
   for (size_t i = 0; i < s->width; i++) {
     for (size_t j = 0; j < s->height; j++) {
@@ -119,10 +113,10 @@ void ctermui_screen_clear(ctermui_screen_t s)
 }
 
 void ctermui_screen_clear_part(
-  ctermui_screen_t s, int x, int y, int width, int height)
+  ctermui_screen_t s, size_t x, size_t y, size_t width, size_t height)
 {
-  for (int i = y; i < y + height; i++) {
-    for (int j = x; j < x + width; j++) {
+  for (size_t i = y; i < y + height; i++) {
+    for (size_t j = x; j < x + width; j++) {
       s->buffer[j][i][0] = EMPTY_CHAR;
       s->buffer[j][i][1] = CTERMUI_WHITE;
       s->buffer[j][i][2] = CTERMUI_EMPTY;
@@ -145,14 +139,10 @@ void ctermui_screen_display(ctermui_screen_t s)
 
 void clean_up(ctermui_screen_t s)
 {
-  // fprintf(stderr,"cleaning up\n");
-  // fprintf(stderr,"freeing buffer\n");
-  // ctermui_screen_free_buffer(s);
-  // ctermui_screen_keyboard_events_free(s->keyboard_events);
-  // free(s);
+  //TODO: free all
 }
 
-void ctermui_sigint_handler(int sig, void* data)
+void ctermui_sigint_handler(size_t sig, void* data)
 {
   ctermui_screen_t s = (ctermui_screen_t)data;
   clean_up(s);
@@ -175,7 +165,7 @@ void ctermui_screen_draw_component(ctermui_screen_t s,
 void ctermui_screen_draw_all_components_of_widget(
   ctermui_screen_t s, ctermui_widget w)
 {
-  int i = 0;
+  size_t i = 0;
   for (i = 0; i < w->component_count; i++) {
     if (w->component[i] && w->component[i]->draw == NULL) {
       fprintf(
@@ -188,19 +178,19 @@ void ctermui_screen_draw_all_components_of_widget(
     }
     w->component[i]->draw(s, w->component[i]);
   }
-  for (int i = 0; i < w->children_count; i++) {
+  for (size_t j = 0; j < w->children_count; j++) {
     ctermui_screen_draw_all_components_of_widget(
-      s, w->children[i]);
+      s, w->children[j]);
   }
 }
 
 void ctermui_screen_redraw_all_components_of_widget(
   ctermui_screen_t s,
   ctermui_widget new_w,
-  int old_x,
-  int old_y,
-  int old_width,
-  int old_height)
+  size_t old_x,
+  size_t old_y,
+  size_t old_width,
+  size_t old_height)
 {
   ctermui_screen_clear_part(
     s, old_x, old_y, old_width, old_height);
@@ -210,10 +200,10 @@ void ctermui_screen_redraw_all_components_of_widget(
 void ctermui_screen_refresh_widget(ctermui_screen_t s,
                                    ctermui_widget w)
 {
-  int old_x = w->absolute_x;
-  int old_y = w->absolute_y;
-  int old_width = w->absolute_width;
-  int old_height = w->absolute_height;
+  size_t old_x = w->absolute_x;
+  size_t old_y = w->absolute_y;
+  size_t old_width = w->absolute_width;
+  size_t old_height = w->absolute_height;
   ctermui_calculate_abs_position(s->root);
   ctermui_screen_redraw_all_components_of_widget(
     s, w, old_x, old_y, old_width, old_height);
@@ -232,17 +222,17 @@ void ctermui_screen_refresh_widgets(ctermui_screen_t s)
 void ctermui_screen_on_resize(ctermui_screen_t* sp)
 {
   ctermui_screen_free_buffer(*sp);
-  (*sp)->width = __get_term_size().ws_col;
-  (*sp)->height = __get_term_size().ws_row;
+  (*sp)->width = get_term_size().ws_col;
+  (*sp)->height = get_term_size().ws_row;
   allocate_screen_buffer(*sp);
   (*sp)->root->absolute_width = (*sp)->width;
   (*sp)->root->absolute_height = (*sp)->height;
   ctermui_screen_refresh_widgets(*sp);
 }
 
-int ctermui_on_resize_listener(ctermui_screen_t* s)
+size_t ctermui_on_resize_listener(ctermui_screen_t* s)
 {
-  winsize w = __get_term_size();
+  winsize w = get_term_size();
   if (w.ws_col != (*s)->width || w.ws_row != (*s)->height) {
     ctermui_screen_on_resize(s);
     return 1;
@@ -252,11 +242,11 @@ int ctermui_on_resize_listener(ctermui_screen_t* s)
   }
 }
 
-int ctermui_kbhit()
+size_t ctermui_kbhit()
 {
   struct termios oldt, newt;
   int ch;
-  int oldf;
+  size_t oldf;
 
   tcgetattr(STDIN_FILENO, &oldt);
   newt = oldt;
@@ -279,16 +269,16 @@ int ctermui_kbhit()
   return 0;
 }
 
-void ctermui_on_keybord_listener(ctermui_screen_t* s)
+void ctermui_on_keyboard_listener(ctermui_screen_t* s)
 {
   char c;
   if (ctermui_kbhit()) {
-    c = getchar();
+    c = (char) getchar();
     // arrows have 3 chars
     if (c == '\033') {
       //skip [
       getchar();
-      c = getchar();
+      c = (char) getchar();
       switch (c) {
         case 'A':
           c = CTERMUI_KEY_UP;
@@ -311,6 +301,7 @@ void ctermui_on_keybord_listener(ctermui_screen_t* s)
         case 'Z':
           c = CTERMUI_KEY_TAB;
           break;
+        default:;
       }
     }
     ctermui_screen_keyboard_events_handle(
@@ -319,12 +310,12 @@ void ctermui_on_keybord_listener(ctermui_screen_t* s)
 }
 
 void ctermui_screen_display_part(
-  ctermui_screen_t s, int x, int y, int width, int height)
+  ctermui_screen_t s, size_t x, size_t y, size_t width, size_t height)
 {
   // adjust the cursor position
-  printf("\033[%d;%dH", y + 1, x + 1);
-  for (int i = y; i < y + height; i++) {
-    for (int j = x; j < x + width; j++) {
+  printf("\033[%zu;%zuH", y + 1, x + 1);
+  for (size_t i = y; i < y + height; i++) {
+    for (size_t j = x; j < x + width; j++) {
       printf("\033[48;5;%dm\033[38;5;%dm%c\033[0m",
              s->buffer[j][i][2],
              s->buffer[j][i][1],
@@ -384,7 +375,7 @@ void ctermui_enable_raw_mode()
 void ctermui_screen_loop_start(
   ctermui_screen_t s,
   void (*periodic_func)(ctermui_screen_t*),
-  int every)
+  size_t every)
 {
   ctermui_enable_raw_mode();
   signal(SIGINT, (void (*)(int))ctermui_sigint_handler);
@@ -401,7 +392,7 @@ void ctermui_screen_loop_start(
 
     if (periodic_func)
       periodic_func(&s);
-    ctermui_on_keybord_listener(&s);
+    ctermui_on_keyboard_listener(&s);
     if (s->loop_stop) {
       break;
     }

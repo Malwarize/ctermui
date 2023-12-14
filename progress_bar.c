@@ -5,7 +5,7 @@ void periodic(ctermui_screen_t* screen_p)
 {
   ctermui_screen_t screen = *screen_p;
   ctermui_widget root = screen->root;
-  for (int i = 0; i < 10; i++) {
+  for (size_t i = 0; i < 10; i++) {
     if (i % 2 == 0) {
       continue;
     }
@@ -27,7 +27,7 @@ void periodic(ctermui_screen_t* screen_p)
     }
   }
 }
-int main()
+size_t main()
 {
   /* ctermui_screen_t screen = ctermui_screen_new(); */
   /* ctermui_widget root = ctermui_widget_new_root(CTERMUI_VERTICAL, screen->width, screen->height); */
@@ -35,7 +35,7 @@ int main()
   /* ctermui_widget progress_widget = ctermui_widget_new("progress_w", LEAF, 50); */
 
   /* char id[100]; */
-  /* for(int i = 0; i < 10; i++){ */
+  /* for(size_t i = 0; i < 10; i++){ */
   /*     sprintf(id, "progress_bar_%d", i); */
   /*     ctermui_component progress_bar = ctermui_new_progress_bar( */
   /*         id, */
@@ -58,7 +58,7 @@ int main()
     CTERMUI_HORIZONTAL, screen->width, screen->height);
   ctermui_widget padding_h =
     ctermui_widget_new("padding_h", CTERMUI_VERTICAL, 50);
-  for (int i = 0; i < 10; i++) {
+  for (size_t i = 0; i < 10; i++) {
     if (i % 2 == 0) {
       ctermui_widget_add_child(
         padding_h, ctermui_widget_new("padding", LEAF, 10));

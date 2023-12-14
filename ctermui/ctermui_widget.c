@@ -1,8 +1,8 @@
 #include "ctermui_widget.h"
 
 ctermui_widget ctermui_widget_new_root(uint16_t type,
-                                       int width,
-                                       int height)
+                                       size_t width,
+                                       size_t height)
 {
   ctermui_widget widget =
     malloc(sizeof(struct ctermui_widget));
@@ -10,13 +10,14 @@ ctermui_widget ctermui_widget_new_root(uint16_t type,
     fprintf(
       stderr,
       "Error: could not allocate memory for widget\n");
+    exit(EXIT_FAILURE);
   }
   widget->type = type;
   widget->percentage = 100;
   widget->children_count = 0;
-  widget->width = width;
-  widget->height = height;
-  strcmp(widget->id, "root");
+  widget->absolute_width = width;
+  widget->absolute_height = height;
+  strcpy(widget->id, "root");
   widget->absolute_x = 0;
   widget->absolute_y = 0;
   widget->absolute_width = width;
@@ -34,6 +35,7 @@ ctermui_widget ctermui_widget_new(char* id,
     fprintf(
       stderr,
       "Error: could not allocate memory for widget\n");
+    exit(EXIT_FAILURE);
   }
   widget->type = type;
   widget->percentage = percentage;
@@ -46,13 +48,9 @@ ctermui_widget ctermui_widget_new(char* id,
 void ctermui_calculate_abs_position(
   ctermui_widget root_widget)
 {
-  if (root_widget->component == NULL) {
-    return;
-  }
-
   if (root_widget->type == CTERMUI_HORIZONTAL) {
     ctermui_widget prev_child = NULL;
-    for (int i = 0; i < root_widget->children_count; ++i) {
+    for (size_t i = 0; i < root_widget->children_count; ++i) {
       root_widget->children[i]->absolute_width =
         root_widget->children[i]->percentage *
         root_widget->absolute_width / 100;
@@ -70,7 +68,7 @@ void ctermui_calculate_abs_position(
   }
   else if (root_widget->type == CTERMUI_VERTICAL) {
     ctermui_widget prev_child = NULL;
-    for (int i = 0; i < root_widget->children_count; ++i) {
+    for (size_t i = 0; i < root_widget->children_count; ++i) {
       root_widget->children[i]->absolute_width =
         root_widget->absolute_width;
       root_widget->children[i]->absolute_height =
@@ -86,7 +84,7 @@ void ctermui_calculate_abs_position(
       prev_child = root_widget->children[i];
     }
   }
-  for (int i = 0; i < root_widget->component_count; ++i) {
+  for (size_t i = 0; i < root_widget->component_count; ++i) {
     ctermui_component c = root_widget->component[i];
     c->calculate_absolute_position(
       c,
@@ -96,20 +94,19 @@ void ctermui_calculate_abs_position(
       root_widget->absolute_height);
   }
 
-  for (int i = 0; i < root_widget->children_count; ++i) {
+  for (size_t i = 0; i < root_widget->children_count; ++i) {
     ctermui_calculate_abs_position(
       root_widget->children[i]);
   }
 }
-
-int ctermui_widget_add_child(ctermui_widget parent,
+size_t ctermui_widget_add_child(ctermui_widget parent,
                              ctermui_widget child)
 {
   parent->children[parent->children_count++] = child;
   return 0;
 }
 
-int ctermui_widget_add_component(ctermui_widget widget,
+size_t ctermui_widget_add_component(ctermui_widget widget,
                                  ctermui_component c)
 {
   widget->component[widget->component_count++] = c;
@@ -122,7 +119,7 @@ ctermui_widget ctermui_widget_find(ctermui_widget root,
   if (strcmp(root->id, id) == 0) {
     return root;
   }
-  for (int i = 0; i < root->children_count; ++i) {
+  for (size_t i = 0; i < root->children_count; ++i) {
     ctermui_widget w =
       ctermui_widget_find(root->children[i], id);
     if (w != NULL) {

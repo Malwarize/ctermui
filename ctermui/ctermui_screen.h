@@ -17,8 +17,8 @@ typedef struct ctermui_screen {
   ctermui_screen_keyboard_events_t keyboard_events;
   uint32_t loop_count;
   uint8_t loop_running;
-  int loop_stop;
-  int loop_idle;
+  size_t loop_stop;
+  size_t loop_idle;
 }* ctermui_screen_t;
 
 
@@ -56,7 +56,7 @@ void ctermui_screen_clear(ctermui_screen_t s);
 void ctermui_screen_set_widget_root(ctermui_screen_t s,
                                     ctermui_widget root);
 void ctermui_screen_refresh_widgets(ctermui_screen_t s);
-void ctermui_on_keybord_listener(ctermui_screen_t* s);
+void ctermui_on_keyboard_listener(ctermui_screen_t* s);
 void ctermui_screen_clean_term();
 void ctermui_restore_cursor();
 void ctermui_screen_draw_all_components_of_widget(
@@ -64,10 +64,10 @@ void ctermui_screen_draw_all_components_of_widget(
 void ctermui_screen_redraw_all_components_of_widget(
   ctermui_screen_t s,
   ctermui_widget new_w,
-  int old_x,
-  int old_y,
-  int old_width,
-  int old_height);
+  size_t old_x,
+  size_t old_y,
+  size_t old_width,
+  size_t old_height);
 void ctermui_screen_display_widget(ctermui_screen_t s,
                                    ctermui_widget w);
 void ctermui_screen_refresh_widget(ctermui_screen_t s,
@@ -77,10 +77,10 @@ void ctermui_screen_refresh_widget(ctermui_screen_t s,
 void ctermui_screen_loop_start(
   ctermui_screen_t s,
   void (*periodic_func)(ctermui_screen_t*),
-  int every);
+  size_t every);
 void ctermui_screen_loop_shutdown(ctermui_screen_t s);
 void ctermui_screen_loop_pause(ctermui_screen_t s);
 void ctermui_screen_loop_resume(ctermui_screen_t s);
-int ctermui_kbhit();
+size_t ctermui_kbhit();
 
 #endif  // CTERMUI_SCREEN_H

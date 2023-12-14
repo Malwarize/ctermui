@@ -9,18 +9,18 @@
 ctermui_screen_t s;
 
 typedef struct enemy {
-  int x;
-  int y;
+  size_t x;
+  size_t y;
 } Enemy;
 
 typedef struct player {
-  int x;
-  int y;
+  size_t x;
+  size_t y;
 } Player;
 
 typedef struct bullet {
-  int x;
-  int y;
+  size_t x;
+  size_t y;
 } Bullet;
 
 typedef struct game {
@@ -35,11 +35,11 @@ void game_create(ctermui_screen_t s, ctermui_component c)
 {
   game.player.x = c->absolute_width / 2;
   game.player.y = c->absolute_height - 1;
-  for (int i = 0; i < ENEMY_NUMBER; i++) {
+  for (size_t i = 0; i < ENEMY_NUMBER; i++) {
     game.enemys[i].x = rand() % c->absolute_width;
     game.enemys[i].y = rand() % c->absolute_height / 4;
   }
-  for (int i = 0; i < ENEMY_NUMBER; i++) {
+  for (size_t i = 0; i < ENEMY_NUMBER; i++) {
     game.bullets[i].x = game.player.x;
     game.bullets[i].y = -1;
   }
@@ -48,9 +48,9 @@ void game_create(ctermui_screen_t s, ctermui_component c)
 void enemy_horizontal_move(ctermui_screen_t s,
                            ctermui_component c)
 {
-  for (int i = 0; i < ENEMY_NUMBER; i++) {
+  for (size_t i = 0; i < ENEMY_NUMBER; i++) {
     //random step
-    int step = rand() % 2;
+    size_t step = rand() % 2;
     if (step) {
       game.enemys[i].x =
         ((game.enemys[i].x - 1) + c->absolute_width) %
@@ -64,7 +64,7 @@ void enemy_horizontal_move(ctermui_screen_t s,
   }
 }
 
-void bullet_create(int target)
+void bullet_create(size_t target)
 {
   game.bullets[target].x = game.player.x;
   game.bullets[target].y = game.player.y;
@@ -72,14 +72,14 @@ void bullet_create(int target)
 
 void bullet_vertical_move(ctermui_screen_t s,
                           ctermui_component c,
-                          int target)
+                          size_t target)
 {
   game.bullets[target].y = (game.bullets[target].y - 1);
 }
 
 void draw_bullet(ctermui_screen_t s,
                  ctermui_component c,
-                 int target)
+                 size_t target)
 {
   if (game.bullets[target].y < 0) {
     return;
@@ -94,7 +94,7 @@ void draw_bullet(ctermui_screen_t s,
 
 void draw_bullets(ctermui_screen_t s, ctermui_component c)
 {
-  for (int i = 0; i < ENEMY_NUMBER; i++) {
+  for (size_t i = 0; i < ENEMY_NUMBER; i++) {
     if (game.bullets[i].y < c->absolute_y) {
       continue;
     }
@@ -104,7 +104,7 @@ void draw_bullets(ctermui_screen_t s, ctermui_component c)
 
 void draw_bullet_and_move(ctermui_screen_t s,
                           ctermui_component c,
-                          int target)
+                          size_t target)
 {
   draw_bullet(s, c, target);
   bullet_vertical_move(s, c, target);
@@ -113,14 +113,14 @@ void draw_bullet_and_move(ctermui_screen_t s,
 void draw_bullets_and_move(ctermui_screen_t s,
                            ctermui_component c)
 {
-  for (int i = 0; i < ENEMY_NUMBER; i++) {
+  for (size_t i = 0; i < ENEMY_NUMBER; i++) {
     draw_bullet_and_move(s, c, i);
   }
 }
 
 void shoot()
 {
-  for (int i = 0; i < ENEMY_NUMBER; i++) {
+  for (size_t i = 0; i < ENEMY_NUMBER; i++) {
     if (game.bullets[i].y < 0) {
       bullet_create(i);
       return;
@@ -130,7 +130,7 @@ void shoot()
 
 void draw_enemys(ctermui_screen_t s, ctermui_component c)
 {
-  for (int i = 0; i < ENEMY_NUMBER; i++) {
+  for (size_t i = 0; i < ENEMY_NUMBER; i++) {
     if (game.enemys[i].y < c->absolute_y) {
       continue;
     }
@@ -178,7 +178,7 @@ void move_player_right(void* data)
 void move_enmeies_down(ctermui_screen_t s,
                        ctermui_component c)
 {
-  for (int i = 0; i < ENEMY_NUMBER; i++) {
+  for (size_t i = 0; i < ENEMY_NUMBER; i++) {
     if (game.enemys[i].y < c->absolute_y) {
       continue;
     }
@@ -189,8 +189,8 @@ void move_enmeies_down(ctermui_screen_t s,
 
 void check_if_win(ctermui_screen_t s, ctermui_component c)
 {
-  int win = 1;
-  for (int i = 0; i < ENEMY_NUMBER; i++) {
+  size_t win = 1;
+  for (size_t i = 0; i < ENEMY_NUMBER; i++) {
     if (game.enemys[i].y < c->absolute_y) {
       continue;
     }
@@ -206,11 +206,11 @@ void check_if_win(ctermui_screen_t s, ctermui_component c)
 void check_if_bullet_hit_enemy(ctermui_screen_t s,
                                ctermui_component c)
 {
-  for (int i = 0; i < ENEMY_NUMBER; i++) {
+  for (size_t i = 0; i < ENEMY_NUMBER; i++) {
     if (game.bullets[i].y < c->absolute_y) {
       continue;
     }
-    for (int j = 0; j < ENEMY_NUMBER; j++) {
+    for (size_t j = 0; j < ENEMY_NUMBER; j++) {
       if (game.enemys[j].y < c->absolute_y) {
         continue;
       }
@@ -226,7 +226,7 @@ void check_if_bullet_hit_enemy(ctermui_screen_t s,
 void check_if_enemy_hit_ground(ctermui_screen_t s,
                                ctermui_component c)
 {
-  for (int i = 0; i < ENEMY_NUMBER; i++) {
+  for (size_t i = 0; i < ENEMY_NUMBER; i++) {
     if (game.enemys[i].y < c->absolute_y) {
       continue;
     }
@@ -264,7 +264,7 @@ void draw_game(ctermui_screen_t s, ctermui_component c)
 }
 
 void calculate_absolute_position(
-  ctermui_component c, int x, int y, int width, int height)
+  ctermui_component c, size_t x, size_t y, size_t width, size_t height)
 {
   c->absolute_x = x;
   c->absolute_y = y;
@@ -273,7 +273,7 @@ void calculate_absolute_position(
   game.player.x =
     (game.player.x * c->absolute_width) / width;
   game.player.y = c->absolute_height - 1;
-  for (int i = 0; i < ENEMY_NUMBER; i++) {
+  for (size_t i = 0; i < ENEMY_NUMBER; i++) {
     game.enemys[i].x =
       (game.enemys[i].x * c->absolute_width) / width %
       c->absolute_width;
@@ -283,7 +283,7 @@ void calculate_absolute_position(
   }
 }
 
-int main()
+size_t main()
 {
   s = ctermui_screen_new();
   ctermui_screen_keyboard_events_register(

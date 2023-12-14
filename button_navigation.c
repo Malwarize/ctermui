@@ -4,7 +4,7 @@
 
 ctermui_screen_t s;
 Button* btnList[4];
-int bindex = 0;
+size_t bindex = 0;
 
 void on_click(void* arg)
 {
@@ -95,7 +95,7 @@ void ButtonSelectionExample()
   ctermui_screen_loop_start(s, periodic, 10000);
 }
 
-int main()
+size_t main()
 {
   ButtonSelectionExample();
   return 0;
