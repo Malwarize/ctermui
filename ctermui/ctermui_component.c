@@ -754,7 +754,10 @@ ctermui_component ctermui_new_custom_component(
                                       size_t parent_x,
                                       size_t parent_y,
                                       size_t parent_width,
-                                      size_t parent_height))
+                                      size_t parent_height),
+  void* core_component,
+  size_t component_size
+  )
 {
   ctermui_component c = (ctermui_component)malloc(
     sizeof(struct ctermui_component));
@@ -764,10 +767,20 @@ ctermui_component ctermui_new_custom_component(
       "Error: could not allocate memory for component\n");
     exit(EXIT_FAILURE);
   }
+  void* core_component_ptr = malloc(component_size);
+  if (!core_component_ptr) {
+    fprintf(
+      stderr,
+      "Error: could not allocate memory for core component\n");
+    exit(EXIT_FAILURE);
+  }
+
+  memcpy(core_component_ptr, core_component, component_size);
   c->type = CUSTOM;
   strcpy(c->id, id);
   c->draw = draw;
   c->calculate_absolute_position =
     calculate_absolute_position;
+  c->core_component = core_component;
   return c;
 }
