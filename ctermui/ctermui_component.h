@@ -125,8 +125,7 @@ ctermui_component ctermui_new_solid_background(char* id,
                                                size_t height);
 
 ctermui_component ctermui_new_soft_background(char* id,
-                                              size_t color,
-                                              size_t width);
+                                              size_t color);
 
 ctermui_component ctermui_new_progress_bar(char* id,
                                            size_t bar_color,

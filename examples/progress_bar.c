@@ -1,4 +1,4 @@
-#include "ctermui/ctermui_screen.h"
+#include "../ctermui/ctermui_screen.h"
 #include <unistd.h>
 
 void periodic(ctermui_screen_t* screen_p)

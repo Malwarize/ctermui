@@ -723,9 +723,7 @@ void ctermui_soft_background_calculate_absolute_position(
   c->absolute_height = parent_height;
 }
 
-ctermui_component ctermui_new_soft_background(char* id,
-                                              size_t color,
-                                              size_t width)
+ctermui_component ctermui_new_soft_background(char* id,size_t color)
 {
   ctermui_component c =
     malloc(sizeof(struct ctermui_component));
