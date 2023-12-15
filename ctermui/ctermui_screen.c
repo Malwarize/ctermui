@@ -53,7 +53,7 @@ void allocate_screen_buffer(ctermui_screen_t s)
 }
 
 
-ctermui_screen_t ctermui_screen_new()
+ctermui_screen_t ctermui_screen_init()
 {
   ctermui_screen_t screen =
     (ctermui_screen_t)malloc(sizeof(struct ctermui_screen));

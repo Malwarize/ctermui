@@ -50,7 +50,7 @@ enum ctermui_color {
 #define CTERMUI_VERTICAL_LINE       '|'
 
 
-ctermui_screen_t ctermui_screen_new();
+ctermui_screen_t ctermui_screen_init();
 void ctermui_screen_display(ctermui_screen_t s);
 void ctermui_screen_clear(ctermui_screen_t s);
 void ctermui_screen_set_widget_root(ctermui_screen_t s,

@@ -28,7 +28,7 @@ void periodic(ctermui_screen_t* screen_p)
 }
 int main()
 {
-  ctermui_screen_t screen = ctermui_screen_new();
+  ctermui_screen_t screen = ctermui_screen_init();
   ctermui_widget_t root = ctermui_widget_new_root(
     CTERMUI_HORIZONTAL, screen->width, screen->height);
   ctermui_widget_t padding_h =
