@@ -210,8 +210,6 @@ ctermui_component ctermui_new_button(char* id,
   button_component->text_color = text_color;
   button_component->bg_color = bg_color;
   c->core_component = button_component;
-  c->width = strlen(text);
-  c->height = 1;
   strcpy(c->id, id);
   c->draw = ctermui_component_draw_button;
   c->calculate_absolute_position =
@@ -310,8 +308,6 @@ ctermui_component ctermui_new_text(
   text_component->bg_color = bg_color;
   text_component->align = align;
   c->core_component = text_component;
-  c->width = strlen(text);
-  c->height = 1;
   strcpy(c->id, id);
   c->draw = ctermui_component_draw_label;
   c->calculate_absolute_position = ctermui_text_calculate_absolute_position;
@@ -393,8 +389,6 @@ ctermui_component ctermui_new_solid_background(char* id,
   background_component->color = color;
   c->core_component = background_component;
   c->type = SOLID_BACKGROUND;
-  c->width = width;
-  c->height = height;
   strcpy(c->id, id);
   c->draw = ctermui_component_draw_solid_background;
   c->calculate_absolute_position =
@@ -550,8 +544,6 @@ ctermui_component ctermui_new_progress_bar(char* id,
 
   c->core_component = progress_bar_component;
   c->type = PROGRESS_BAR;
-  c->width = max;
-  c->height = 1;
   strcpy(c->id, id);
   c->draw = ctermui_component_draw_progress_bar;
   c->calculate_absolute_position =

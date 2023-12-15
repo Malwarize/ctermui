@@ -1,6 +1,8 @@
 #ifndef CTERMUI_COMPONENT_H
 #define CTERMUI_COMPONENT_H
 typedef struct ctermui_screen* ctermui_screen_t;
+typedef struct ctermui_widget* ctermui_widget_t;
+#include "ctermui_events.h"
 #include <signal.h>
 #include <stdint.h>
 #include <unistd.h>
@@ -89,11 +91,6 @@ typedef struct {
 typedef struct ctermui_component {
   char id[100];
   uint16_t type;
-  size_t x;
-  size_t y;
-  size_t width;
-  size_t height;
-
   size_t absolute_x;
   size_t absolute_y;
   size_t absolute_width;
@@ -107,6 +104,7 @@ typedef struct ctermui_component {
     size_t parent_width,
     size_t parent_height);
   void* core_component;
+  ctermui_widget_t parent;
 }* ctermui_component;
 
 ctermui_component ctermui_new_button(char* id,
@@ -152,17 +150,6 @@ void ctermui_component_draw_frame(ctermui_screen_t s,
 void ctermui_component_draw_solid_background(
   ctermui_screen_t s, ctermui_component c);
 
-/* 
- * @ brief: create a new text input component
-*  
-*  @ param id: id of the component
-*  @ param text_color: color of the text
-*  @ param bg_color: background color
-*  @ param width: width of the component
-*  @ param height: height of the component
-*  @ return: a component
-*/
-#include "ctermui_events.h"
 ctermui_component ctermui_new_text_input(
   char* id,
   size_t text_color,

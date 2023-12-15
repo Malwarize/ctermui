@@ -151,7 +151,7 @@ void ctermui_sigint_handler(size_t sig, void* data)
 }
 
 void ctermui_screen_set_widget_root(ctermui_screen_t s,
-                                    ctermui_widget root)
+                                    ctermui_widget_t root)
 {
   s->root = root;
 }
@@ -163,7 +163,7 @@ void ctermui_screen_draw_component(ctermui_screen_t s,
 }
 
 void ctermui_screen_draw_all_components_of_widget(
-  ctermui_screen_t s, ctermui_widget w)
+  ctermui_screen_t s, ctermui_widget_t w)
 {
   size_t i = 0;
   for (i = 0; i < w->component_count; i++) {
@@ -186,7 +186,7 @@ void ctermui_screen_draw_all_components_of_widget(
 
 void ctermui_screen_redraw_all_components_of_widget(
   ctermui_screen_t s,
-  ctermui_widget new_w,
+  ctermui_widget_t new_w,
   size_t old_x,
   size_t old_y,
   size_t old_width,
@@ -198,7 +198,7 @@ void ctermui_screen_redraw_all_components_of_widget(
 }
 
 void ctermui_screen_refresh_widget(ctermui_screen_t s,
-                                   ctermui_widget w)
+                                   ctermui_widget_t w)
 {
   size_t old_x = w->absolute_x;
   size_t old_y = w->absolute_y;
@@ -325,7 +325,7 @@ void ctermui_screen_display_part(
 }
 
 void ctermui_screen_display_widget(ctermui_screen_t s,
-                                   ctermui_widget w)
+                                   ctermui_widget_t w)
 {
   ctermui_screen_display_part(s,
                               w->absolute_x,

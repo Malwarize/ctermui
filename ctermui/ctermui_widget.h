@@ -18,29 +18,28 @@ typedef struct ctermui_widget {
   size_t absolute_y;
   size_t absolute_width;
   size_t absolute_height;
-  size_t align;
-}* ctermui_widget;
+}* ctermui_widget_t;
 enum ORIENTATION {
   CTERMUI_HORIZONTAL,
   CTERMUI_VERTICAL,
   LEAF
 };
-ctermui_widget ctermui_widget_new_root(uint16_t type,
+ctermui_widget_t ctermui_widget_new_root(uint16_t type,
                                        size_t width,
                                        size_t height);
-ctermui_widget ctermui_widget_new(char* id,
+ctermui_widget_t ctermui_widget_new(char* id,
                                   uint16_t type,
                                   uint16_t percentage);
-ctermui_widget ctermui_widget_find(ctermui_widget root,
+ctermui_widget_t ctermui_widget_find(ctermui_widget_t root,
                                    char* id);
-int ctermui_widget_add_child(ctermui_widget parent,
-                             ctermui_widget child);
+int ctermui_widget_add_child(ctermui_widget_t parent,
+                             ctermui_widget_t child);
 int ctermui_widget_add_component(
-  ctermui_widget widget,
+  ctermui_widget_t widget,
   ctermui_component ctermui_component);
-void ctermui_widget_draw(ctermui_widget widget);
+void ctermui_widget_draw(ctermui_widget_t widget);
 void ctermui_calculate_abs_position(
-  ctermui_widget root_widget);
+  ctermui_widget_t root_widget);
 ctermui_component ctermui_widget_find_component(
-  ctermui_widget widget, char* id);
+  ctermui_widget_t widget, char* id);
 #endif  // CTERMUI_WIDGET_H
