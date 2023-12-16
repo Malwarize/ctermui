@@ -2,6 +2,7 @@
 #define CTERMUI_SCREEN_H
 #include "ctermui_events.h"
 #include "ctermui_widget.h"
+#include "ctermui_pencil.h"
 #include <fcntl.h>
 #include <stdint.h>
 #include <sys/ioctl.h>

@@ -124,18 +124,32 @@ void ctermui_screen_clear_part(
   }
 }
 
+//void ctermui_screen_display(ctermui_screen_t s)
+//{
+//  for (uint32_t y = 0; y < s->height; ++y) {
+//    for (uint32_t x = 0; x < s->width; ++x) {
+//        // Regular character with color formatting
+//      printf("\033[48;5;%dm\033[38;5;%dm%c\033[0m",
+//             s->buffer[x][y][2],
+//             s->buffer[x][y][1],
+//             (char)s->buffer[x][y][0]);
+//
+//    }
+//  }
+//}
+
 void ctermui_screen_display(ctermui_screen_t s)
 {
-  for (uint32_t y = 0; y < s->height; ++y) {
-    for (uint32_t x = 0; x < s->width; ++x) {
+  for (size_t i = 0; i < s->height; i++) {
+    for (size_t j = 0; j < s->width; j++) {
       printf("\033[48;5;%dm\033[38;5;%dm%c\033[0m",
-             s->buffer[x][y][2],
-             s->buffer[x][y][1],
-             s->buffer[x][y][0]);
+               s->buffer[j][i][2],
+               s->buffer[j][i][1],
+               s->buffer[j][i][0]
+             );
     }
   }
 }
-
 
 void clean_up(ctermui_screen_t s)
 {

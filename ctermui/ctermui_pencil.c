@@ -9,7 +9,7 @@ int ctermui_pencil_draw_char(screen_buffer b,
                              size_t fg_color,
                              size_t bg_color)
 {
-  b[x][y][0] = c;
+  b[x][y][0] = (char) c;
   b[x][y][1] = (char) fg_color;
   b[x][y][2] = (char) bg_color;
   return 0;
@@ -118,6 +118,8 @@ int ctermui_pencil_draw_text(screen_buffer b,
       b, x + i, y, text[i], color, bg_color);
     i++;
   }
+  ctermui_pencil_draw_char(
+    b, x + i, y, '\0', color, bg_color);
   return 0;
 }
 int ctermui_pencil_solid_background(screen_buffer b,

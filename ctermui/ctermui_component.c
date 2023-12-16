@@ -755,8 +755,7 @@ ctermui_component ctermui_new_custom_component(
                                       size_t parent_y,
                                       size_t parent_width,
                                       size_t parent_height),
-  void* core_component,
-  size_t component_size
+  void* core_component
   )
 {
   ctermui_component c = (ctermui_component)malloc(
@@ -767,15 +766,8 @@ ctermui_component ctermui_new_custom_component(
       "Error: could not allocate memory for component\n");
     exit(EXIT_FAILURE);
   }
-  void* core_component_ptr = malloc(component_size);
-  if (!core_component_ptr) {
-    fprintf(
-      stderr,
-      "Error: could not allocate memory for core component\n");
-    exit(EXIT_FAILURE);
-  }
 
-  memcpy(core_component_ptr, core_component, component_size);
+  c->core_component = core_component;
   c->type = CUSTOM;
   strcpy(c->id, id);
   c->draw = draw;

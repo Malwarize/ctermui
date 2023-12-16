@@ -141,8 +141,7 @@ ctermui_component ctermui_new_custom_component(
                                       size_t parent_y,
                                       size_t parent_width,
                                       size_t parent_height),
-  void* core_component,
-  size_t component_size
+  void* core_component
   );
 void ctermui_component_draw_button(ctermui_screen_t s,
                                    ctermui_component c);
