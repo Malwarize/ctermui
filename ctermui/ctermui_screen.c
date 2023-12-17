@@ -8,7 +8,7 @@ winsize get_term_size()
   return w;
 }
 
-const char EMPTY_CHAR = ' ';
+const char* EMPTY_CHAR = " ";
 
 void ctermui_screen_clean_term()
 {
@@ -21,7 +21,8 @@ void ctermui_restore_cursor() { printf("\033[?25h"); }
 
 void allocate_screen_buffer(ctermui_screen_t s)
 {
-  s->buffer = (char***)malloc(s->width * sizeof(char**));
+  s->buffer = (ctermui_screen_cell_t**)
+    malloc(s->width * sizeof(ctermui_screen_cell_t*));
   if (!s->buffer) {
     fprintf(
       stderr,
@@ -29,8 +30,8 @@ void allocate_screen_buffer(ctermui_screen_t s)
     exit(EXIT_FAILURE);
   }
   for (uint32_t i = 0; i < s->width; i++) {
-    s->buffer[i] =
-      (char**)malloc(s->height * sizeof(char*));
+    s->buffer[i] = (ctermui_screen_cell_t*)
+      malloc(s->height * sizeof(ctermui_screen_cell_t));
     if (!s->buffer[i]) {
       fprintf(
         stderr,
@@ -38,16 +39,17 @@ void allocate_screen_buffer(ctermui_screen_t s)
       exit(EXIT_FAILURE);
     }
     for (uint32_t j = 0; j < s->height; j++) {
-      s->buffer[i][j] = (char*)malloc(3 * sizeof(char));
+      s->buffer[i][j] = (ctermui_screen_cell_t)malloc(sizeof(struct ctermui_screen_cell));
       if (!s->buffer[i][j]) {
         fprintf(
           stderr,
           "Error: could not allocate memory for screen buffer\n");
         exit(EXIT_FAILURE);
       }
-      s->buffer[i][j][0] = EMPTY_CHAR;
-      s->buffer[i][j][1] = CTERMUI_WHITE;
-      s->buffer[i][j][2] = CTERMUI_BLUE;
+//      s->buffer[i][j][0] = EMPTY_CHAR;
+//      s->buffer[i][j][1] = CTERMUI_WHITE;
+//      s->buffer[i][j][2] = CTERMUI_BLUE;
+        //TODO: use pencil to fill it
     }
   }
 }
@@ -78,17 +80,6 @@ ctermui_screen_t ctermui_screen_init()
   return screen;
 }
 
-void ctermui_screen_set_character(ctermui_screen_t s,
-                                  uint32_t x,
-                                  uint32_t y,
-                                  char character,
-                                  size_t fg_color,
-                                  size_t bg_color)
-{
-  s->buffer[x][y][0] = character;
-  s->buffer[x][y][1] =(char) fg_color;
-  s->buffer[x][y][2] = (char) bg_color;
-}
 void ctermui_screen_free_buffer(ctermui_screen_t s)
 {
   for (size_t i = 0; i < s->width; i++) {
@@ -105,9 +96,10 @@ void ctermui_screen_clear(ctermui_screen_t s)
 {
   for (uint32_t x = 0; x < s->width; ++x) {
     for (uint32_t y = 0; y < s->height; ++y) {
-      s->buffer[x][y][0] = EMPTY_CHAR;
-      s->buffer[x][y][1] = CTERMUI_WHITE;
-      s->buffer[x][y][2] = CTERMUI_EMPTY;
+//      s->buffer[x][y][0] = EMPTY_CHAR;
+//      s->buffer[x][y][1] = CTERMUI_WHITE;
+//      s->buffer[x][y][2] = CTERMUI_EMPTY;
+        ctermui_pencil_draw_char(s->buffer, x, y, EMPTY_CHAR, CTERMUI_WHITE, CTERMUI_EMPTY);
     }
   }
 }
@@ -117,35 +109,21 @@ void ctermui_screen_clear_part(
 {
   for (size_t i = y; i < y + height; i++) {
     for (size_t j = x; j < x + width; j++) {
-      s->buffer[j][i][0] = EMPTY_CHAR;
-      s->buffer[j][i][1] = CTERMUI_WHITE;
-      s->buffer[j][i][2] = CTERMUI_EMPTY;
+        ctermui_pencil_draw_char(s->buffer, j, i, EMPTY_CHAR, CTERMUI_WHITE, CTERMUI_EMPTY);
     }
   }
 }
 
-//void ctermui_screen_display(ctermui_screen_t s)
-//{
-//  for (uint32_t y = 0; y < s->height; ++y) {
-//    for (uint32_t x = 0; x < s->width; ++x) {
-//        // Regular character with color formatting
-//      printf("\033[48;5;%dm\033[38;5;%dm%c\033[0m",
-//             s->buffer[x][y][2],
-//             s->buffer[x][y][1],
-//             (char)s->buffer[x][y][0]);
-//
-//    }
-//  }
-//}
+
 
 void ctermui_screen_display(ctermui_screen_t s)
 {
   for (size_t i = 0; i < s->height; i++) {
     for (size_t j = 0; j < s->width; j++) {
-      printf("\033[48;5;%dm\033[38;5;%dm%c\033[0m",
-               s->buffer[j][i][2],
-               s->buffer[j][i][1],
-               s->buffer[j][i][0]
+      printf("\033[48;5;%dm\033[38;5;%dm%s\033[0m",
+               s->buffer[j][i]->background_color,
+               s->buffer[j][i]->foreground_color,
+               s->buffer[j][i]->characters
              );
     }
   }
@@ -330,10 +308,10 @@ void ctermui_screen_display_part(
   printf("\033[%zu;%zuH", y + 1, x + 1);
   for (size_t i = y; i < y + height; i++) {
     for (size_t j = x; j < x + width; j++) {
-      printf("\033[48;5;%dm\033[38;5;%dm%c\033[0m",
-             s->buffer[j][i][2],
-             s->buffer[j][i][1],
-             s->buffer[j][i][0]);
+      printf("\033[48;5;%dm\033[38;5;%dm%s\033[0m",
+      s->buffer[j][i]->background_color,
+      s->buffer[j][i]->foreground_color,
+      s->buffer[j][i]->characters);
     }
   }
 }

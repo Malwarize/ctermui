@@ -57,7 +57,7 @@ void periodic(ctermui_screen_t* sp)
 
 void ButtonSelectionExample()
 {
-  s = ctermui_screen_new();
+  s = ctermui_screen_init();
   ctermui_widget_t root = ctermui_widget_new_root(
     CTERMUI_VERTICAL, s->width, s->height);
   for (size_t i = 0; i < 4; i++) {

@@ -34,59 +34,56 @@ enum ALIGN {
 
 typedef struct {
   char text[100];
-  size_t color;
-  size_t bg_color;
+  int8_t color;
+  int8_t bg_color;
 
   size_t align;
 } Text;
 
 typedef struct {
-  size_t color;
-  size_t bg_color;
+  int8_t color;
+  int8_t bg_color;
 
 } Frame;
 
 typedef struct {
-  size_t color;
+  int8_t color;
 } SoftBackground;
 
 typedef struct {
-  size_t color;
+  int8_t color;
 } SolidBackground;
 
 typedef struct {
   char text[100];
   size_t align;
-  size_t text_color;
-  size_t bg_color;
+  int8_t text_color;
+  int8_t bg_color;
 } Button;
 
 #define PROGRESS_BAR_CHAR "█"
 
 typedef struct {
   char symbol;  // default is █
-  size_t bar_color;
-  size_t bg_color;
+  int8_t bar_color;
+  int8_t bg_color;
   size_t max;
   size_t progress;
   char* text;
-  size_t text_color;
+  int8_t text_color;
   size_t orientation;  // 0 = horizontal, 1 = vertical
 } ProgressBar;
 
 typedef struct {
   char text[300];
   size_t align;
-  size_t text_color;
-  size_t bg_color;
-  size_t selected;
+  int8_t text_color;
+  int8_t bg_color;
+  int8_t selected;
   size_t min_width;
   size_t min_height;
 } TextInput;
 
-typedef struct {
-  // TODO: implement custom component
-} Custom;
 
 typedef struct ctermui_component {
   char id[100];
@@ -110,28 +107,28 @@ typedef struct ctermui_component {
 ctermui_component ctermui_new_button(char* id,
                                      char* text,
                                      size_t align,
-                                     size_t text_color,
-                                     size_t bg_color);
+                                     int8_t text_color,
+                                     int8_t bg_color);
 ctermui_component ctermui_new_text(
-  char* id, char* text, size_t color, size_t bg_color, size_t align);
+  char* id, char* text, int8_t color, int8_t bg_color, size_t align);
 ctermui_component ctermui_new_frame(char* id,
-                                    size_t color,
-                                    size_t bg_color);
+                                    int8_t color,
+                                    int8_t bg_color);
 ctermui_component ctermui_new_solid_background(char* id,
-                                               size_t color,
+                                               int8_t color,
                                                size_t width,
                                                size_t height);
 
 ctermui_component ctermui_new_soft_background(char* id,
-                                              size_t color);
+                                              int8_t color);
 
 ctermui_component ctermui_new_progress_bar(char* id,
-                                           size_t bar_color,
-                                           size_t bg_color,
+                                           int8_t bar_color,
+                                           int8_t bg_color,
                                            size_t max,
                                            size_t progress,
                                            char* text,
-                                           size_t text_color,
+                                           int8_t text_color,
                                            size_t orientation);
 ctermui_component ctermui_new_custom_component(
   char* id,
@@ -154,8 +151,8 @@ void ctermui_component_draw_solid_background(
 
 ctermui_component ctermui_new_text_input(
   char* id,
-  size_t text_color,
-  size_t bg_color,
+  int8_t text_color,
+  int8_t bg_color,
   size_t min_width,
   size_t min_height,
   ctermui_screen_keyboard_events_t events);

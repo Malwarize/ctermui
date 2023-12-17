@@ -9,9 +9,12 @@
 #include <termios.h>
 #include <unistd.h>
 
+
 typedef struct winsize winsize;
+
+
 typedef struct ctermui_screen {
-  char*** buffer;
+  ctermui_screen_cell_t** buffer;
   uint32_t width;
   uint32_t height;
   ctermui_widget_t root;
@@ -43,12 +46,12 @@ enum ctermui_color {
   CTERMUI_BRIGHT_WHITE = 15
 };
 
-#define CTERMUI_TOP_LEFT_CORNER     '+'
-#define CTERMUI_BOTTOM_LEFT_CORNER  '+'
-#define CTERMUI_TOP_RIGHT_CORNER    '+'
-#define CTERMUI_BOTTOM_RIGHT_CORNER '+'
-#define CTERMUI_HORIZONTAL_LINE     '-'
-#define CTERMUI_VERTICAL_LINE       '|'
+#define CTERMUI_TOP_LEFT_CORNER     "+"
+#define CTERMUI_BOTTOM_LEFT_CORNER  "+"
+#define CTERMUI_TOP_RIGHT_CORNER    "+"
+#define CTERMUI_BOTTOM_RIGHT_CORNER "+"
+#define CTERMUI_HORIZONTAL_LINE     "-"
+#define CTERMUI_VERTICAL_LINE       "|"
 
 
 ctermui_screen_t ctermui_screen_init();

@@ -88,8 +88,8 @@ void ctermui_component_draw_solid_background(
       ctermui_pencil_draw_char(s->buffer,
                                x,
                                y,
-                               s->buffer[x][y][0],
-                               s->buffer[x][y][1],
+                               s->buffer[x][y]->characters,
+                               s->buffer[x][y]->foreground_color,
                                background->color);
     }
   }
@@ -192,8 +192,8 @@ void ctermui_button_calculate_absolute_position(
 ctermui_component ctermui_new_button(char* id,
                                      char* text,
                                      size_t align,
-                                     size_t text_color,
-                                     size_t bg_color)
+                                     int8_t text_color,
+                                     int8_t bg_color)
 {
   ctermui_component c =
     malloc(sizeof(struct ctermui_component));
@@ -290,7 +290,7 @@ void ctermui_text_calculate_absolute_position(
 }
 
 ctermui_component ctermui_new_text(
-  char* id, char* text, size_t color, size_t bg_color, size_t align)
+  char* id, char* text, int8_t color, int8_t bg_color, size_t align)
 {
   ctermui_component c =
     malloc(sizeof(struct ctermui_component));
@@ -328,8 +328,8 @@ void ctermui_calculate_absolute_position(
 }
 
 ctermui_component ctermui_new_frame(char* id,
-                                    size_t color,
-                                    size_t bg_color)
+                                    int8_t color,
+                                    int8_t bg_color)
 {
   ctermui_component c =
     malloc(sizeof(struct ctermui_component));
@@ -364,7 +364,7 @@ void ctermui_solid_background_calculate_absolute_position(
 }
 
 ctermui_component ctermui_new_solid_background(char* id,
-                                               size_t color,
+                                               int8_t color,
                                                size_t width,
                                                size_t height)
 {
@@ -445,18 +445,23 @@ void ctermui_component_draw_progress_bar(
       c->absolute_y + (c->absolute_height - 1) / 2;
     for (size_t i = 0; i < text_width; ++i) {
       if (i + text_x < progress_width) {
+        char tmp[2];
+        tmp[0] = progress_bar->text[i];
+        tmp[1] = '\0';
         ctermui_pencil_draw_char(s->buffer,
                                  text_x + i,
                                  text_y,
-                                 progress_bar->text[i],
+                                 tmp,
                                  progress_bar->text_color,
                                  progress_bar->bar_color);
       }
       else {
+        char tmp[2];
+        tmp[0] = progress_bar->text[i];
         ctermui_pencil_draw_char(s->buffer,
                                  text_x + i,
                                  text_y,
-                                 progress_bar->text[i],
+                                 tmp,
                                  progress_bar->text_color,
                                  progress_bar->bg_color);
       }
@@ -487,18 +492,22 @@ void ctermui_component_draw_progress_bar(
       c->absolute_y + (c->absolute_height - 1) / 2;
     for (size_t i = 0; i < text_width; ++i) {
       if (i + text_x < progress_height) {
+        char tmp[2];
+        tmp[0] = progress_bar->text[i];
         ctermui_pencil_draw_char(s->buffer,
                                  text_x + i,
                                  text_y,
-                                 progress_bar->text[i],
+                                 tmp,
                                  progress_bar->text_color,
                                  progress_bar->bar_color);
       }
       else {
+        char tmp[2];
+        tmp[0] = progress_bar->text[i];
         ctermui_pencil_draw_char(s->buffer,
                                  text_x + i,
                                  text_y,
-                                 progress_bar->text[i],
+                                 tmp,
                                  progress_bar->text_color,
                                  progress_bar->bg_color);
       }
@@ -507,12 +516,12 @@ void ctermui_component_draw_progress_bar(
 }
 
 ctermui_component ctermui_new_progress_bar(char* id,
-                                           size_t bar_color,
-                                           size_t bg_color,
+                                           int8_t bar_color,
+                                           int8_t bg_color,
                                            size_t max,
                                            size_t progress,
                                            char* text,
-                                           size_t text_color,
+                                           int8_t text_color,
                                            size_t orientation)
 {
   ctermui_component c =
@@ -644,8 +653,8 @@ void ctermui_text_input_calculate_absolute_position(ctermui_component c,
 
 ctermui_component ctermui_new_text_input(
   char* id,
-  size_t text_color,
-  size_t bg_color,
+  int8_t text_color,
+  int8_t bg_color,
   size_t min_width,
   size_t min_height,
   ctermui_screen_keyboard_events_t events)
@@ -715,7 +724,7 @@ void ctermui_soft_background_calculate_absolute_position(
   c->absolute_height = parent_height;
 }
 
-ctermui_component ctermui_new_soft_background(char* id,size_t color)
+ctermui_component ctermui_new_soft_background(char* id,int8_t color)
 {
   ctermui_component c =
     malloc(sizeof(struct ctermui_component));
