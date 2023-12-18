@@ -8,7 +8,7 @@ winsize get_term_size()
   return w;
 }
 
-const char* EMPTY_CHAR = " ";
+const char EMPTY_CHAR = ' ';
 
 void ctermui_screen_clean_term()
 {
@@ -120,10 +120,10 @@ void ctermui_screen_display(ctermui_screen_t s)
 {
   for (size_t i = 0; i < s->height; i++) {
     for (size_t j = 0; j < s->width; j++) {
-      printf("\033[48;5;%dm\033[38;5;%dm%s\033[0m",
+      printf("\033[48;5;%dm\033[38;5;%dm%c\033[0m",
                s->buffer[j][i]->background_color,
                s->buffer[j][i]->foreground_color,
-               s->buffer[j][i]->characters
+               s->buffer[j][i]->character
              );
     }
   }
@@ -149,7 +149,7 @@ void ctermui_screen_set_widget_root(ctermui_screen_t s,
 }
 
 void ctermui_screen_draw_component(ctermui_screen_t s,
-                                   ctermui_component c)
+                                   ctermui_component_t c)
 {
   c->draw(s, c);
 }
@@ -308,10 +308,10 @@ void ctermui_screen_display_part(
   printf("\033[%zu;%zuH", y + 1, x + 1);
   for (size_t i = y; i < y + height; i++) {
     for (size_t j = x; j < x + width; j++) {
-      printf("\033[48;5;%dm\033[38;5;%dm%s\033[0m",
+      printf("\033[48;5;%dm\033[38;5;%dm%c\033[0m",
       s->buffer[j][i]->background_color,
       s->buffer[j][i]->foreground_color,
-      s->buffer[j][i]->characters);
+      s->buffer[j][i]->character);
     }
   }
 }

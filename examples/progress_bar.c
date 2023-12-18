@@ -10,7 +10,7 @@ void periodic(ctermui_screen_t* screen_p)
     }
     char id[100];
     sprintf(id, "progress_bar_%zu", i);
-    ctermui_component progress_bar =
+    ctermui_component_t progress_bar =
       ctermui_widget_find_component(
         ctermui_widget_find(root, id), id);
     ProgressBar* pb =
@@ -41,7 +41,7 @@ int main()
     }
     char id[100];
     sprintf(id, "progress_bar_%zu", i);
-    ctermui_component progress_bar =
+    ctermui_component_t progress_bar =
       ctermui_new_progress_bar(id,
                                CTERMUI_GREEN,
                                CTERMUI_CYAN,

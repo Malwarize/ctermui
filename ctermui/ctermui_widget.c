@@ -85,7 +85,7 @@ void ctermui_calculate_abs_position(
     }
   }
   for (size_t i = 0; i < root_widget->component_count; ++i) {
-    ctermui_component c = root_widget->component[i];
+    ctermui_component_t c = root_widget->component[i];
     c->calculate_absolute_position(
       c,
       root_widget->absolute_x,
@@ -107,7 +107,7 @@ int ctermui_widget_add_child(ctermui_widget_t parent,
 }
 
 int ctermui_widget_add_component(ctermui_widget_t widget,
-                                 ctermui_component c)
+                                 ctermui_component_t c)
 {
   widget->component[widget->component_count++] = c;
   c->parent = widget;
@@ -130,7 +130,7 @@ ctermui_widget_t ctermui_widget_find(ctermui_widget_t root,
   return NULL;
 }
 
-ctermui_component ctermui_widget_find_component(
+ctermui_component_t ctermui_widget_find_component(
   ctermui_widget_t widget, char* id)
 {
   if (widget == NULL) {

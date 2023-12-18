@@ -102,27 +102,27 @@ typedef struct ctermui_component {
     size_t parent_height);
   void* core_component;
   ctermui_widget_t parent;
-}* ctermui_component;
+}* ctermui_component_t;
 
-ctermui_component ctermui_new_button(char* id,
+ctermui_component_t ctermui_new_button(char* id,
                                      char* text,
                                      size_t align,
                                      int8_t text_color,
                                      int8_t bg_color);
-ctermui_component ctermui_new_text(
+ctermui_component_t ctermui_new_text(
   char* id, char* text, int8_t color, int8_t bg_color, size_t align);
-ctermui_component ctermui_new_frame(char* id,
+ctermui_component_t ctermui_new_frame(char* id,
                                     int8_t color,
                                     int8_t bg_color);
-ctermui_component ctermui_new_solid_background(char* id,
+ctermui_component_t ctermui_new_solid_background(char* id,
                                                int8_t color,
                                                size_t width,
                                                size_t height);
 
-ctermui_component ctermui_new_soft_background(char* id,
+ctermui_component_t ctermui_new_soft_background(char* id,
                                               int8_t color);
 
-ctermui_component ctermui_new_progress_bar(char* id,
+ctermui_component_t ctermui_new_progress_bar(char* id,
                                            int8_t bar_color,
                                            int8_t bg_color,
                                            size_t max,
@@ -130,10 +130,10 @@ ctermui_component ctermui_new_progress_bar(char* id,
                                            char* text,
                                            int8_t text_color,
                                            size_t orientation);
-ctermui_component ctermui_new_custom_component(
+ctermui_component_t ctermui_new_custom_component(
   char* id,
-  void (*draw)(ctermui_screen_t s, ctermui_component c),
-  void (*calculate_absolute_position)(ctermui_component c,
+  void (*draw)(ctermui_screen_t s, ctermui_component_t c),
+  void (*calculate_absolute_position)(ctermui_component_t c,
                                       size_t parent_x,
                                       size_t parent_y,
                                       size_t parent_width,
@@ -141,15 +141,15 @@ ctermui_component ctermui_new_custom_component(
   void* core_component
   );
 void ctermui_component_draw_button(ctermui_screen_t s,
-                                   ctermui_component c);
+                                   ctermui_component_t c);
 void ctermui_component_draw_label(ctermui_screen_t s,
-                                  ctermui_component c);
+                                  ctermui_component_t c);
 void ctermui_component_draw_frame(ctermui_screen_t s,
-                                  ctermui_component c);
+                                  ctermui_component_t c);
 void ctermui_component_draw_solid_background(
-  ctermui_screen_t s, ctermui_component c);
+  ctermui_screen_t s, ctermui_component_t c);
 
-ctermui_component ctermui_new_text_input(
+ctermui_component_t ctermui_new_text_input(
   char* id,
   int8_t text_color,
   int8_t bg_color,
@@ -157,5 +157,5 @@ ctermui_component ctermui_new_text_input(
   size_t min_height,
   ctermui_screen_keyboard_events_t events);
 void ctermui_component_draw_soft_background(
-  ctermui_screen_t s, ctermui_component c);
+  ctermui_screen_t s, ctermui_component_t c);
 #endif  // CTERMUI_COMPONENT_H

@@ -46,13 +46,6 @@ enum ctermui_color {
   CTERMUI_BRIGHT_WHITE = 15
 };
 
-#define CTERMUI_TOP_LEFT_CORNER     "+"
-#define CTERMUI_BOTTOM_LEFT_CORNER  "+"
-#define CTERMUI_TOP_RIGHT_CORNER    "+"
-#define CTERMUI_BOTTOM_RIGHT_CORNER "+"
-#define CTERMUI_HORIZONTAL_LINE     "-"
-#define CTERMUI_VERTICAL_LINE       "|"
-
 
 ctermui_screen_t ctermui_screen_init();
 void ctermui_screen_display(ctermui_screen_t s);

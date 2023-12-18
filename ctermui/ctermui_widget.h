@@ -12,7 +12,7 @@ typedef struct ctermui_widget {
   struct ctermui_widget* children[10];
   uint16_t type;
   uint16_t children_count;
-  struct ctermui_component* component[10];
+  ctermui_component_t component[10];
   uint16_t component_count;
   size_t absolute_x;
   size_t absolute_y;
@@ -36,10 +36,10 @@ int ctermui_widget_add_child(ctermui_widget_t parent,
                              ctermui_widget_t child);
 int ctermui_widget_add_component(
   ctermui_widget_t widget,
-  ctermui_component ctermui_component);
+  ctermui_component_t ctermui_component);
 void ctermui_widget_draw(ctermui_widget_t widget);
 void ctermui_calculate_abs_position(
   ctermui_widget_t root_widget);
-ctermui_component ctermui_widget_find_component(
+ctermui_component_t ctermui_widget_find_component(
   ctermui_widget_t widget, char* id);
 #endif  // CTERMUI_WIDGET_H

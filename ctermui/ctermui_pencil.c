@@ -1,15 +1,14 @@
 #include "ctermui_pencil.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 int ctermui_pencil_draw_char(screen_buffer b,
                              size_t x,
                              size_t y,
-                             const char* c,
+                             char c,
                              int8_t fg_color,
                              int8_t bg_color)
 {
-  strcpy(b[x][y]->characters, c);
+  b[x][y]->character = c;
   b[x][y]->foreground_color = fg_color;
   b[x][y]->background_color = bg_color;
   return 0;
@@ -19,7 +18,7 @@ int ctermui_pencil_draw_line(screen_buffer b,
                              size_t x,
                              size_t y,
                              size_t length,
-                             const char* c,
+                             char c,
                              int8_t color,
                              int8_t bg_color)
 {
@@ -114,12 +113,9 @@ int ctermui_pencil_draw_text(screen_buffer b,
 {
   size_t i = 0;
   //convert char to string
-  char c[2];
   while (text[i] != '\0') {
-    c[0] = text[i];
-    c[1] = '\0';
     ctermui_pencil_draw_char(
-      b, x + i, y, c, color, bg_color);
+      b, x + i, y, text[i], color, bg_color);
     i++;
   }
   return 0;
@@ -134,7 +130,7 @@ int ctermui_pencil_solid_background(screen_buffer b,
   for (size_t i = 0; i < height; i++) {
     for (size_t j = 0; j < width; j++) {
       ctermui_pencil_draw_char(
-        b, x + j, y + i, b[x][y]->characters, b[x][y]->foreground_color, color);
+        b, x + j, y + i, b[x][y]->character, b[x][y]->foreground_color, color);
     }
   }
   return 0;
@@ -151,7 +147,7 @@ int ctermui_pencil_bucket(screen_buffer b,
     for (size_t j = 0; j < width; j++) {
       if (b[x + j][y + i]->background_color == -1) {
         ctermui_pencil_draw_char(
-          b, x + j, y + i, b[x][y]->characters, b[x][y]->foreground_color, color);
+          b, x + j, y + i, b[x][y]->character, b[x][y]->foreground_color, color);
       }
     }
   }
