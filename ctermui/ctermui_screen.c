@@ -125,18 +125,31 @@ void ctermui_screen_clear_part(
     }
   }
 }
+#define ANSI_ESCAPE_BG_FMT "\033[48;5;%dm"
+#define ANSI_ESCAPE_FG_FMT "\033[38;5;%dm"
+#define ANSI_RESET_FMT "\033[0m"
 
-
-
+void ctermui_display_cell(ctermui_screen_cell_t c) {
+  if (c->flag == CTERMUI_CELL_FLAG_NONE) {
+    // Print cell with background and foreground colors
+    printf(ANSI_ESCAPE_BG_FMT ANSI_ESCAPE_FG_FMT "%c" ANSI_RESET_FMT,
+           c->background_color, c->foreground_color, c->character);
+  } else if (c->flag == CTERMUI_CELL_ESCAPE_COLORS) {
+    // Print cell without colors
+    printf("%c", c->character);
+  } else if (c->flag == CTERMUI_CELL_ESCAPE_BG) {
+    // Print cell with background color escape
+    printf(ANSI_ESCAPE_BG_FMT "%c" ANSI_RESET_FMT, c->background_color, c->character);
+  } else if (c->flag == CTERMUI_CELL_ESCAPE_FG) {
+    // Print cell with foreground color escape
+    printf(ANSI_ESCAPE_FG_FMT "%c" ANSI_RESET_FMT, c->foreground_color, c->character);
+  }
+}
 void ctermui_screen_display(ctermui_screen_t s)
 {
   for (size_t i = 0; i < s->height; i++) {
     for (size_t j = 0; j < s->width; j++) {
-      printf("\033[48;5;%dm\033[38;5;%dm%c\033[0m",
-               s->buffer[j][i]->background_color,
-               s->buffer[j][i]->foreground_color,
-               s->buffer[j][i]->character
-             );
+        ctermui_display_cell(s->buffer[j][i]);
     }
   }
 }
@@ -320,10 +333,7 @@ void ctermui_screen_display_part(
   printf("\033[%zu;%zuH", y + 1, x + 1);
   for (size_t i = y; i < y + height; i++) {
     for (size_t j = x; j < x + width; j++) {
-      printf("\033[48;5;%dm\033[38;5;%dm%c\033[0m",
-      s->buffer[j][i]->background_color,
-      s->buffer[j][i]->foreground_color,
-      s->buffer[j][i]->character);
+      ctermui_display_cell(s->buffer[j][i]);
     }
   }
 }
