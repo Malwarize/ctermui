@@ -6,7 +6,8 @@ int ctermui_pencil_draw_char(screen_buffer b,
                              size_t y,
                              char c,
                              int8_t fg_color,
-                             int8_t bg_color)
+                             int8_t bg_color,
+                             uint8_t flag)
 {
   b[x][y]->character = c;
   b[x][y]->foreground_color = fg_color;
@@ -25,13 +26,13 @@ int ctermui_pencil_draw_line(screen_buffer b,
   if (orientation == 0) {
     for (size_t i = 0; i < length; i++) {
       ctermui_pencil_draw_char(
-        b, x + i, y, c, color, bg_color);
+        b, x + i, y, c, color, bg_color, 0);
     }
   }
   else if (orientation == 1) {
     for (size_t i = 0; i < length; i++) {
       ctermui_pencil_draw_char(
-        b, x, y + i, c, color, bg_color);
+        b, x, y + i, c, color, bg_color, 0);
     }
   }
   else {
@@ -51,25 +52,28 @@ int ctermui_pencil_draw_rect(screen_buffer b,
                              int8_t bg_color)
 {
   ctermui_pencil_draw_char(
-    b, x, y, CTERMUI_TOP_LEFT_CORNER, color, bg_color);
+    b, x, y, CTERMUI_TOP_LEFT_CORNER, color, bg_color, 0);
   ctermui_pencil_draw_char(b,
                            x + width,
                            y,
                            CTERMUI_TOP_RIGHT_CORNER,
                            color,
-                           bg_color);
+                           bg_color,
+                           0);
   ctermui_pencil_draw_char(b,
                            x,
                            y + height,
                            CTERMUI_BOTTOM_LEFT_CORNER,
                            color,
-                           bg_color);
+                           bg_color,
+                           0);
   ctermui_pencil_draw_char(b,
                            x + width,
                            y + height,
                            CTERMUI_BOTTOM_RIGHT_CORNER,
                            color,
-                           bg_color);
+                           bg_color,
+                           0);
   ctermui_pencil_draw_line(b,
                            0,
                            x + 1,
@@ -115,7 +119,7 @@ int ctermui_pencil_draw_text(screen_buffer b,
   //convert char to string
   while (text[i] != '\0') {
     ctermui_pencil_draw_char(
-      b, x + i, y, text[i], color, bg_color);
+      b, x + i, y, text[i], color, bg_color, 0);
     i++;
   }
   return 0;
@@ -129,8 +133,13 @@ int ctermui_pencil_solid_background(screen_buffer b,
 {
   for (size_t i = 0; i < height; i++) {
     for (size_t j = 0; j < width; j++) {
-      ctermui_pencil_draw_char(
-        b, x + j, y + i, b[x][y]->character, b[x][y]->foreground_color, color);
+      ctermui_pencil_draw_char(b,
+                               x + j,
+                               y + i,
+                               b[x][y]->character,
+                               b[x][y]->foreground_color,
+                               color,
+                               0);
     }
   }
   return 0;
@@ -146,8 +155,13 @@ int ctermui_pencil_bucket(screen_buffer b,
   for (size_t i = 0; i < height; i++) {
     for (size_t j = 0; j < width; j++) {
       if (b[x + j][y + i]->background_color == -1) {
-        ctermui_pencil_draw_char(
-          b, x + j, y + i, b[x][y]->character, b[x][y]->foreground_color, color);
+        ctermui_pencil_draw_char(b,
+                                 x + j,
+                                 y + i,
+                                 b[x][y]->character,
+                                 b[x][y]->foreground_color,
+                                 color,
+                                 0);
       }
     }
   }

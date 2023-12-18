@@ -99,7 +99,13 @@ void ctermui_screen_clear(ctermui_screen_t s)
 //      s->buffer[x][y][0] = EMPTY_CHAR;
 //      s->buffer[x][y][1] = CTERMUI_WHITE;
 //      s->buffer[x][y][2] = CTERMUI_EMPTY;
-        ctermui_pencil_draw_char(s->buffer, x, y, EMPTY_CHAR, CTERMUI_WHITE, CTERMUI_EMPTY);
+ctermui_pencil_draw_char(s->buffer,
+                         x,
+                         y,
+                         EMPTY_CHAR,
+                         CTERMUI_WHITE,
+                         CTERMUI_EMPTY,
+                         0);
     }
   }
 }
@@ -109,7 +115,13 @@ void ctermui_screen_clear_part(
 {
   for (size_t i = y; i < y + height; i++) {
     for (size_t j = x; j < x + width; j++) {
-        ctermui_pencil_draw_char(s->buffer, j, i, EMPTY_CHAR, CTERMUI_WHITE, CTERMUI_EMPTY);
+      ctermui_pencil_draw_char(s->buffer,
+                               j,
+                               i,
+                               EMPTY_CHAR,
+                               CTERMUI_WHITE,
+                               CTERMUI_EMPTY,
+                               0);
     }
   }
 }

@@ -12,6 +12,12 @@
 #define CELL_CHARACTER_SIZE 50
 
 
+enum ctermui_cell_flag{
+  CTERMUI_CELL_FLAG_NONE = 0,
+  CTERMUI_CELL_ESCAPE_BG,
+  CTERMUI_CELL_ESCAPE_FG,
+  CTERMUI_CELL_ESCAPE_COLORS,
+};
 
 typedef struct ctermui_screen_cell{
   char character;
@@ -28,7 +34,8 @@ int ctermui_pencil_draw_char(screen_buffer b,
                              size_t y,
                              char c,
                              int8_t fg_color,
-                             int8_t bg_color);
+                             int8_t bg_color,
+                             uint8_t flag);
 int ctermui_pencil_draw_line(screen_buffer b,
                              size_t orientation,
                              size_t x,
