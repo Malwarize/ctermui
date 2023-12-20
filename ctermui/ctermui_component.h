@@ -7,6 +7,26 @@ typedef struct ctermui_widget* ctermui_widget_t;
 #include <stdint.h>
 #include <unistd.h>
 
+
+typedef struct ctermui_component {
+  char id[100];
+  uint16_t type;
+  size_t absolute_x;
+  size_t absolute_y;
+  size_t absolute_width;
+  size_t absolute_height;
+  void (*draw)(ctermui_screen_t s,
+               struct ctermui_component* c);
+  void (*calculate_absolute_position)(
+    struct ctermui_component* c,
+    size_t parent_x,
+    size_t parent_y,
+    size_t parent_width,
+    size_t parent_height);
+  void* core_component;
+  ctermui_widget_t parent;
+}* ctermui_component_t;
+
 enum CTYPES {
   TEXT,
   BUTTON,
@@ -15,6 +35,7 @@ enum CTYPES {
   SOLID_BACKGROUND,
   PROGRESS_BAR,
   TEXT_INPUT,
+  BARCHART,
   CUSTOM
 };
 
@@ -74,6 +95,16 @@ typedef struct {
   size_t orientation;  // 0 = horizontal, 1 = vertical
 } ProgressBar;
 
+#define MAX_BARS 100
+typedef struct {
+  size_t values_count;
+  ctermui_component_t bars[MAX_BARS];
+  ctermui_component_t labels[MAX_BARS];
+  uint8_t orientation;
+  size_t gap;
+  size_t _max_text_width;
+} BarChart;
+
 typedef struct {
   char text[300];
   size_t align;
@@ -84,40 +115,26 @@ typedef struct {
   size_t min_height;
 } TextInput;
 
-
-typedef struct ctermui_component {
-  char id[100];
-  uint16_t type;
-  size_t absolute_x;
-  size_t absolute_y;
-  size_t absolute_width;
-  size_t absolute_height;
-  void (*draw)(ctermui_screen_t s,
-               struct ctermui_component* c);
-  void (*calculate_absolute_position)(
-    struct ctermui_component* c,
-    size_t parent_x,
-    size_t parent_y,
-    size_t parent_width,
-    size_t parent_height);
-  void* core_component;
-  ctermui_widget_t parent;
-}* ctermui_component_t;
-
 ctermui_component_t ctermui_new_button(char* id,
                                      char* text,
                                      size_t align,
                                      int8_t text_color,
                                      int8_t bg_color);
+
 ctermui_component_t ctermui_new_text(
   char* id, char* text, int8_t color, int8_t bg_color, size_t align);
+
 ctermui_component_t ctermui_new_frame(char* id,
                                     int8_t color,
                                     int8_t bg_color);
+
 ctermui_component_t ctermui_new_solid_background(char* id,
                                                int8_t color,
                                                size_t width,
                                                size_t height);
+
+void ctermui_progress_bar_update_value(ctermui_component_t c,
+                                     size_t value);
 
 ctermui_component_t ctermui_new_soft_background(char* id,
                                               int8_t color);
@@ -130,6 +147,7 @@ ctermui_component_t ctermui_new_progress_bar(char* id,
                                            char* text,
                                            int8_t text_color,
                                            size_t orientation);
+
 ctermui_component_t ctermui_new_custom_component(
   char* id,
   void (*draw)(ctermui_screen_t s, ctermui_component_t c),
@@ -142,10 +160,13 @@ ctermui_component_t ctermui_new_custom_component(
   );
 void ctermui_component_draw_button(ctermui_screen_t s,
                                    ctermui_component_t c);
+
 void ctermui_component_draw_label(ctermui_screen_t s,
                                   ctermui_component_t c);
+
 void ctermui_component_draw_frame(ctermui_screen_t s,
                                   ctermui_component_t c);
+
 void ctermui_component_draw_solid_background(
   ctermui_screen_t s, ctermui_component_t c);
 
@@ -156,6 +177,22 @@ ctermui_component_t ctermui_new_text_input(
   size_t min_width,
   size_t min_height,
   ctermui_screen_keyboard_events_t events);
+
 void ctermui_component_draw_soft_background(
   ctermui_screen_t s, ctermui_component_t c);
+
+void ctermui_barchart_update_values(ctermui_component_t c,
+                                    int* values,
+                                    size_t values_length);
+
+ctermui_component_t  ctemrui_new_barchart(char* id,
+                                        int8_t bar_color,
+                                        int8_t bg_color,
+                                        size_t max,
+                                        size_t orientation,
+                                        int* values,
+                                        char(*labels)[100],
+                                        size_t values_length,
+                                        int gap
+                                        );
 #endif  // CTERMUI_COMPONENT_H

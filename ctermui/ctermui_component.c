@@ -397,6 +397,18 @@ ctermui_component_t ctermui_new_solid_background(char* id,
     ctermui_solid_background_calculate_absolute_position;
   return c;
 }
+void ctermui_progress_bar_update_value(ctermui_component_t c,
+                                     size_t value)
+{
+  if (c->type != PROGRESS_BAR) {
+    fprintf(
+      stderr,
+      "ctermui_pencil_draw_progress_bar: invalid component type\n");
+    exit(EXIT_FAILURE);
+  }
+  ProgressBar* progress_bar = (ProgressBar*)c->core_component;
+  progress_bar->progress = value;
+}
 
 void ctermui_progress_bar_calculate_absolute_position(
   ctermui_component_t c,
@@ -529,8 +541,7 @@ ctermui_component_t ctermui_new_progress_bar(char* id,
       "Error: could not allocate memory for progress bar component\n");
     exit(EXIT_FAILURE);
   }
-  ProgressBar* progress_bar_component =
-    malloc(sizeof(ProgressBar));
+  ProgressBar* progress_bar_component = malloc(sizeof(ProgressBar));
 
   if (progress_bar_component == NULL) {
     fprintf(
@@ -557,6 +568,166 @@ ctermui_component_t ctermui_new_progress_bar(char* id,
   return c;
 }
 
+void ctermui_barchart_update_values(ctermui_component_t c,
+                                    int* values,
+                                    size_t values_length)
+{
+  if (c->type != BARCHART) {
+    fprintf(
+      stderr,
+      "ctermui_pencil_draw_barchart: invalid component type\n");
+    exit(EXIT_FAILURE);
+  }
+  BarChart* barchart = (BarChart*)c->core_component;
+  for (size_t i = 0; i < values_length; ++i) {
+    ProgressBar* pb = (ProgressBar*)barchart->bars[i]->core_component;
+    pb->progress = values[i];
+  }
+}
+
+void ctermui_barchart_draw(ctermui_screen_t s,
+                           ctermui_component_t c)
+{
+  if (c->type != BARCHART) {
+    fprintf(
+      stderr,
+      "ctermui_pencil_draw_barchart: invalid component type\n");
+    exit(EXIT_FAILURE);
+  }
+  
+  BarChart* barchart = (BarChart*)c->core_component;
+  for (size_t i = 0; i < barchart->values_count; ++i) {
+    ctermui_component_t bar = barchart->bars[i];
+    ctermui_component_t label = barchart->labels[i];
+    bar->draw(s, bar);
+    label->draw(s, label);
+  }
+}
+size_t biggest_text_length(char (*labels)[100], size_t values_length)
+{
+  size_t max = 0;
+  for (size_t i = 0; i < values_length; ++i) {
+    size_t len = strlen(labels[i]);
+    if (len > max) {
+      max = len;
+    }
+  }
+  return max;
+}
+void ctermui_barchart_calculate_absolute_position(
+  ctermui_component_t c,
+  size_t parent_x,
+  size_t parent_y,
+  size_t parent_width,
+  size_t parent_height)
+{
+  BarChart* barchart = (BarChart*)c->core_component;
+  if(barchart->orientation == CTERMUI_HORIZONTAL){
+    int bar_height = (int)((float)parent_height / barchart->values_count);
+    for (size_t i = 0; i < barchart->values_count; ++i) {
+      ctermui_component_t bar = barchart->bars[i];
+      ctermui_component_t label = barchart->labels[i];
+      // for horizontal barchart we need to calculate the max text width 
+      int gap;
+      if(bar_height - barchart->gap <= 0){
+        gap = 0;
+      }else{
+        gap = 1;
+      }
+      label->calculate_absolute_position(
+        label,
+        parent_x,
+        parent_y + i*bar_height,
+        barchart->_max_text_width,
+        bar_height - gap
+      );
+
+      bar->calculate_absolute_position(
+        bar,
+        parent_x + barchart->_max_text_width,
+        parent_y + i*bar_height,
+        parent_width - barchart->_max_text_width,
+        bar_height - gap
+      );
+    }
+  }else{
+    int bar_width = (int) ((float) parent_width / (float) barchart->values_count);
+    for (size_t i = 0; i < barchart->values_count; ++i) {
+      ctermui_component_t bar = barchart->bars[i];
+      ctermui_component_t label = barchart->labels[i];
+      bar->calculate_absolute_position(
+        bar,
+        parent_x + i*bar_width,
+        parent_y,
+        bar_width-barchart->gap,
+        parent_y + parent_height-label->absolute_height
+      );
+      label->calculate_absolute_position(
+        label,
+        parent_x + i*bar_width,
+        parent_y + parent_height - label->absolute_height,
+        bar_width-barchart->gap,
+        label->absolute_height
+      );
+    }
+  
+  }
+}
+
+    
+ctermui_component_t  ctemrui_new_barchart(char* id,
+                                        int8_t bar_color,
+                                        int8_t bg_color,
+                                        size_t max,
+                                        size_t orientation,
+                                        int* values,
+                                        char (*lables)[100],
+                                        size_t values_length,
+                                        int gap
+                                        )
+{
+  ctermui_component_t c =
+    malloc(sizeof(struct ctermui_component));
+  if (c == NULL) {
+    fprintf(
+      stderr,
+      "Error: could not allocate memory for barchart component\n");
+    exit(EXIT_FAILURE);
+  }
+  BarChart* barchart_component = malloc(sizeof(BarChart));
+  if (barchart_component == NULL) {
+    fprintf(
+      stderr,
+      "Error: could not allocate memory for barchart component\n");
+    exit(EXIT_FAILURE);
+  }
+  barchart_component->values_count = values_length;
+  barchart_component->orientation = orientation;
+  barchart_component->gap = gap;
+  barchart_component->_max_text_width = biggest_text_length(lables, values_length);
+  char id_buff[100];
+  for (size_t i = 0; i < values_length; ++i) {
+    sprintf(id_buff, "%s_bar_%zu", id, i);
+    ctermui_component_t bar = ctermui_new_progress_bar(
+      id_buff, bar_color, bg_color, max, values[i], "", CTERMUI_EMPTY, orientation);
+    barchart_component->bars[i] = bar;
+  
+    // lables 
+    sprintf(id_buff, "%s_label_%zu", id, i);
+    ctermui_component_t label = ctermui_new_text(
+      id_buff, lables[i], CTERMUI_EMPTY, CTERMUI_EMPTY, CTERMUI_ALIGN_CENTER);
+    barchart_component->labels[i] = label;
+  
+  }
+  
+  
+  c->core_component = barchart_component;
+  c->type = BARCHART;
+  c->calculate_absolute_position = ctermui_barchart_calculate_absolute_position;
+  c->draw = ctermui_barchart_draw;
+  strcpy(c->id, id);
+  return c;
+}
 
 void ctermui_text_input_draw(ctermui_screen_t s,
                              ctermui_component_t c)
