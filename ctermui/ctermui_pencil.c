@@ -12,7 +12,6 @@ int ctermui_pencil_draw_char(screen_buffer b,
   b[x][y]->character = c;
   b[x][y]->foreground_color = fg_color;
   b[x][y]->background_color = bg_color;
-  b[x][y]->flag = flag;
   return 0;
 }
 int ctermui_pencil_draw_line(screen_buffer b,
@@ -168,3 +167,4 @@ int ctermui_pencil_bucket(screen_buffer b,
   }
   return 0;
 }
+
