@@ -13,10 +13,11 @@
 
 
 enum ctermui_cell_flag{
-  CTERMUI_CELL_FLAG_NONE = 0,
-  CTERMUI_CELL_ESCAPE_BG,
-  CTERMUI_CELL_ESCAPE_FG,
-  CTERMUI_CELL_ESCAPE_COLORS,
+  DEFAULT = 0,
+  START,
+  END,
+  MIDDLE,
+  SKIP_CELL,
 };
 
 typedef struct ctermui_screen_cell{

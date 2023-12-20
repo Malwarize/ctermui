@@ -5,14 +5,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
+#define MAX_WIDGETS 100
+#define MAX_COMPONENTS 10
 typedef struct ctermui_widget {
   char id[100];
   uint16_t percentage;
-  struct ctermui_widget* children[10];
+  struct ctermui_widget* children[MAX_WIDGETS];
   uint16_t type;
   uint16_t children_count;
-  ctermui_component_t component[10];
+  ctermui_component_t component[MAX_COMPONENTS];
   uint16_t component_count;
   size_t absolute_x;
   size_t absolute_y;

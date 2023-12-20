@@ -96,16 +96,13 @@ void ctermui_screen_clear(ctermui_screen_t s)
 {
   for (uint32_t x = 0; x < s->width; ++x) {
     for (uint32_t y = 0; y < s->height; ++y) {
-//      s->buffer[x][y][0] = EMPTY_CHAR;
-//      s->buffer[x][y][1] = CTERMUI_WHITE;
-//      s->buffer[x][y][2] = CTERMUI_EMPTY;
-ctermui_pencil_draw_char(s->buffer,
-                         x,
-                         y,
-                         EMPTY_CHAR,
-                         CTERMUI_WHITE,
-                         CTERMUI_EMPTY,
-                         0);
+      ctermui_pencil_draw_char(s->buffer,
+                               x,
+                               y,
+                               EMPTY_CHAR,
+                               CTERMUI_WHITE,
+                               CTERMUI_EMPTY,
+                               0);
     }
   }
 }
@@ -125,24 +122,35 @@ void ctermui_screen_clear_part(
     }
   }
 }
-#define ANSI_ESCAPE_BG_FMT "\033[48;5;%dm"
-#define ANSI_ESCAPE_FG_FMT "\033[38;5;%dm"
+#define ANSI_BG_FMT "\033[48;5;%dm"
+#define ANSI_FG_FMT "\033[38;5;%dm"
 #define ANSI_RESET_FMT "\033[0m"
 
 void ctermui_display_cell(ctermui_screen_cell_t c) {
-  if (c->flag == CTERMUI_CELL_FLAG_NONE) {
-    // Print cell with background and foreground colors
-    printf(ANSI_ESCAPE_BG_FMT ANSI_ESCAPE_FG_FMT "%c" ANSI_RESET_FMT,
-           c->background_color, c->foreground_color, c->character);
-  } else if (c->flag == CTERMUI_CELL_ESCAPE_COLORS) {
-    // Print cell without colors
+  if(c->flag == DEFAULT){
+    printf(ANSI_BG_FMT ANSI_FG_FMT "%c" ANSI_RESET_FMT,
+      c->background_color,
+      c->foreground_color,
+      c->character);
+  }
+  else if(c->flag == START){
+    printf(ANSI_BG_FMT ANSI_FG_FMT "%c",
+      c->background_color,
+      c->foreground_color,
+      c->character);
+  }
+  else if(c->flag == END){
+    printf( "%c" ANSI_RESET_FMT,
+           c->character);
+  }
+  else if(c->flag == MIDDLE){
     printf("%c", c->character);
-  } else if (c->flag == CTERMUI_CELL_ESCAPE_BG) {
-    // Print cell with background color escape
-    printf(ANSI_ESCAPE_BG_FMT "%c" ANSI_RESET_FMT, c->background_color, c->character);
-  } else if (c->flag == CTERMUI_CELL_ESCAPE_FG) {
-    // Print cell with foreground color escape
-    printf(ANSI_ESCAPE_FG_FMT "%c" ANSI_RESET_FMT, c->foreground_color, c->character);
+  }
+  else{
+    printf(ANSI_BG_FMT ANSI_FG_FMT "%c" ANSI_RESET_FMT,
+      c->background_color,
+      c->foreground_color,
+      c->character);
   }
 }
 void ctermui_screen_display(ctermui_screen_t s)

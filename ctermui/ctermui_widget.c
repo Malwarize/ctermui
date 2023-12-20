@@ -22,6 +22,8 @@ ctermui_widget_t ctermui_widget_new_root(uint16_t type,
   widget->absolute_y = 0;
   widget->absolute_width = width;
   widget->absolute_height = height;
+  widget->component_count = 0;
+
   return widget;
 }
 
