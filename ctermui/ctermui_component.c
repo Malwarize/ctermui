@@ -733,85 +733,104 @@ ctermui_component_t  ctemrui_new_barchart(char* id,
   return c;
 }
 
+void ctermui_scatter_plot_draw(ctermui_screen_t s, ctermui_component_t c) {
+    ScatterPlot* plt = (ScatterPlot*)c->core_component;
 
-void ctermui_scatter_plot_draw(ctermui_screen_t s, ctermui_component_t c){
-  ScatterPlot* plt = (ScatterPlot*) c->core_component; 
-  
-  float max_x = plt->xvalues[0];
-  for(size_t i = 1; i < plt->size; ++i){
-    if(plt->xvalues[i] > max_x){
-      max_x = plt->xvalues[i];
+    float max_x = plt->xvalues[0];
+    float max_y = plt->yvalues[0];
+    float min_x = plt->xvalues[0];
+    float min_y = plt->yvalues[0];
+
+    for (size_t i = 1; i < plt->size; ++i) {
+        if (plt->xvalues[i] > max_x) {
+            max_x = plt->xvalues[i];
+        }
+        if (plt->yvalues[i] > max_y) {
+            max_y = plt->yvalues[i];
+        }
+        if (plt->xvalues[i] < min_x && plt->xvalues[i] != 0.0f) {
+            min_x = plt->xvalues[i];
+        }
+        if (plt->yvalues[i] < min_y && plt->yvalues[i] != 0.0f) {
+            min_y = plt->yvalues[i];
+        }
     }
-  }
-  float max_y = plt->yvalues[0];
-  for(size_t i = 1; i < plt->size; ++i){
-    if(plt->yvalues[i] > max_y){
-      max_y = plt->yvalues[i];
+
+    size_t x_plot_starting = c->absolute_x;
+    size_t y_plot_starting = c->absolute_y;
+    size_t x_plot_width = c->absolute_width;
+    size_t y_plot_height = c->absolute_height;
+    char tmp[5];
+    sprintf(tmp, "%.2f", max_x);
+    x_plot_starting += strlen(tmp);
+    x_plot_width -= strlen(tmp);
+    y_plot_height -= 1;
+
+    ctermui_pencil_draw_line(s->buffer, CTERMUI_VERTICAL, x_plot_starting, y_plot_starting, y_plot_height, CTERMUI_VERTICAL_LINE, plt->fg_color, plt->bg_color);
+    ctermui_pencil_draw_line(s->buffer, CTERMUI_HORIZONTAL, x_plot_starting, y_plot_starting + y_plot_height - 1, x_plot_width, CTERMUI_HORIZONTAL_LINE, plt->fg_color, plt->bg_color);
+
+    for (size_t i = 0; i < plt->size; ++i) {
+        if (plt->xvalues[i] == 0.0f || plt->yvalues[i] == 0.0f) {
+            continue; // Skip (0,0) if it doesn't exist
+        }
+
+        float scaled_x = (plt->xvalues[i] - min_x) / (max_x - min_x) * (x_plot_width - 1);
+        float scaled_y = (plt->yvalues[i] - min_y) / (max_y - min_y) * (y_plot_height - 1);
+        int x_position = x_plot_starting + (int)scaled_x;
+        int y_position = y_plot_starting + y_plot_height - 1 - (int)scaled_y;
+
+        ctermui_pencil_draw_char(s->buffer, x_position, y_plot_starting + y_plot_height - 1, CTERMUI_VERTICAL_LINE, plt->fg_color, plt->bg_color, 0);
+        ctermui_pencil_draw_char(s->buffer, x_plot_starting, y_position, CTERMUI_HORIZONTAL_LINE, plt->fg_color, plt->bg_color, 0);
+
+        char x_label[100];
+        sprintf(x_label, "%.2f", plt->xvalues[i]);
+        char y_label[100];
+        sprintf(y_label, "%.2f", plt->yvalues[i]);
+        ctermui_pencil_draw_text(s->buffer, c->absolute_x, y_position, y_label, plt->fg_color, plt->bg_color);
+
+        size_t label_pos = x_position - strlen(x_label) / 2;
+        if (label_pos + strlen(x_label) > c->absolute_x + c->absolute_width) {
+            label_pos = c->absolute_x + c->absolute_width - strlen(x_label);
+        }
+        ctermui_pencil_draw_text(s->buffer, label_pos, c->absolute_y + c->absolute_height - 1, x_label, plt->fg_color, plt->bg_color);
     }
-  }
 
-  size_t x_plot_starting = c->absolute_x;
-  size_t y_plot_starting = c->absolute_y;
-  size_t x_plot_width = c->absolute_width;
-  size_t y_plot_height = c->absolute_height;
-  char tmp[5];
-  sprintf(tmp, "%.2f", max_x);
-  x_plot_starting += strlen(tmp);
-  x_plot_width -= strlen(tmp);
-  y_plot_height -= 1;
+    for (size_t i = 0; i < plt->size; ++i) {
+        if (plt->xvalues[i] == 0.0f || plt->yvalues[i] == 0.0f) {
+            continue; // Skip (0,0) if it doesn't exist
+        }
 
+        float scaled_x = (plt->xvalues[i] - min_x) / (max_x - min_x) * (x_plot_width - 1);
+        float scaled_y = (plt->yvalues[i] - min_y) / (max_y - min_y) * (y_plot_height - 1);
 
-  ctermui_pencil_draw_line(s->buffer,CTERMUI_VERTICAL,x_plot_starting,y_plot_starting,y_plot_height,CTERMUI_VERTICAL_LINE,plt->fg_color,plt->bg_color);
-  ctermui_pencil_draw_line(s->buffer,CTERMUI_HORIZONTAL,x_plot_starting,y_plot_starting+y_plot_height-1,x_plot_width,CTERMUI_HORIZONTAL_LINE,plt->fg_color,plt->bg_color);
+        int x_position = x_plot_starting + (int)scaled_x;
+        int y_position = y_plot_starting + y_plot_height - 1 - (int)scaled_y;
 
-
-
-
-
-  for(size_t i = 0; i < plt->size; ++i){
-    float scaled_x = plt->xvalues[i] / max_x * (x_plot_width - 1);
-    float scaled_y = plt->yvalues[i] / max_y * (y_plot_height - 1);
-    int x_position =x_plot_starting + (int)scaled_x;
-    int y_position = y_plot_starting + y_plot_height - 1 - (int)scaled_y;
-    ctermui_pencil_draw_char(s->buffer, x_position, y_plot_starting + y_plot_height - 1, CTERMUI_VERTICAL_LINE, plt->fg_color, plt->bg_color, 0);
-    ctermui_pencil_draw_char(s->buffer,x_plot_starting, y_position, CTERMUI_HORIZONTAL_LINE, plt->fg_color, plt->bg_color, 0);
-
-    char x_label[100];
-    sprintf(x_label, "%.2f", plt->xvalues[i]);
-    char y_label[100];
-    sprintf(y_label, "%.2f", plt->yvalues[i]);
-    ctermui_pencil_draw_text(s->buffer, c->absolute_x, y_position, y_label, plt->fg_color, plt->bg_color);
-    size_t label_pos =x_position-strlen(x_label)/2;
-    if(label_pos + strlen(x_label) > c->absolute_x + c->absolute_width){
-      label_pos = c->absolute_x + c->absolute_width - strlen(x_label);
+        ctermui_pencil_draw_char(s->buffer, x_position, y_position, plt->point_symbol, plt->point_color, plt->bg_color, 0);
     }
-    ctermui_pencil_draw_text(s->buffer,label_pos , c->absolute_y + c->absolute_height - 1, x_label, plt->fg_color, plt->bg_color);
-  }
 
-  for (size_t i = 0; i < plt->size; ++i) {
-      float scaled_x = plt->xvalues[i] / max_x * (x_plot_width - 1);
-      float scaled_y = plt->yvalues[i] / max_y * (y_plot_height - 1);
+    if (plt->line_linking) {
+        for (size_t i = 0; i < plt->size - 1; ++i) {
+            if (plt->xvalues[i] == 0.0f || plt->yvalues[i] == 0.0f || plt->xvalues[i + 1] == 0.0f || plt->yvalues[i + 1] == 0.0f) {
+                continue; // Skip lines involving (0,0) if they don't exist
+            }
 
-      int x_position =x_plot_starting + (int)scaled_x;
-      int y_position = y_plot_starting + y_plot_height - 1 - (int)scaled_y;
-      
-      ctermui_pencil_draw_char(s->buffer, x_position, y_position, plt->point_symbol, plt->point_color, plt->bg_color, 0);
-  }
-if (plt->line_linking) {
-    for (size_t i = 0; i < plt->size - 1; ++i) {
-        float scaled_x1 = plt->xvalues[i] / max_x * (x_plot_width - 1);
-        float scaled_y1 = plt->yvalues[i] / max_y * (y_plot_height - 1);
-        int x1 = x_plot_starting + (int)scaled_x1;
-        int y1 = y_plot_starting + y_plot_height - 1 - (int)scaled_y1;
+            float scaled_x1 = (plt->xvalues[i] - min_x) / (max_x - min_x) * (x_plot_width - 1);
+            float scaled_y1 = (plt->yvalues[i] - min_y) / (max_y - min_y) * (y_plot_height - 1);
+            int x1 = x_plot_starting + (int)scaled_x1;
+            int y1 = y_plot_starting + y_plot_height - 1 - (int)scaled_y1;
 
-        float scaled_x2 = plt->xvalues[i + 1] / max_x * (x_plot_width - 1);
-        float scaled_y2 = plt->yvalues[i + 1] / max_y * (y_plot_height - 1);
-        int x2 = x_plot_starting + (int)scaled_x2;
-        int y2 = y_plot_starting + y_plot_height - 1 - (int)scaled_y2;
-        ctermui_pencil_draw_line_with_points(s->buffer,x1,y1,x2,y2,plt->point_color,plt->bg_color,plt->point_symbol);
+            float scaled_x2 = (plt->xvalues[i + 1] - min_x) / (max_x - min_x) * (x_plot_width - 1);
+            float scaled_y2 = (plt->yvalues[i + 1] - min_y) / (max_y - min_y) * (y_plot_height - 1);
+            int x2 = x_plot_starting + (int)scaled_x2;
+            int y2 = y_plot_starting + y_plot_height - 1 - (int)scaled_y2;
+
+            ctermui_pencil_draw_line_with_points(s->buffer, x1, y1, x2, y2, plt->point_color, plt->bg_color, plt->point_symbol);
+        }
     }
 }
-}
+
+
 
 void ctermui_scatter_plot_calculate_absolute_position(  
   ctermui_component_t c,
