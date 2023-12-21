@@ -30,6 +30,7 @@ void ctermui_component_draw_button(ctermui_screen_t s,
     button->bg_color);
   ;
 }
+
 void ctermui_component_draw_label(ctermui_screen_t s,
                                   ctermui_component_t c)
 {
@@ -48,6 +49,7 @@ void ctermui_component_draw_label(ctermui_screen_t s,
                            text->color,
                            text->bg_color);
 }
+
 void ctermui_component_draw_frame(ctermui_screen_t s,
                                   ctermui_component_t c)
 {
@@ -67,6 +69,7 @@ void ctermui_component_draw_frame(ctermui_screen_t s,
                            frame->color,
                            frame->bg_color);
 }
+
 void ctermui_component_draw_solid_background(
   ctermui_screen_t s, ctermui_component_t c)
 {
@@ -96,6 +99,7 @@ void ctermui_component_draw_solid_background(
     }
   }
 }
+
 void ctermui_component_draw_soft_background(
   ctermui_screen_t s, ctermui_component_t c)
 {
@@ -115,7 +119,6 @@ void ctermui_component_draw_soft_background(
                         c->absolute_height,
                         background->color);
 }
-
 
 void ctermui_button_calculate_absolute_position(
   ctermui_component_t c,
@@ -614,6 +617,7 @@ size_t biggest_text_length(char (*labels)[100], size_t values_length)
   }
   return max;
 }
+
 void ctermui_barchart_calculate_absolute_position(
   ctermui_component_t c,
   size_t parent_x,
@@ -727,6 +731,134 @@ ctermui_component_t  ctemrui_new_barchart(char* id,
   c->draw = ctermui_barchart_draw;
   strcpy(c->id, id);
   return c;
+}
+
+
+void ctermui_scatter_plot_draw(ctermui_screen_t s, ctermui_component_t c){
+  ScatterPlot* plt = (ScatterPlot*) c->core_component; 
+  
+  float max_x = plt->xvalues[0];
+  for(size_t i = 1; i < plt->size; ++i){
+    if(plt->xvalues[i] > max_x){
+      max_x = plt->xvalues[i];
+    }
+  }
+  float max_y = plt->yvalues[0];
+  for(size_t i = 1; i < plt->size; ++i){
+    if(plt->yvalues[i] > max_y){
+      max_y = plt->yvalues[i];
+    }
+  }
+
+  size_t x_plot_starting = c->absolute_x;
+  size_t y_plot_starting = c->absolute_y;
+  size_t x_plot_width = c->absolute_width;
+  size_t y_plot_height = c->absolute_height;
+  char tmp[5];
+  sprintf(tmp, "%.2f", max_x);
+  x_plot_starting += strlen(tmp);
+  x_plot_width -= strlen(tmp);
+  y_plot_height -= 1;
+
+
+  ctermui_pencil_draw_line(s->buffer,CTERMUI_VERTICAL,x_plot_starting,y_plot_starting,y_plot_height,CTERMUI_VERTICAL_LINE,plt->fg_color,plt->bg_color);
+  ctermui_pencil_draw_line(s->buffer,CTERMUI_HORIZONTAL,x_plot_starting,y_plot_starting+y_plot_height-1,x_plot_width,CTERMUI_HORIZONTAL_LINE,plt->fg_color,plt->bg_color);
+
+
+
+
+
+  for(size_t i = 0; i < plt->size; ++i){
+    float scaled_x = plt->xvalues[i] / max_x * (x_plot_width - 1);
+    float scaled_y = plt->yvalues[i] / max_y * (y_plot_height - 1);
+    int x_position =x_plot_starting + (int)scaled_x;
+    int y_position = y_plot_starting + y_plot_height - 1 - (int)scaled_y;
+    ctermui_pencil_draw_char(s->buffer, x_position, y_plot_starting + y_plot_height - 1, CTERMUI_VERTICAL_LINE, plt->fg_color, plt->bg_color, 0);
+    ctermui_pencil_draw_char(s->buffer,x_plot_starting, y_position, CTERMUI_HORIZONTAL_LINE, plt->fg_color, plt->bg_color, 0);
+
+    char x_label[100];
+    sprintf(x_label, "%.2f", plt->xvalues[i]);
+    char y_label[100];
+    sprintf(y_label, "%.2f", plt->yvalues[i]);
+    ctermui_pencil_draw_text(s->buffer, c->absolute_x, y_position, y_label, plt->fg_color, plt->bg_color);
+    size_t label_pos =x_position-strlen(x_label)/2;
+    if(label_pos + strlen(x_label) > c->absolute_x + c->absolute_width){
+      label_pos = c->absolute_x + c->absolute_width - strlen(x_label);
+    }
+    ctermui_pencil_draw_text(s->buffer,label_pos , c->absolute_y + c->absolute_height - 1, x_label, plt->fg_color, plt->bg_color);
+  }
+
+  for (size_t i = 0; i < plt->size; ++i) {
+      float scaled_x = plt->xvalues[i] / max_x * (x_plot_width - 1);
+      float scaled_y = plt->yvalues[i] / max_y * (y_plot_height - 1);
+
+      int x_position =x_plot_starting + (int)scaled_x;
+      int y_position = y_plot_starting + y_plot_height - 1 - (int)scaled_y;
+      
+      ctermui_pencil_draw_char(s->buffer, x_position, y_position, plt->point_symbol, plt->point_color, plt->bg_color, 0);
+  }
+if (plt->line_linking) {
+    for (size_t i = 0; i < plt->size - 1; ++i) {
+        float scaled_x1 = plt->xvalues[i] / max_x * (x_plot_width - 1);
+        float scaled_y1 = plt->yvalues[i] / max_y * (y_plot_height - 1);
+        int x1 = x_plot_starting + (int)scaled_x1;
+        int y1 = y_plot_starting + y_plot_height - 1 - (int)scaled_y1;
+
+        float scaled_x2 = plt->xvalues[i + 1] / max_x * (x_plot_width - 1);
+        float scaled_y2 = plt->yvalues[i + 1] / max_y * (y_plot_height - 1);
+        int x2 = x_plot_starting + (int)scaled_x2;
+        int y2 = y_plot_starting + y_plot_height - 1 - (int)scaled_y2;
+        ctermui_pencil_draw_line_with_points(s->buffer,x1,y1,x2,y2,plt->point_color,plt->bg_color,plt->point_symbol);
+    }
+}
+}
+
+void ctermui_scatter_plot_calculate_absolute_position(  
+  ctermui_component_t c,
+  size_t parent_x,
+  size_t parent_y,
+  size_t parent_width,
+  size_t parent_height
+)
+{
+  c->absolute_x = parent_x;
+  c->absolute_y = parent_y;
+  c->absolute_width = parent_width;
+  c->absolute_height = parent_height;
+}
+
+ctermui_component_t ctermui_new_scatter_plot(
+  char* id,
+  float* xvalues,
+  float* yvalues,
+  size_t values_size,
+  uint8_t point_color,
+  uint8_t bg_color,
+  uint8_t fg_color,
+  char point_symbol,
+  uint8_t line_linking 
+)
+{
+  ctermui_component_t c =  malloc(sizeof(struct ctermui_component));
+  if(!c){
+    fprintf(
+      stderr,
+      "Error: could not allocate memory for scatter_plot component\n");
+    exit(EXIT_FAILURE);
+  }
+  ScatterPlot* scatter_plot_component = malloc(sizeof(ScatterPlot));
+  scatter_plot_component->bg_color = bg_color;
+  scatter_plot_component->fg_color = fg_color;
+  scatter_plot_component->point_color = point_color;
+  scatter_plot_component->xvalues = xvalues;
+  scatter_plot_component->yvalues = yvalues;
+  scatter_plot_component->size = values_size;
+  scatter_plot_component->point_symbol = point_symbol;
+  scatter_plot_component->line_linking = line_linking;
+  c->core_component = scatter_plot_component;
+  c->type = SCATTER_PLOT;
+  c->draw = ctermui_scatter_plot_draw;
+  c->calculate_absolute_position = ctermui_scatter_plot_calculate_absolute_position;
 }
 
 void ctermui_text_input_draw(ctermui_screen_t s,
@@ -893,6 +1025,8 @@ void ctermui_soft_background_calculate_absolute_position(
   c->absolute_height = parent_height;
 }
 
+
+
 ctermui_component_t ctermui_new_soft_background(char* id,int8_t color)
 {
   ctermui_component_t c =
@@ -956,3 +1090,4 @@ ctermui_component_t ctermui_new_custom_component(
   c->core_component = core_component;
   return c;
 }
+

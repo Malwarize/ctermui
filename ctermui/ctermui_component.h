@@ -36,6 +36,7 @@ enum CTYPES {
   PROGRESS_BAR,
   TEXT_INPUT,
   BARCHART,
+  SCATTER_PLOT,
   CUSTOM
 };
 
@@ -105,8 +106,24 @@ typedef struct {
   size_t _max_text_width;
 } BarChart;
 
+#define MAX_LABELS 100
+
 typedef struct {
-  char text[300];
+  float* xvalues;
+  float* yvalues;
+  char (*xlabels)[MAX_LABELS];
+  char (*ylabels)[MAX_LABELS];
+  int8_t bg_color;
+  int8_t fg_color;
+  int8_t point_color;
+  size_t size;
+  char point_symbol;
+  uint8_t line_linking;
+} ScatterPlot;
+
+#define MAX_TEXT_INPUT_LENGTH 100
+typedef struct {
+  char text[MAX_TEXT_INPUT_LENGTH];
   size_t align;
   int8_t text_color;
   int8_t bg_color;
@@ -195,4 +212,15 @@ ctermui_component_t  ctemrui_new_barchart(char* id,
                                         size_t values_length,
                                         int gap
                                         );
+ctermui_component_t ctermui_new_scatter_plot(
+  char* id,
+  float* xvalues,
+  float* yvalues,
+  size_t values_size,
+  uint8_t point_color,
+  uint8_t bg_color,
+  uint8_t fg_color,
+  char point_symbol,
+  uint8_t line_linking 
+);
 #endif  // CTERMUI_COMPONENT_H

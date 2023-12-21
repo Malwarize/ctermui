@@ -7,8 +7,11 @@
 #define CTERMUI_BOTTOM_LEFT_CORNER  '+'
 #define CTERMUI_TOP_RIGHT_CORNER    '+'
 #define CTERMUI_BOTTOM_RIGHT_CORNER '+'
-#define CTERMUI_HORIZONTAL_LINE     '-'
-#define CTERMUI_VERTICAL_LINE       '|'
+#define CTERMUI_HORIZONTAL_LINE '-'  // Unicode code point for '─'
+#define CTERMUI_VERTICAL_LINE   '|'  // Unicode code point for '│'
+#define CTERMUI_ASCENDING_LINE   '/'  // Unicode code point for '╱'
+#define CTERMUI_DESCENDING_LINE '\\'  // Unicode code point for '╲'
+
 #define CELL_CHARACTER_SIZE 50
 
 
@@ -27,6 +30,11 @@ typedef struct ctermui_screen_cell{
   uint8_t flag;
 }*ctermui_screen_cell_t;
 
+enum LINE_ORIENTATION {
+  CTERMUI_LINE_HORIZONTAL,
+  CTERMUI_LINE_VERTICAL,
+  CTEMRUI_LINE_DIAGONAL
+};
 
 typedef ctermui_screen_cell_t** screen_buffer;
 
@@ -70,4 +78,14 @@ int ctermui_pencil_bucket(screen_buffer b,
                           size_t width,
                           size_t height,
                           int8_t color);
+
+int ctermui_pencil_draw_line_with_points(screen_buffer b,
+                              size_t x_1,
+                              size_t y_1,
+                              size_t x_2,
+                              size_t y_2,
+                              int8_t color,
+                              int8_t bg_color,
+                              char c
+                              );
 #endif

@@ -46,10 +46,6 @@ void allocate_screen_buffer(ctermui_screen_t s)
           "Error: could not allocate memory for screen buffer\n");
         exit(EXIT_FAILURE);
       }
-//      s->buffer[i][j][0] = EMPTY_CHAR;
-//      s->buffer[i][j][1] = CTERMUI_WHITE;
-//      s->buffer[i][j][2] = CTERMUI_BLUE;
-        //TODO: use pencil to fill it
     }
   }
 }

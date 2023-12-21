@@ -14,6 +14,7 @@ int ctermui_pencil_draw_char(screen_buffer b,
   b[x][y]->background_color = bg_color;
   return 0;
 }
+
 int ctermui_pencil_draw_line(screen_buffer b,
                              size_t orientation,
                              size_t x,
@@ -34,8 +35,7 @@ int ctermui_pencil_draw_line(screen_buffer b,
       ctermui_pencil_draw_char(
         b, x, y + i, c, color, bg_color, 0);
     }
-  }
-  else {
+  }else {
     fprintf(
       stderr,
       "ctermui_pencil_draw_line: invalid orientation\n");
@@ -43,6 +43,41 @@ int ctermui_pencil_draw_line(screen_buffer b,
   }
   return 0;
 }
+
+int ctermui_pencil_draw_line_with_points(screen_buffer b,
+                                         size_t x_1,
+                                         size_t y_1,
+                                         size_t x_2,
+                                         size_t y_2,
+                                         int8_t color,
+                                         int8_t bg_color,
+                                         char c)
+{
+    int dx = abs((int)x_2 - (int)x_1);
+    int dy = -abs((int)y_2 - (int)y_1);
+    int sx = x_1 < x_2 ? 1 : -1;
+    int sy = y_1 < y_2 ? 1 : -1;
+    int err = dx + dy;
+
+    while (x_1 != x_2 || y_1 != y_2) {
+        ctermui_pencil_draw_char(b, x_1, y_1, c, color, bg_color, 0);
+
+        int e2 = 2 * err;
+
+        if (e2 >= dy) {
+            err += dy;
+            x_1 += sx;
+        }
+
+        if (e2 <= dx) {
+            err += dx;
+            y_1 += sy;
+        }
+    }
+
+    return 0;
+}
+
 int ctermui_pencil_draw_rect(screen_buffer b,
                              size_t x,
                              size_t y,
