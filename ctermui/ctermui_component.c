@@ -631,9 +631,7 @@ void ctermui_barchart_calculate_absolute_position(
     for (size_t i = 0; i < barchart->values_count; ++i) {
       ctermui_component_t bar = barchart->bars[i];
       ctermui_component_t label = barchart->labels[i];
-      if(parent_y<0){
-        parent_y = 0;
-      }
+    
       int bar_height = (int)(bar_height_float - barchart->gap);
       if (bar_height <= 0) {
           bar_height = 1;
@@ -641,7 +639,7 @@ void ctermui_barchart_calculate_absolute_position(
 
       int y_position = parent_y + (int)(i * bar_height_float);
       if (y_position < 0) {
-          y_position = 0;
+          y_position = parent_y;
       }
 
       label->calculate_absolute_position(
@@ -665,30 +663,31 @@ void ctermui_barchart_calculate_absolute_position(
     for (size_t i = 0; i < barchart->values_count; ++i) {
       ctermui_component_t bar = barchart->bars[i];
       ctermui_component_t label = barchart->labels[i];
-
+      label->absolute_height = 3;
       int bar_width = (int)(bar_width_float - barchart->gap);
-      if (bar_width < 0) {
-          bar_width = 0;
+      if (bar_width <= 0) {
+          bar_width = 1;
       }
 
-      int y_position = parent_y + parent_height - label->absolute_height;
-      if (y_position < 0) {
-          y_position = 0;
+      int x_position = parent_x + (int)(i * bar_width_float);
+      if (x_position < 0) {
+          x_position = parent_x;
       }
+
+      label->calculate_absolute_position(
+        label,
+        x_position,
+        parent_y+parent_height-label->absolute_height,
+        bar_width,
+        label->absolute_height
+      );
 
       bar->calculate_absolute_position(
         bar,
-        parent_x + i*bar_width_float,
+        x_position,
         parent_y,
         bar_width,
-        y_position
-      );
-      label->calculate_absolute_position(
-        label,
-        parent_x + i*bar_width_float,
-        y_position,
-        bar_width,
-        label->absolute_height
+        parent_height - label->absolute_height
       );
     }
   
@@ -737,9 +736,9 @@ ctermui_component_t  ctemrui_new_barchart(char* id,
     sprintf(id_buff, "%s_label_%zu", id, i);
     int align;
     if(orientation == CTERMUI_HORIZONTAL){
-      align = CTERMUI_ALIGN_LEFT_TOP;
+      align = CTERMUI_ALIGN_CENTER;
     }else{
-      align = CTERMUI_ALIGN_LEFT_CENTER ;
+      align = CTERMUI_ALIGN_BOTTOM ;
     }
     ctermui_component_t label = ctermui_new_text(
       id_buff, lables[i], CTERMUI_EMPTY, CTERMUI_EMPTY, align);
@@ -757,12 +756,12 @@ ctermui_component_t  ctemrui_new_barchart(char* id,
 }
 
 void ctermui_scatter_plot_draw(ctermui_screen_t s, ctermui_component_t c) {
-    ScatterPlot* plt = (ScatterPlot*)c->core_component;
+  ScatterPlot* plt = (ScatterPlot*)c->core_component;
 
-    float max_x = plt->xvalues[0];
-    float max_y = plt->yvalues[0];
-    float min_x = plt->xvalues[0];
-    float min_y = plt->yvalues[0];
+  float max_x = plt->xvalues[0];
+  float max_y = plt->yvalues[0];
+  float min_x = plt->xvalues[0];
+  float min_y = plt->yvalues[0];
 
   for (size_t i = 1; i < plt->size; ++i) {
         if (plt->xvalues[i] > max_x) {
