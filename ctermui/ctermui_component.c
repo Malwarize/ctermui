@@ -627,50 +627,67 @@ void ctermui_barchart_calculate_absolute_position(
 {
   BarChart* barchart = (BarChart*)c->core_component;
   if(barchart->orientation == CTERMUI_HORIZONTAL){
-    int bar_height = (int)((float)parent_height / barchart->values_count);
+    float bar_height_float = (float)parent_height / barchart->values_count;
     for (size_t i = 0; i < barchart->values_count; ++i) {
       ctermui_component_t bar = barchart->bars[i];
       ctermui_component_t label = barchart->labels[i];
-      // for horizontal barchart we need to calculate the max text width 
-      int gap;
-      if(bar_height - barchart->gap <= 0){
-        gap = 0;
-      }else{
-        gap = 1;
+      if(parent_y<0){
+        parent_y = 0;
       }
+      int bar_height = (int)(bar_height_float - barchart->gap);
+      if (bar_height <= 0) {
+          bar_height = 1;
+      }
+
+      int y_position = parent_y + (int)(i * bar_height_float);
+      if (y_position < 0) {
+          y_position = 0;
+      }
+
       label->calculate_absolute_position(
         label,
         parent_x,
-        parent_y + i*bar_height,
+        y_position,
         barchart->_max_text_width,
-        bar_height - gap
+        bar_height
       );
 
       bar->calculate_absolute_position(
         bar,
         parent_x + barchart->_max_text_width,
-        parent_y + i*bar_height,
-        parent_width - barchart->_max_text_width,
-        bar_height - gap
+        y_position,
+        parent_width - barchart->_max_text_width-1,
+        bar_height
       );
     }
   }else{
-    int bar_width = (int) ((float) parent_width / (float) barchart->values_count);
+    float bar_width_float = (float) parent_width / (float) barchart->values_count;
     for (size_t i = 0; i < barchart->values_count; ++i) {
       ctermui_component_t bar = barchart->bars[i];
       ctermui_component_t label = barchart->labels[i];
+
+      int bar_width = (int)(bar_width_float - barchart->gap);
+      if (bar_width < 0) {
+          bar_width = 0;
+      }
+
+      int y_position = parent_y + parent_height - label->absolute_height;
+      if (y_position < 0) {
+          y_position = 0;
+      }
+
       bar->calculate_absolute_position(
         bar,
-        parent_x + i*bar_width,
+        parent_x + i*bar_width_float,
         parent_y,
-        bar_width-barchart->gap,
-        parent_y + parent_height-label->absolute_height
+        bar_width,
+        y_position
       );
       label->calculate_absolute_position(
         label,
-        parent_x + i*bar_width,
-        parent_y + parent_height - label->absolute_height,
-        bar_width-barchart->gap,
+        parent_x + i*bar_width_float,
+        y_position,
+        bar_width,
         label->absolute_height
       );
     }
@@ -718,8 +735,14 @@ ctermui_component_t  ctemrui_new_barchart(char* id,
   
     // lables 
     sprintf(id_buff, "%s_label_%zu", id, i);
+    int align;
+    if(orientation == CTERMUI_HORIZONTAL){
+      align = CTERMUI_ALIGN_LEFT_TOP;
+    }else{
+      align = CTERMUI_ALIGN_LEFT_CENTER ;
+    }
     ctermui_component_t label = ctermui_new_text(
-      id_buff, lables[i], CTERMUI_EMPTY, CTERMUI_EMPTY, CTERMUI_ALIGN_CENTER);
+      id_buff, lables[i], CTERMUI_EMPTY, CTERMUI_EMPTY, align);
     barchart_component->labels[i] = label;
   
   }
