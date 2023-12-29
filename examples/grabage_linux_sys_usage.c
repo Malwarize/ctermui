@@ -1,13 +1,13 @@
 #include "ctermui/ctermui_screen.h"
 
-#include<math.h>  
+#include<math.h>
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
 
 #define NETWORK_USAGE_RANGE 10
 #define MAX_CORES 8
-int cpu_usage[MAX_CORES + MAX_CORES * 4] = {0}; 
+int cpu_usage[MAX_CORES + MAX_CORES * 4] = {0};
 
 void generate_data(float xvalues[], float yvalues[]) {
     srand(time(NULL));
@@ -18,7 +18,7 @@ void generate_data(float xvalues[], float yvalues[]) {
 }
 
 void getCPUUsage(int cpu_usage_percentage[]) {
-    FILE* file = fopen("/proc/stat", "r");
+    FILE *file = fopen("/proc/stat", "r");
     if (file == NULL) {
         perror("Error opening /proc/stat");
         exit(EXIT_FAILURE);
@@ -34,10 +34,11 @@ void getCPUUsage(int cpu_usage_percentage[]) {
                 int user, nice, sys, idle;
                 sscanf(line + 3, "%d %d %d %d", &user, &nice, &sys, &idle);
 
-                
+
                 if (user < cpu_usage_percentage[core] || nice < cpu_usage_percentage[core + MAX_CORES] ||
-                    sys < cpu_usage_percentage[core + MAX_CORES * 2] || idle < cpu_usage_percentage[core + MAX_CORES * 3]) {
-                    
+                    sys < cpu_usage_percentage[core + MAX_CORES * 2] ||
+                    idle < cpu_usage_percentage[core + MAX_CORES * 3]) {
+
                     cpu_usage_percentage[core] = user;
                     cpu_usage_percentage[core + MAX_CORES] = nice;
                     cpu_usage_percentage[core + MAX_CORES * 2] = sys;
@@ -53,7 +54,7 @@ void getCPUUsage(int cpu_usage_percentage[]) {
                     int usage_percentage = (diff_idle * 100) / diff_total;
                     cpu_usage_percentage[core] = (usage_percentage > 100) ? 100 : usage_percentage;
 
-                    
+
                     cpu_usage_percentage[core + MAX_CORES * 4] = total;
                     cpu_usage_percentage[core + MAX_CORES] = nice;
                     cpu_usage_percentage[core + MAX_CORES * 2] = sys;
@@ -92,19 +93,19 @@ void getNetworkUsage(const char *interface, float *incoming, float *outgoing) {
         exit(EXIT_FAILURE);
     }
 
-    
+
     char buffer[256];
     fgets(buffer, sizeof(buffer), file);
     fgets(buffer, sizeof(buffer), file);
 
-    
+
     float in, out;
 
-    
+
     while (fgets(buffer, sizeof(buffer), file) != NULL) {
         if (sscanf(buffer, "%*s %f %*s %*s %*s %*s %*s %*s %*s %*s %f", &in, &out) == 2 &&
             strstr(buffer, interface) != NULL) {
-            
+
             *incoming = in;
             *outgoing = out;
             break;
@@ -122,18 +123,18 @@ void periodic(ctermui_screen_t *screen_p) {
         fprintf(stderr, "widget not found\n");
     }
     ctermui_component_t c = ctermui_widget_find_component(w, "network");
-    ScatterPlot *scatter_plot = (ScatterPlot *)c->core_component;
+    ScatterPlot *scatter_plot = (ScatterPlot *) c->core_component;
     int every = 1;
     if (screen->loop_count % every == 0) {
-        
+
         float incoming, outgoing;
         getNetworkUsage("wlp1s0", &incoming, &outgoing);
 
-        
+
         float speed = (outgoing - scatter_plot->yvalues[NETWORK_USAGE_RANGE - 1]) / 1024;
-        
+
         speed = roundf(speed * 1000) / 1000;
-        
+
         for (int i = 0; i < NETWORK_USAGE_RANGE - 1; i++) {
             scatter_plot->xvalues[i] = scatter_plot->xvalues[i + 1];
             scatter_plot->yvalues[i] = scatter_plot->yvalues[i + 1];
@@ -142,25 +143,24 @@ void periodic(ctermui_screen_t *screen_p) {
         scatter_plot->yvalues[NETWORK_USAGE_RANGE - 1] = speed;
 
     }
-    if(screen->loop_count % 2){
-      ctermui_widget_t cpu_barchart = ctermui_widget_find(root, "wiget_1_2");
-      ctermui_component_t barchart = ctermui_widget_find_component(cpu_barchart, "barchart");
-      BarChart *bar_chart = (BarChart *)barchart->core_component;
-      getCPUUsage(cpu_usage);
-      ctermui_barchart_update_values(barchart, cpu_usage, MAX_CORES);
+    if (screen->loop_count % 2) {
+        ctermui_widget_t cpu_barchart = ctermui_widget_find(root, "wiget_1_2");
+        ctermui_component_t barchart = ctermui_widget_find_component(cpu_barchart, "barchart");
+        BarChart *bar_chart = (BarChart *) barchart->core_component;
+        getCPUUsage(cpu_usage);
+        ctermui_barchart_update_values(barchart, cpu_usage, MAX_CORES);
 
 
-      
-      ctermui_widget_t ram_widget = ctermui_widget_find(root, "wiget_2_1_3");
-      ctermui_component_t ram_usage = ctermui_widget_find_component(ram_widget, "ram_usage");
-      ProgressBar *ram_bar = (ProgressBar *)ram_usage->core_component;
-      int total, free;
-      getRamUsage(&total, &free);
-      char usage_string[100];
-      sprintf(usage_string, "%dMb/%dGb", (free)/(1024), (total)/(1024*1024));
-      ram_bar->progress = free;
-      ram_bar->max = total;
-      strcpy(ram_bar->text, usage_string);
+        ctermui_widget_t ram_widget = ctermui_widget_find(root, "wiget_2_1_3");
+        ctermui_component_t ram_usage = ctermui_widget_find_component(ram_widget, "ram_usage");
+        ProgressBar *ram_bar = (ProgressBar *) ram_usage->core_component;
+        int total, free;
+        getRamUsage(&total, &free);
+        char usage_string[100];
+        sprintf(usage_string, "%dMb/%dGb", (free) / (1024), (total) / (1024 * 1024));
+        ram_bar->progress = free;
+        ram_bar->max = total;
+        strcpy(ram_bar->text, usage_string);
 
     }
 
@@ -168,66 +168,70 @@ void periodic(ctermui_screen_t *screen_p) {
 }
 
 
+int main() {
+    ctermui_screen_t screen = ctermui_screen_init();
+    ctermui_widget_t root = ctermui_widget_new_root(
+            CTERMUI_HORIZONTAL, screen->width, screen->height
+                                                   );
 
-int main()
-{
-  ctermui_screen_t screen = ctermui_screen_init();
-  ctermui_widget_t root = ctermui_widget_new_root(
-    CTERMUI_HORIZONTAL, screen->width, screen->height);
+    ctermui_widget_t wiget_1 = ctermui_widget_new("left_widget", CTERMUI_VERTICAL, 50);
+    ctermui_widget_t wiget_2 = ctermui_widget_new("right_widget", CTERMUI_VERTICAL, 50);
 
-  ctermui_widget_t wiget_1 = ctermui_widget_new("left_widget", CTERMUI_VERTICAL, 50);
-  ctermui_widget_t wiget_2 = ctermui_widget_new("right_widget", CTERMUI_VERTICAL, 50);
 
-  
-  ctermui_widget_t wiget_1_1 = ctermui_widget_new("wiget_1_1", CTERMUI_HORIZONTAL, 50);
-  ctermui_widget_t wiget_1_2 = ctermui_widget_new("wiget_1_2", CTERMUI_HORIZONTAL, 50);
-  
-  ctermui_widget_t wiget_2_1 = ctermui_widget_new("wiget_2_1", CTERMUI_VERTICAL, 50);
-    
+    ctermui_widget_t wiget_1_1 = ctermui_widget_new("wiget_1_1", CTERMUI_HORIZONTAL, 50);
+    ctermui_widget_t wiget_1_2 = ctermui_widget_new("wiget_1_2", CTERMUI_HORIZONTAL, 50);
+
+    ctermui_widget_t wiget_2_1 = ctermui_widget_new("wiget_2_1", CTERMUI_VERTICAL, 50);
+
     ctermui_widget_t wiget_2_1_1 = ctermui_widget_new("wiget_2_1_1", LEAF, 25);
     ctermui_widget_t wiget_2_1_2 = ctermui_widget_new("wiget_2_1_2", LEAF, 25);
     ctermui_widget_t wiget_2_1_3 = ctermui_widget_new("wiget_2_1_3", LEAF, 25);
-  ctermui_widget_t wiget_2_2 = ctermui_widget_new("wiget_2_2", CTERMUI_HORIZONTAL, 50);  
+    ctermui_widget_t wiget_2_2 = ctermui_widget_new("wiget_2_2", CTERMUI_HORIZONTAL, 50);
 
-  
-  int cpu_usage[MAX_CORES + MAX_CORES * 4] = {0}; 
-  char labels[MAX_CORES][100];
 
-  for (int i = 0; i < MAX_CORES; ++i) {
-    cpu_usage[i] = 0;
-    sprintf(labels[i], "core %d", i+1);
-  }
+    int cpu_usage[MAX_CORES + MAX_CORES * 4] = {0};
+    char labels[MAX_CORES][100];
 
-  ctermui_component_t barchart = ctemrui_new_barchart("barchart", CTERMUI_MAGENTA,CTERMUI_EMPTY,100,CTERMUI_HORIZONTAL,cpu_usage,labels,MAX_CORES,1);
-  ctermui_widget_add_component(wiget_1_2, barchart);
-  
-  float x_values[NETWORK_USAGE_RANGE];
-  float y_values[NETWORK_USAGE_RANGE];
-  generate_data(x_values, y_values);
-  ctermui_component_t linechart = ctermui_new_scatter_plot("network", x_values,y_values,NETWORK_USAGE_RANGE,CTERMUI_CYAN,CTERMUI_EMPTY,CTERMUI_RED,'o',1);
-  ctermui_widget_add_component(wiget_1_1, linechart);
+    for (int i = 0; i < MAX_CORES; ++i) {
+        cpu_usage[i] = 0;
+        sprintf(labels[i], "core %d", i + 1);
+    }
 
-  
-  
-  int total, free;
-  getRamUsage(&total, &free);
-  char usage_string[100];
-  sprintf(usage_string, "%dMb/%dMb", (total - free) / 1024, total / 1024);
-  ctermui_component_t ram_usage = ctermui_new_progress_bar("ram_usage",CTERMUI_GREEN,CTERMUI_WHITE,total,free,usage_string,CTERMUI_BLACK,CTERMUI_HORIZONTAL);
-  ctermui_widget_add_component(wiget_2_1_3, ram_usage);
-  
-  ctermui_widget_add_child(wiget_1, wiget_1_1);
-  ctermui_widget_add_child(wiget_1, wiget_1_2);
+    ctermui_component_t barchart = ctemrui_new_barchart(
+            "barchart", CTERMUI_MAGENTA, CTERMUI_EMPTY, 100, CTERMUI_HORIZONTAL, cpu_usage, labels, MAX_CORES, 1
+                                                       );
+    ctermui_widget_add_component(wiget_1_2, barchart);
 
-  ctermui_widget_add_child(wiget_2_1, wiget_2_1_1);
-  ctermui_widget_add_child(wiget_2_1, wiget_2_1_2);
-  ctermui_widget_add_child(wiget_2_1, wiget_2_1_3);
-  ctermui_widget_add_child(wiget_2, wiget_2_1);
-  ctermui_widget_add_child(wiget_2, wiget_2_2);
-  ctermui_widget_add_child(root, wiget_1);
-  ctermui_widget_add_child(root, wiget_2);
-  ctermui_screen_set_widget_root(screen, root);
-  ctermui_screen_loop_start(screen, periodic, 1*1000000);
+    float x_values[NETWORK_USAGE_RANGE];
+    float y_values[NETWORK_USAGE_RANGE];
+    generate_data(x_values, y_values);
+    ctermui_component_t linechart = ctermui_new_scatter_plot(
+            "network", x_values, y_values, NETWORK_USAGE_RANGE, CTERMUI_CYAN, CTERMUI_EMPTY, CTERMUI_RED, 'o', 1
+                                                            );
+    ctermui_widget_add_component(wiget_1_1, linechart);
+
+
+    int total, free;
+    getRamUsage(&total, &free);
+    char usage_string[100];
+    sprintf(usage_string, "%dMb/%dMb", (total - free) / 1024, total / 1024);
+    ctermui_component_t ram_usage = ctermui_new_progress_bar(
+            "ram_usage", CTERMUI_GREEN, CTERMUI_WHITE, total, free, usage_string, CTERMUI_BLACK, CTERMUI_HORIZONTAL
+                                                            );
+    ctermui_widget_add_component(wiget_2_1_3, ram_usage);
+
+    ctermui_widget_add_child(wiget_1, wiget_1_1);
+    ctermui_widget_add_child(wiget_1, wiget_1_2);
+
+    ctermui_widget_add_child(wiget_2_1, wiget_2_1_1);
+    ctermui_widget_add_child(wiget_2_1, wiget_2_1_2);
+    ctermui_widget_add_child(wiget_2_1, wiget_2_1_3);
+    ctermui_widget_add_child(wiget_2, wiget_2_1);
+    ctermui_widget_add_child(wiget_2, wiget_2_2);
+    ctermui_widget_add_child(root, wiget_1);
+    ctermui_widget_add_child(root, wiget_2);
+    ctermui_screen_set_widget_root(screen, root);
+    ctermui_screen_loop_start(screen, periodic, 1 * 1000000);
 }
 
 

@@ -49,15 +49,23 @@ enum ctermui_color {
 
 ctermui_screen_t ctermui_screen_init();
 void ctermui_screen_display(ctermui_screen_t s);
+
 void ctermui_screen_clear(ctermui_screen_t s);
+
 void ctermui_screen_set_widget_root(ctermui_screen_t s,
                                     ctermui_widget_t root);
+
 void ctermui_screen_refresh_widgets(ctermui_screen_t s);
+
 void ctermui_on_keyboard_listener(ctermui_screen_t* s);
+
 void ctermui_screen_clean_term();
+
 void ctermui_restore_cursor();
+
 void ctermui_screen_draw_all_components_of_widget(
   ctermui_screen_t s, ctermui_widget_t w);
+
 void ctermui_screen_redraw_all_components_of_widget(
   ctermui_screen_t s,
   ctermui_widget_t new_w,
@@ -65,18 +73,21 @@ void ctermui_screen_redraw_all_components_of_widget(
   size_t old_y,
   size_t old_width,
   size_t old_height);
+
 void ctermui_screen_display_widget(ctermui_screen_t s,
                                    ctermui_widget_t w);
 void ctermui_screen_refresh_widget(ctermui_screen_t s,
                                    ctermui_widget_t w);
 
-// screen loop control
 void ctermui_screen_loop_start(
   ctermui_screen_t s,
   void (*periodic_func)(ctermui_screen_t*),
   size_t every);
+
 void ctermui_screen_loop_shutdown(ctermui_screen_t s);
+
 void ctermui_screen_loop_pause(ctermui_screen_t s);
+
 void ctermui_screen_loop_resume(ctermui_screen_t s);
 int ctermui_kbhit();
 

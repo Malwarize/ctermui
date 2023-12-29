@@ -1,6 +1,7 @@
 #include "ctermui_component.h"
 #include "ctermui_pencil.h"
 #include "ctermui_screen.h"
+
 void ctermui_component_draw_button(ctermui_screen_t s,
                                    ctermui_component_t c)
 {
@@ -957,7 +958,6 @@ void ctermui_text_input_draw(ctermui_screen_t s,
 
 }
 
-
 struct comp_key {
   ctermui_component_t c;
   size_t key;
@@ -1089,8 +1089,6 @@ void ctermui_soft_background_calculate_absolute_position(
   c->absolute_height = parent_height;
 }
 
-
-
 ctermui_component_t ctermui_new_soft_background(char* id,int8_t color)
 {
   ctermui_component_t c =
@@ -1118,7 +1116,6 @@ ctermui_component_t ctermui_new_soft_background(char* id,int8_t color)
   c->draw = ctermui_component_draw_soft_background;
   c->calculate_absolute_position =
     ctermui_soft_background_calculate_absolute_position;
-
 
   return c;
 }
