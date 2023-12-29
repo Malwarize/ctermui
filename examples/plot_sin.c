@@ -14,7 +14,7 @@ void generate_data(float xvalues[], float yvalues[]) {
 
 void periodic(ctermui_screen_t *screen_p) {
     ctermui_screen_t screen = *screen_p;
-    ctermui_widget_t root = screen->root;
+    ctermui_layout_t root = screen->root;
     ctermui_component_t c = root->component[0];
     ScatterPlot *plt = (ScatterPlot *) c->core_component;
     float xvalues[SIZE];
@@ -25,7 +25,7 @@ void periodic(ctermui_screen_t *screen_p) {
             plt->xvalues[i]++;
             plt->yvalues[i] = sin(plt->xvalues[i]);
         }
-        ctermui_screen_refresh_widget(screen, root);
+        ctermui_screen_refresh_layout(screen, root);
     }
 
 }
@@ -34,7 +34,7 @@ void periodic(ctermui_screen_t *screen_p) {
 int main() {
 
     ctermui_screen_t screen = ctermui_screen_init();
-    ctermui_widget_t root = ctermui_widget_new_root(
+    ctermui_layout_t root = ctermui_layout_new_root(
             CTERMUI_HORIZONTAL, screen->width, screen->height
                                                    );
 
@@ -52,7 +52,7 @@ int main() {
             '*',
             1
                                                       );
-    ctermui_widget_add_component(root, plt);
-    ctermui_screen_set_widget_root(screen, root);
+    ctermui_layout_add_component(root, plt);
+    ctermui_screen_set_layout_root(screen, root);
     ctermui_screen_loop_start(screen, periodic, 10000);
 }

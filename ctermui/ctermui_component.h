@@ -1,7 +1,7 @@
 #ifndef CTERMUI_COMPONENT_H
 #define CTERMUI_COMPONENT_H
 typedef struct ctermui_screen *ctermui_screen_t;
-typedef struct ctermui_widget *ctermui_widget_t;
+typedef struct ctermui_layout *ctermui_layout_t;
 
 #include "ctermui_events.h"
 #include <signal.h>
@@ -20,7 +20,7 @@ typedef struct ctermui_component {
     void (*draw)(
             ctermui_screen_t s,
             struct ctermui_component *c
-                );
+    );
 
     void (*calculate_absolute_position)(
             struct ctermui_component *c,
@@ -28,10 +28,10 @@ typedef struct ctermui_component {
             size_t parent_y,
             size_t parent_width,
             size_t parent_height
-                                       );
+    );
 
     void *core_component;
-    ctermui_widget_t parent;
+    ctermui_layout_t parent;
 } *ctermui_component_t;
 
 enum CTYPES {
@@ -145,34 +145,34 @@ ctermui_component_t ctermui_new_button(
         size_t align,
         int8_t text_color,
         int8_t bg_color
-                                      );
+);
 
 ctermui_component_t ctermui_new_text(
         char *id, char *text, int8_t color, int8_t bg_color, size_t align
-                                    );
+);
 
 ctermui_component_t ctermui_new_frame(
         char *id,
         int8_t color,
         int8_t bg_color
-                                     );
+);
 
 ctermui_component_t ctermui_new_solid_background(
         char *id,
         int8_t color,
         size_t width,
         size_t height
-                                                );
+);
 
 void ctermui_progress_bar_update_value(
         ctermui_component_t c,
         size_t value
-                                      );
+);
 
 ctermui_component_t ctermui_new_soft_background(
         char *id,
         int8_t color
-                                               );
+);
 
 ctermui_component_t ctermui_new_progress_bar(
         char *id,
@@ -183,7 +183,7 @@ ctermui_component_t ctermui_new_progress_bar(
         char *text,
         int8_t text_color,
         size_t orientation
-                                            );
+);
 
 
 ctermui_component_t ctermui_new_custom_component(
@@ -195,28 +195,28 @@ ctermui_component_t ctermui_new_custom_component(
                 size_t parent_y,
                 size_t parent_width,
                 size_t parent_height
-                                           ),
+        ),
         void *core_component
-                                                );
+);
 
 void ctermui_component_draw_button(
         ctermui_screen_t s,
         ctermui_component_t c
-                                  );
+);
 
 void ctermui_component_draw_label(
         ctermui_screen_t s,
         ctermui_component_t c
-                                 );
+);
 
 void ctermui_component_draw_frame(
         ctermui_screen_t s,
         ctermui_component_t c
-                                 );
+);
 
 void ctermui_component_draw_solid_background(
         ctermui_screen_t s, ctermui_component_t c
-                                            );
+);
 
 ctermui_component_t ctermui_new_text_input(
         char *id,
@@ -225,17 +225,17 @@ ctermui_component_t ctermui_new_text_input(
         size_t min_width,
         size_t min_height,
         ctermui_screen_keyboard_events_t events
-                                          );
+);
 
 void ctermui_component_draw_soft_background(
         ctermui_screen_t s, ctermui_component_t c
-                                           );
+);
 
 void ctermui_barchart_update_values(
         ctermui_component_t c,
         int *values,
         size_t values_length
-                                   );
+);
 
 ctermui_component_t ctemrui_new_barchart(
         char *id,
@@ -247,7 +247,7 @@ ctermui_component_t ctemrui_new_barchart(
         char(*labels)[100],
         size_t values_length,
         int gap
-                                        );
+);
 
 ctermui_component_t ctermui_new_scatter_plot(
         char *id,
@@ -259,6 +259,6 @@ ctermui_component_t ctermui_new_scatter_plot(
         uint8_t fg_color,
         char point_symbol,
         uint8_t line_linking
-                                            );
+);
 
 #endif  // CTERMUI_COMPONENT_H

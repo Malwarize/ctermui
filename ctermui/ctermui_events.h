@@ -38,21 +38,21 @@ ctermui_screen_keyboard_events_new();
 
 void ctermui_screen_keyboard_events_free(
         ctermui_screen_keyboard_events_t events
-                                        );
+);
 
 void ctermui_screen_keyboard_events_register(
         ctermui_screen_keyboard_events_t events,
         char key,
         void (*callback)(void *),
         void *arg
-                                            );
+);
 
 void ctermui_screen_keyboard_events_unregister(
         ctermui_screen_keyboard_events_t events, char key
-                                              );
+);
 
 void ctermui_screen_keyboard_events_handle(
         ctermui_screen_keyboard_events_t events, char key
-                                          );
+);
 
 #endif

@@ -10,7 +10,7 @@ ctermui_screen_keyboard_events_new() {
 
 void ctermui_screen_keyboard_events_free(
         ctermui_screen_keyboard_events_t events
-                                        ) {
+) {
     free(events);
 }
 
@@ -19,12 +19,12 @@ void ctermui_screen_keyboard_events_register(
         char key,
         void (*callback)(void *),
         void *arg
-                                            ) {
+) {
     if (events->ec >= 100) {
         fprintf(
                 stderr,
                 "ctermui_screen_keyboard_events_register: events->ec >= 100\n"
-               );
+        );
     }
     ctermui_screen_keyboard_event_t event =
             malloc(sizeof(struct ctermui_screen_keyboard_event));
@@ -36,7 +36,7 @@ void ctermui_screen_keyboard_events_register(
 
 void ctermui_screen_keyboard_events_unregister(
         ctermui_screen_keyboard_events_t events, char key
-                                              ) {
+) {
     for (uint32_t i = 0; i < events->ec; i++) {
         if (events->events[i]->key == key) {
             free(events->events[i]);
@@ -48,7 +48,7 @@ void ctermui_screen_keyboard_events_unregister(
 
 void ctermui_screen_keyboard_events_handle(
         ctermui_screen_keyboard_events_t events, char key
-                                          ) {
+) {
     for (uint32_t i = 0; i < events->ec; i++) {
         if (events->events[i]->key == key) {
             events->events[i]->callback(events->events[i]->arg);
@@ -58,5 +58,5 @@ void ctermui_screen_keyboard_events_handle(
 
 void ctermui_screen_keyboard_events_handle_any_key(
         ctermui_screen_keyboard_events_t events, char key
-                                                  ) {
+) {
 }

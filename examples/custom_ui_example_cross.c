@@ -52,7 +52,7 @@ void calculate_abs_position_custom_component(
 
 int main() {
     ctermui_screen_t screen = ctermui_screen_init();
-    ctermui_widget_t root = ctermui_widget_new_root(
+    ctermui_layout_t root = ctermui_layout_new_root(
             CTERMUI_HORIZONTAL, screen->width, screen->height
                                                    );
 
@@ -63,8 +63,8 @@ int main() {
     ctermui_component_t custom_component = ctermui_new_custom_component(
             "custom_component", draw_custom_component, calculate_abs_position_custom_component, (void *) &cross
                                                                        );
-    ctermui_widget_add_component(root, custom_component);
-    ctermui_screen_set_widget_root(screen, root);
+    ctermui_layout_add_component(root, custom_component);
+    ctermui_screen_set_layout_root(screen, root);
     ctermui_screen_loop_start(screen, NULL, 0);
     return 0;
 }

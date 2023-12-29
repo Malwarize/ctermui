@@ -10,7 +10,7 @@ int ctermui_pencil_draw_char(
         int8_t fg_color,
         int8_t bg_color,
         uint8_t flag
-                            ) {
+) {
     b[x][y]->character = c;
     b[x][y]->foreground_color = fg_color;
     b[x][y]->background_color = bg_color;
@@ -26,24 +26,24 @@ int ctermui_pencil_draw_line(
         char c,
         int8_t color,
         int8_t bg_color
-                            ) {
+) {
     if (orientation == 0) {
         for (size_t i = 0; i < length; i++) {
             ctermui_pencil_draw_char(
                     b, x + i, y, c, color, bg_color, 0
-                                    );
+            );
         }
     } else if (orientation == 1) {
         for (size_t i = 0; i < length; i++) {
             ctermui_pencil_draw_char(
                     b, x, y + i, c, color, bg_color, 0
-                                    );
+            );
         }
     } else {
         fprintf(
                 stderr,
                 "ctermui_pencil_draw_line: invalid orientation\n"
-               );
+        );
         exit(EXIT_FAILURE);
     }
     return 0;
@@ -58,7 +58,7 @@ int ctermui_pencil_draw_line_with_points(
         int8_t color,
         int8_t bg_color,
         char c
-                                        ) {
+) {
     int dx = abs((int) x_2 - (int) x_1);
     int dy = -abs((int) y_2 - (int) y_1);
     int sx = x_1 < x_2 ? 1 : -1;
@@ -92,10 +92,10 @@ int ctermui_pencil_draw_rect(
         size_t height,
         int8_t color,
         int8_t bg_color
-                            ) {
+) {
     ctermui_pencil_draw_char(
             b, x, y, CTERMUI_TOP_LEFT_CORNER, color, bg_color, 0
-                            );
+    );
     ctermui_pencil_draw_char(
             b,
             x + width,
@@ -104,7 +104,7 @@ int ctermui_pencil_draw_rect(
             color,
             bg_color,
             0
-                            );
+    );
     ctermui_pencil_draw_char(
             b,
             x,
@@ -113,7 +113,7 @@ int ctermui_pencil_draw_rect(
             color,
             bg_color,
             0
-                            );
+    );
     ctermui_pencil_draw_char(
             b,
             x + width,
@@ -122,7 +122,7 @@ int ctermui_pencil_draw_rect(
             color,
             bg_color,
             0
-                            );
+    );
     ctermui_pencil_draw_line(
             b,
             0,
@@ -132,7 +132,7 @@ int ctermui_pencil_draw_rect(
             CTERMUI_HORIZONTAL_LINE,
             color,
             bg_color
-                            );
+    );
     ctermui_pencil_draw_line(
             b,
             0,
@@ -142,7 +142,7 @@ int ctermui_pencil_draw_rect(
             CTERMUI_HORIZONTAL_LINE,
             color,
             bg_color
-                            );
+    );
     ctermui_pencil_draw_line(
             b,
             1,
@@ -152,7 +152,7 @@ int ctermui_pencil_draw_rect(
             CTERMUI_VERTICAL_LINE,
             color,
             bg_color
-                            );
+    );
     ctermui_pencil_draw_line(
             b,
             1,
@@ -162,7 +162,7 @@ int ctermui_pencil_draw_rect(
             CTERMUI_VERTICAL_LINE,
             color,
             bg_color
-                            );
+    );
     return 0;
 }
 
@@ -173,13 +173,13 @@ int ctermui_pencil_draw_text(
         const char *text,
         int8_t color,
         int8_t bg_color
-                            ) {
+) {
     size_t i = 0;
     //convert char to string
     while (text[i] != '\0') {
         ctermui_pencil_draw_char(
                 b, x + i, y, text[i], color, bg_color, 0
-                                );
+        );
         i++;
     }
     return 0;
@@ -192,7 +192,7 @@ int ctermui_pencil_solid_background(
         size_t width,
         size_t height,
         int8_t color
-                                   ) {
+) {
     for (size_t i = 0; i < height; i++) {
         for (size_t j = 0; j < width; j++) {
             ctermui_pencil_draw_char(
@@ -203,7 +203,7 @@ int ctermui_pencil_solid_background(
                     b[x][y]->foreground_color,
                     color,
                     0
-                                    );
+            );
         }
     }
     return 0;
@@ -216,7 +216,7 @@ int ctermui_pencil_bucket(
         size_t width,
         size_t height,
         int8_t color
-                         ) {
+) {
     for (size_t i = 0; i < height; i++) {
         for (size_t j = 0; j < width; j++) {
             if (b[x + j][y + i]->background_color == -1) {
@@ -228,7 +228,7 @@ int ctermui_pencil_bucket(
                         b[x][y]->foreground_color,
                         color,
                         0
-                                        );
+                );
             }
         }
     }

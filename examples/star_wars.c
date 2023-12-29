@@ -244,19 +244,19 @@ void periodic(ctermui_screen_t *sp) {
     ctermui_screen_t s = *sp;
     if (s->loop_count == 0) {
         game_create(
-                s, ctermui_widget_find_component(s->root, "game"));
+                s, ctermui_layout_find_component(s->root, "game"));
     }
     if (s->loop_count % 100 == 0) {
         move_enemies_down(
-                s, ctermui_widget_find_component(s->root, "game"));
+                s, ctermui_layout_find_component(s->root, "game"));
     }
     check_if_bullet_hit_enemy(
-            s, ctermui_widget_find_component(s->root, "game"));
+            s, ctermui_layout_find_component(s->root, "game"));
     check_if_enemy_hit_ground(
-            s, ctermui_widget_find_component(s->root, "game"));
+            s, ctermui_layout_find_component(s->root, "game"));
     check_if_win(
-            s, ctermui_widget_find_component(s->root, "game"));
-    ctermui_screen_refresh_widget(s, s->root);
+            s, ctermui_layout_find_component(s->root, "game"));
+    ctermui_screen_refresh_layout(s, s->root);
 }
 
 void draw_game(ctermui_screen_t s, ctermui_component_t c) {
@@ -291,15 +291,15 @@ int main() {
                                            );
     ctermui_screen_keyboard_events_register(
             screen->keyboard_events, ' ', (void *) shoot, NULL);
-    ctermui_widget_t root =
-            ctermui_widget_new_root(LEAF, screen->width, screen->height);
-    ctermui_screen_set_widget_root(screen, root);
-    ctermui_widget_add_component(
+    ctermui_layout_t root =
+            ctermui_layout_new_root(LEAF, screen->width, screen->height);
+    ctermui_screen_set_layout_root(screen, root);
+    ctermui_layout_add_component(
             root,
             ctermui_new_custom_component(
                     "game", draw_game, calculate_absolute_position, &game
                                         ));
-    ctermui_widget_add_component(
+    ctermui_layout_add_component(
             root,
             ctermui_new_soft_background(
                     "background", CTERMUI_BLACK
@@ -308,13 +308,13 @@ int main() {
             screen->keyboard_events,
             CTERMUI_KEY_RIGHT,
             move_player_right,
-            ctermui_widget_find_component(screen->root, "game"));
+            ctermui_layout_find_component(screen->root, "game"));
 
     ctermui_screen_keyboard_events_register(
             screen->keyboard_events,
             CTERMUI_KEY_LEFT,
             move_player_left,
-            ctermui_widget_find_component(screen->root, "game"));
+            ctermui_layout_find_component(screen->root, "game"));
 
     ctermui_screen_loop_start(screen, periodic, 10000);
     return 0;

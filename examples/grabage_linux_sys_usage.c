@@ -117,12 +117,12 @@ void getNetworkUsage(const char *interface, float *incoming, float *outgoing) {
 
 void periodic(ctermui_screen_t *screen_p) {
     ctermui_screen_t screen = *screen_p;
-    ctermui_widget_t root = screen->root;
-    ctermui_widget_t w = ctermui_widget_find(root, "wiget_1_1");
+    ctermui_layout_t root = screen->root;
+    ctermui_layout_t w = ctermui_layout_find(root, "wiget_1_1");
     if (w == NULL) {
-        fprintf(stderr, "widget not found\n");
+        fprintf(stderr, "layout not found\n");
     }
-    ctermui_component_t c = ctermui_widget_find_component(w, "network");
+    ctermui_component_t c = ctermui_layout_find_component(w, "network");
     ScatterPlot *scatter_plot = (ScatterPlot *) c->core_component;
     int every = 1;
     if (screen->loop_count % every == 0) {
@@ -144,15 +144,15 @@ void periodic(ctermui_screen_t *screen_p) {
 
     }
     if (screen->loop_count % 2) {
-        ctermui_widget_t cpu_barchart = ctermui_widget_find(root, "wiget_1_2");
-        ctermui_component_t barchart = ctermui_widget_find_component(cpu_barchart, "barchart");
+        ctermui_layout_t cpu_barchart = ctermui_layout_find(root, "wiget_1_2");
+        ctermui_component_t barchart = ctermui_layout_find_component(cpu_barchart, "barchart");
         BarChart *bar_chart = (BarChart *) barchart->core_component;
         getCPUUsage(cpu_usage);
         ctermui_barchart_update_values(barchart, cpu_usage, MAX_CORES);
 
 
-        ctermui_widget_t ram_widget = ctermui_widget_find(root, "wiget_2_1_3");
-        ctermui_component_t ram_usage = ctermui_widget_find_component(ram_widget, "ram_usage");
+        ctermui_layout_t ram_layout = ctermui_layout_find(root, "wiget_2_1_3");
+        ctermui_component_t ram_usage = ctermui_layout_find_component(ram_layout, "ram_usage");
         ProgressBar *ram_bar = (ProgressBar *) ram_usage->core_component;
         int total, free;
         getRamUsage(&total, &free);
@@ -164,29 +164,29 @@ void periodic(ctermui_screen_t *screen_p) {
 
     }
 
-    ctermui_screen_refresh_widget(screen, screen->root);
+    ctermui_screen_refresh_layout(screen, screen->root);
 }
 
 
 int main() {
     ctermui_screen_t screen = ctermui_screen_init();
-    ctermui_widget_t root = ctermui_widget_new_root(
+    ctermui_layout_t root = ctermui_layout_new_root(
             CTERMUI_HORIZONTAL, screen->width, screen->height
                                                    );
 
-    ctermui_widget_t wiget_1 = ctermui_widget_new("left_widget", CTERMUI_VERTICAL, 50);
-    ctermui_widget_t wiget_2 = ctermui_widget_new("right_widget", CTERMUI_VERTICAL, 50);
+    ctermui_layout_t wiget_1 = ctermui_layout_new("left_layout", CTERMUI_VERTICAL, 50);
+    ctermui_layout_t wiget_2 = ctermui_layout_new("right_layout", CTERMUI_VERTICAL, 50);
 
 
-    ctermui_widget_t wiget_1_1 = ctermui_widget_new("wiget_1_1", CTERMUI_HORIZONTAL, 50);
-    ctermui_widget_t wiget_1_2 = ctermui_widget_new("wiget_1_2", CTERMUI_HORIZONTAL, 50);
+    ctermui_layout_t wiget_1_1 = ctermui_layout_new("wiget_1_1", CTERMUI_HORIZONTAL, 50);
+    ctermui_layout_t wiget_1_2 = ctermui_layout_new("wiget_1_2", CTERMUI_HORIZONTAL, 50);
 
-    ctermui_widget_t wiget_2_1 = ctermui_widget_new("wiget_2_1", CTERMUI_VERTICAL, 50);
+    ctermui_layout_t wiget_2_1 = ctermui_layout_new("wiget_2_1", CTERMUI_VERTICAL, 50);
 
-    ctermui_widget_t wiget_2_1_1 = ctermui_widget_new("wiget_2_1_1", LEAF, 25);
-    ctermui_widget_t wiget_2_1_2 = ctermui_widget_new("wiget_2_1_2", LEAF, 25);
-    ctermui_widget_t wiget_2_1_3 = ctermui_widget_new("wiget_2_1_3", LEAF, 25);
-    ctermui_widget_t wiget_2_2 = ctermui_widget_new("wiget_2_2", CTERMUI_HORIZONTAL, 50);
+    ctermui_layout_t wiget_2_1_1 = ctermui_layout_new("wiget_2_1_1", LEAF, 25);
+    ctermui_layout_t wiget_2_1_2 = ctermui_layout_new("wiget_2_1_2", LEAF, 25);
+    ctermui_layout_t wiget_2_1_3 = ctermui_layout_new("wiget_2_1_3", LEAF, 25);
+    ctermui_layout_t wiget_2_2 = ctermui_layout_new("wiget_2_2", CTERMUI_HORIZONTAL, 50);
 
 
     int cpu_usage[MAX_CORES + MAX_CORES * 4] = {0};
@@ -200,7 +200,7 @@ int main() {
     ctermui_component_t barchart = ctemrui_new_barchart(
             "barchart", CTERMUI_MAGENTA, CTERMUI_EMPTY, 100, CTERMUI_HORIZONTAL, cpu_usage, labels, MAX_CORES, 1
                                                        );
-    ctermui_widget_add_component(wiget_1_2, barchart);
+    ctermui_layout_add_component(wiget_1_2, barchart);
 
     float x_values[NETWORK_USAGE_RANGE];
     float y_values[NETWORK_USAGE_RANGE];
@@ -208,7 +208,7 @@ int main() {
     ctermui_component_t linechart = ctermui_new_scatter_plot(
             "network", x_values, y_values, NETWORK_USAGE_RANGE, CTERMUI_CYAN, CTERMUI_EMPTY, CTERMUI_RED, 'o', 1
                                                             );
-    ctermui_widget_add_component(wiget_1_1, linechart);
+    ctermui_layout_add_component(wiget_1_1, linechart);
 
 
     int total, free;
@@ -218,19 +218,19 @@ int main() {
     ctermui_component_t ram_usage = ctermui_new_progress_bar(
             "ram_usage", CTERMUI_GREEN, CTERMUI_WHITE, total, free, usage_string, CTERMUI_BLACK, CTERMUI_HORIZONTAL
                                                             );
-    ctermui_widget_add_component(wiget_2_1_3, ram_usage);
+    ctermui_layout_add_component(wiget_2_1_3, ram_usage);
 
-    ctermui_widget_add_child(wiget_1, wiget_1_1);
-    ctermui_widget_add_child(wiget_1, wiget_1_2);
+    ctermui_layout_add_child(wiget_1, wiget_1_1);
+    ctermui_layout_add_child(wiget_1, wiget_1_2);
 
-    ctermui_widget_add_child(wiget_2_1, wiget_2_1_1);
-    ctermui_widget_add_child(wiget_2_1, wiget_2_1_2);
-    ctermui_widget_add_child(wiget_2_1, wiget_2_1_3);
-    ctermui_widget_add_child(wiget_2, wiget_2_1);
-    ctermui_widget_add_child(wiget_2, wiget_2_2);
-    ctermui_widget_add_child(root, wiget_1);
-    ctermui_widget_add_child(root, wiget_2);
-    ctermui_screen_set_widget_root(screen, root);
+    ctermui_layout_add_child(wiget_2_1, wiget_2_1_1);
+    ctermui_layout_add_child(wiget_2_1, wiget_2_1_2);
+    ctermui_layout_add_child(wiget_2_1, wiget_2_1_3);
+    ctermui_layout_add_child(wiget_2, wiget_2_1);
+    ctermui_layout_add_child(wiget_2, wiget_2_2);
+    ctermui_layout_add_child(root, wiget_1);
+    ctermui_layout_add_child(root, wiget_2);
+    ctermui_screen_set_layout_root(screen, root);
     ctermui_screen_loop_start(screen, periodic, 1 * 1000000);
 }
 

@@ -48,7 +48,7 @@ int ctermui_pencil_draw_char(
         int8_t fg_color,
         int8_t bg_color,
         uint8_t flag
-                            );
+);
 
 int ctermui_pencil_draw_line(
         screen_buffer b,
@@ -59,7 +59,7 @@ int ctermui_pencil_draw_line(
         char c,
         int8_t color,
         int8_t bg_color
-                            );
+);
 
 int ctermui_pencil_draw_rect(
         screen_buffer b,
@@ -69,7 +69,7 @@ int ctermui_pencil_draw_rect(
         size_t height,
         int8_t color,
         int8_t bg_color
-                            );
+);
 
 int ctermui_pencil_draw_text(
         screen_buffer b,
@@ -78,7 +78,7 @@ int ctermui_pencil_draw_text(
         const char *text,
         int8_t color,
         int8_t bg_color
-                            );
+);
 
 int ctermui_pencil_solid_background(
         screen_buffer b,
@@ -87,7 +87,7 @@ int ctermui_pencil_solid_background(
         size_t width,
         size_t height,
         int8_t color
-                                   );
+);
 
 int ctermui_pencil_bucket(
         screen_buffer b,
@@ -96,7 +96,7 @@ int ctermui_pencil_bucket(
         size_t width,
         size_t height,
         int8_t color
-                         );
+);
 
 int ctermui_pencil_draw_line_with_points(
         screen_buffer b,
@@ -107,6 +107,6 @@ int ctermui_pencil_draw_line_with_points(
         int8_t color,
         int8_t bg_color,
         char c
-                                        );
+);
 
 #endif
