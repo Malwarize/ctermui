@@ -6,10 +6,10 @@ run : all
 	./build/bin/ctermui
 
 all: ctermui_layout.o ctermui_component.o ctermui_screen.o ctermui_events.o ctermui_pencil.o main.o
-	@$(CC) $(CFLAGS) build/ctermui_layout.o build/ctermui_component.o build/ctermui_screen.o build/ctermui_events.o build/ctermui_pencil.o build/main.o -o build/bin/ctermui
+	@$(CC) $(CFLAGS) build/ctermui_layout.o build/ctermui_component.o build/ctermui_screen.o build/ctermui_events.o build/ctermui_pencil.o build/main.o -lm -o build/bin/ctermui
 
 main.o : 
-	@$(CC) $(CFLAGS) -c main.c -o build/main.o
+	@$(CC) $(CFLAGS) -c main.c -o build/main.o 
 
 ctermui_layout.o:
 	@$(CC) $(CFLAGS) -c ctermui/ctermui_layout.c -o build/ctermui_layout.o

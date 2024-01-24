@@ -1,324 +1,237 @@
 #include "ctermui/ctermui_screen.h"
-#include "ctermui/ctermui_pencil.h"
-#include <time.h>
+
+#include<math.h>
 #include <stdio.h>
+#include <string.h>
+#include <time.h>
 
-#define ENEMY_NUMBER 10
-#define BULLET_NUMBER 10
+#define NETWORK_USAGE_RANGE 10
+#define MAX_CORES 8
+int cpu_usage[MAX_CORES + MAX_CORES * 4] = {0};
 
-ctermui_screen_t screen;
-
-typedef struct enemy {
-    int x;
-    int y;
-} Enemy;
-
-typedef struct player {
-    int x;
-    int y;
-} Player;
-
-typedef struct bullet {
-    int x;
-    int y;
-} Bullet;
-
-typedef struct game {
-    Player player;
-    Bullet bullets[BULLET_NUMBER];
-    Enemy enemies[ENEMY_NUMBER];
-} Game;
-
-Game game;
-
-void game_create(ctermui_screen_t s, ctermui_component_t c) {
-    game.player.x = c->absolute_width / 2;
-    game.player.y = c->absolute_height - 1;
-    for (int i = 0; i < ENEMY_NUMBER; i++) {
-        game.enemies[i].x = rand() % c->absolute_width;
-        game.enemies[i].y = rand() % c->absolute_height / 4;
-    }
-    for (int i = 0; i < BULLET_NUMBER; i++) {
-        game.bullets[i].x = game.player.x;
-        game.bullets[i].y = -1;
+void generate_data(float xvalues[], float yvalues[]) {
+    srand(time(NULL));
+    for (int i = 0; i < NETWORK_USAGE_RANGE; ++i) {
+        xvalues[i] = i;
+        yvalues[i] = 0;
     }
 }
 
-void enemy_horizontal_move(
-        ctermui_screen_t s,
-        ctermui_component_t c
-                          ) {
-    for (int i = 0; i < ENEMY_NUMBER; i++) {
-        //random step
-        int step = rand() % 2;
-        if (step) {
-            game.enemies[i].x =
-                    ((game.enemies[i].x - 1) + c->absolute_width) %
-                    c->absolute_width;
-        } else {
-            game.enemies[i].x =
-                    ((game.enemies[i].x + 1) + c->absolute_width) %
-                    c->absolute_width;
-        }
-    }
-}
+void getCPUUsage(int cpu_usage_percentage[]) {
+    FILE *file = fopen("/proc/stat", "r");
+    if (file == NULL) {
+        perror("Error opening /proc/stat");
+        exit(EXIT_FAILURE); }
 
-void bullet_create(int target) {
-    game.bullets[target].x = game.player.x;
-    game.bullets[target].y = game.player.y;
-}
+    char line[256];
+    while (fgets(line, sizeof(line), file) != NULL) {
+        if (strncmp(line, "cpu", 3) == 0) {
+            int core;
+            sscanf(line, "cpu%d", &core);
 
-void bullet_vertical_move(
-        ctermui_screen_t s,
-        ctermui_component_t c,
-        int target
-                         ) {
-    game.bullets[target].y = (game.bullets[target].y - 1);
-}
+            if (core >= 0 && core < MAX_CORES) {
+                int user, nice, sys, idle;
+                sscanf(line + 3, "%d %d %d %d", &user, &nice, &sys, &idle);
 
-void draw_bullet(
-        ctermui_screen_t s,
-        ctermui_component_t c,
-        int target
-                ) {
-    if (game.bullets[target].y < 0) {
-        return;
-    }
-    ctermui_pencil_draw_char(
-            s->buffer,
-            game.bullets[target].x,
-            game.bullets[target].y,
-            ' ',
-            CTERMUI_BRIGHT_YELLOW,
-            CTERMUI_BRIGHT_YELLOW, DEFAULT
-                            );
-}
 
-void draw_bullets(ctermui_screen_t s, ctermui_component_t c) {
-    for (int i = 0; i < BULLET_NUMBER; i++) {
-        if (game.bullets[i].y < c->absolute_y) {
-            continue;
-        }
-        draw_bullet(s, c, i);
-    }
-}
+                if (user < cpu_usage_percentage[core] || nice < cpu_usage_percentage[core + MAX_CORES] ||
+                    sys < cpu_usage_percentage[core + MAX_CORES * 2] ||
+                    idle < cpu_usage_percentage[core + MAX_CORES * 3]) {
 
-void draw_bullet_and_move(
-        ctermui_screen_t s,
-        ctermui_component_t c,
-        int target
-                         ) {
-    draw_bullet(s, c, target);
-    bullet_vertical_move(s, c, target);
-}
+                    cpu_usage_percentage[core] = user;
+                    cpu_usage_percentage[core + MAX_CORES] = nice;
+                    cpu_usage_percentage[core + MAX_CORES * 2] = sys;
+                    cpu_usage_percentage[core + MAX_CORES * 3] = idle;
+                    continue;
+                }
 
-void draw_bullets_and_move(
-        ctermui_screen_t s,
-        ctermui_component_t c
-                          ) {
-    for (int i = 0; i < BULLET_NUMBER; i++) {
-        draw_bullet_and_move(s, c, i);
-    }
-}
+                int total = user + nice + sys + idle;
+                int diff_total = total - cpu_usage_percentage[core + MAX_CORES * 4];
+                int diff_idle = idle - cpu_usage_percentage[core + MAX_CORES * 3];
 
-void shoot() {
-    for (int i = 0; i < BULLET_NUMBER; i++) {
-        if (game.bullets[i].y < 0) {
-            bullet_create(i);
-            return;
-        }
-    }
-}
+                if (diff_total > 0) {
+                    int usage_percentage = (diff_idle * 100) / diff_total;
+                    cpu_usage_percentage[core] = (usage_percentage > 100) ? 100 : usage_percentage;
 
-void draw_enemys(ctermui_screen_t s, ctermui_component_t c) {
-    for (int i = 0; i < ENEMY_NUMBER; i++) {
-        if (game.enemies[i].y < 0) {
-            continue;
-        }
-        ctermui_pencil_draw_char(
-                s->buffer,
-                game.enemies[i].x,
-                game.enemies[i].y,
-                ' ',
-                CTERMUI_BRIGHT_RED,
-                CTERMUI_BRIGHT_RED, DEFAULT
-                                );
-    }
-}
 
-void draw_player(ctermui_screen_t s, ctermui_component_t c) {
-    ctermui_pencil_draw_char(
-            s->buffer,
-            game.player.x,
-            game.player.y,
-            ' ',
-            CTERMUI_BRIGHT_GREEN,
-            CTERMUI_BRIGHT_GREEN, DEFAULT
-                            );
-}
-
-void game_animate(ctermui_screen_t s, ctermui_component_t c) {
-    draw_enemys(s, c);
-    draw_player(s, c);
-    draw_bullets_and_move(s, c);
-    enemy_horizontal_move(s, c);
-}
-
-void move_player_left(void *data) {
-    ctermui_component_t c = (ctermui_component_t) data;
-    game.player.x = ((game.player.x - 1 + c->absolute_width) %
-                     (c->absolute_width));
-}
-
-void move_player_right(void *data) {
-    ctermui_component_t c = (ctermui_component_t) data;
-    game.player.x = ((game.player.x + 1 + c->absolute_width) %
-                     (c->absolute_width));
-}
-
-void move_enmeies_down(
-        ctermui_screen_t s,
-        ctermui_component_t c
-                      ) {
-    for (int i = 0; i < ENEMY_NUMBER; i++) {
-        if (game.enemies[i].y < 0) {
-            continue;
-        }
-        game.enemies[i].y =
-                (game.enemies[i].y + 1);
-    }
-}
-
-void check_if_win(ctermui_screen_t s, ctermui_component_t c) {
-    int win = 1;
-    for (int i = 0; i < ENEMY_NUMBER; i++) {
-        if (game.enemies[i].y < 0) {
-            continue;
-        }
-        win = 0;
-    }
-    if (win) {
-        ctermui_restore_cursor();
-        fprintf(stderr, "You Win !\n");
-        exit(0);
-    }
-}
-
-void check_if_bullet_hit_enemy(
-        ctermui_screen_t s,
-        ctermui_component_t c
-                              ) {
-    for (int i = 0; i < BULLET_NUMBER; i++) {
-        if (game.bullets[i].y < c->absolute_y) {
-            continue;
-        }
-        for (int j = 0; j < ENEMY_NUMBER; j++) {
-            if (game.enemies[j].y < 0) {
-                continue;
-            }
-            if (game.bullets[i].x == game.enemies[j].x &&
-                game.bullets[i].y == game.enemies[j].y) {
-                game.bullets[i].y = -1;
-                game.enemies[j].y = -1;
+                    cpu_usage_percentage[core + MAX_CORES * 4] = total;
+                    cpu_usage_percentage[core + MAX_CORES] = nice;
+                    cpu_usage_percentage[core + MAX_CORES * 2] = sys;
+                    cpu_usage_percentage[core + MAX_CORES * 3] = idle;
+                }
             }
         }
     }
+    fclose(file);
 }
 
-void check_if_enemy_hit_ground(
-        ctermui_screen_t s,
-        ctermui_component_t c
-                              ) {
-    for (int i = 0; i < ENEMY_NUMBER; i++) {
-        if (game.enemies[i].y < 0) {
-            continue;
+void getRamUsage(int *total, int *free) {
+    FILE *file = fopen("/proc/meminfo", "r");
+
+    if (file == NULL) {
+        perror("Error opening /proc/meminfo");
+        exit(EXIT_FAILURE);
+    }
+
+    char line[256];
+    while (fgets(line, sizeof(line), file) != NULL) {
+        if (strncmp(line, "MemTotal:", 9) == 0) {
+            sscanf(line + 9, "%d", total);
+        } else if (strncmp(line, "MemFree:", 8) == 0) {
+            sscanf(line + 8, "%d", free);
         }
-        if (game.enemies[i].y == c->absolute_height - 1) {
-            ctermui_restore_cursor();
-            fprintf(stderr, "You Lose !\n");
-            exit(0);
+    }
+    fclose(file);
+}
+
+void getNetworkUsage(const char *interface, float *incoming, float *outgoing) {
+    FILE *file = fopen("/proc/net/dev", "r");
+
+    if (file == NULL) {
+        perror("Error opening /proc/net/dev");
+        exit(EXIT_FAILURE);
+    }
+
+
+    char buffer[256];
+    fgets(buffer, sizeof(buffer), file);
+    fgets(buffer, sizeof(buffer), file);
+
+
+    float in, out;
+
+
+    while (fgets(buffer, sizeof(buffer), file) != NULL) {
+        if (sscanf(buffer, "%*s %f %*s %*s %*s %*s %*s %*s %*s %*s %f", &in, &out) == 2 &&
+            strstr(buffer, interface) != NULL) {
+
+            *incoming = in;
+            *outgoing = out;
+            break;
         }
     }
+    *outgoing /= 1024;
+    fclose(file);
 }
 
-void periodic(ctermui_screen_t *sp) {
-    ctermui_screen_t s = *sp;
-    if (s->loop_count == 0) {
-        game_create(
-                s, ctermui_layout_find_component(s->root, "game"));
+void periodic(ctermui_screen_t *screen_p) {
+    ctermui_screen_t screen = *screen_p;
+    ctermui_layout_t root = screen->root;
+    ctermui_layout_t w = ctermui_layout_find(root, "wiget_1_1");
+    if (w == NULL) {
+        fprintf(stderr, "layout not found\n");
     }
-    if (s->loop_count % 100 == 0) {
-        move_enmeies_down(
-                s, ctermui_layout_find_component(s->root, "game"));
-    }
-    check_if_bullet_hit_enemy(
-            s, ctermui_layout_find_component(s->root, "game"));
-    check_if_enemy_hit_ground(
-            s, ctermui_layout_find_component(s->root, "game"));
-    check_if_win(
-            s, ctermui_layout_find_component(s->root, "game"));
-    ctermui_screen_refresh_layout(s, s->root);
-}
+    ctermui_component_t c = ctermui_layout_find_component(w, "network");
+    ScatterPlot *scatter_plot = (ScatterPlot *) c->core_component;
+    int every = 1;
+    if (screen->loop_count % every == 0) {
 
-void draw_game(ctermui_screen_t s, ctermui_component_t c) {
-    game_animate(s, c);
-}
+        float incoming, outgoing;
+        getNetworkUsage("wlp1s0", &incoming, &outgoing);
 
-void calculate_absolute_position(
-        ctermui_component_t c, size_t x, size_t y, size_t width, size_t height
-                                ) {
-    c->absolute_x = x;
-    c->absolute_y = y;
-    c->absolute_width = width;
-    c->absolute_height = height;
-    game.player.x = ((game.player.x + c->absolute_width) %
-                     (c->absolute_width));
-    game.player.y = c->absolute_height - 1;
-    for (size_t i = 0; i < ENEMY_NUMBER; i++) {
-        if (game.enemies[i].y < 0) {
-            continue;
+
+        float speed = (outgoing - scatter_plot->yvalues[NETWORK_USAGE_RANGE - 1]) / 1024;
+
+        speed = roundf(speed * 1000) / 1000;
+
+        for (int i = 0; i < NETWORK_USAGE_RANGE - 1; i++) {
+            scatter_plot->xvalues[i] = scatter_plot->xvalues[i + 1];
+            scatter_plot->yvalues[i] = scatter_plot->yvalues[i + 1];
         }
-        game.enemies[i].x = ((game.enemies[i].x + c->absolute_width) %
-                             (c->absolute_width));
-        game.enemies[i].y = ((game.enemies[i].y + c->absolute_height) %
-                             (c->absolute_height));
+        scatter_plot->xvalues[NETWORK_USAGE_RANGE - 1] = scatter_plot->xvalues[NETWORK_USAGE_RANGE - 2] + 1;
+        scatter_plot->yvalues[NETWORK_USAGE_RANGE - 1] = speed;
+        ctermui_screen_refresh_layout(screen, w);
+
     }
+    if (screen->loop_count % 2) {
+        ctermui_layout_t cpu_barchart = ctermui_layout_find(root, "wiget_1_2");
+        ctermui_component_t barchart = ctermui_layout_find_component(cpu_barchart, "barchart");
+        BarChart *bar_chart = (BarChart *) barchart->core_component;
+        getCPUUsage(cpu_usage);
+        ctermui_barchart_update_values(barchart, cpu_usage, MAX_CORES);
+        ctermui_screen_refresh_layout(screen, cpu_barchart);
+
+        ctermui_layout_t ram_layout = ctermui_layout_find(root, "wiget_2_1_3");
+        ctermui_component_t ram_usage = ctermui_layout_find_component(ram_layout, "ram_usage");
+        ProgressBar *ram_bar = (ProgressBar *) ram_usage->core_component;
+        int total, free;
+        getRamUsage(&total, &free);
+        char usage_string[100];
+        sprintf(usage_string, "%dMb/%dGb", (free) / (1024), (total) / (1024 * 1024));
+        ram_bar->progress = free;
+        ram_bar->max = total;
+        strcpy(ram_bar->text, usage_string);
+        //refresh
+        ctermui_screen_refresh_layout(screen, ram_layout);
+    }
+
 }
+
 
 int main() {
-    srand(time(NULL));
-    screen = ctermui_screen_init();
-    ctermui_screen_keyboard_events_register(
-            screen->keyboard_events, 'q', (void *) exit, 0
-                                           );
-    ctermui_screen_keyboard_events_register(
-            screen->keyboard_events, ' ', (void *) shoot, NULL);
-    ctermui_layout_t root =
-            ctermui_layout_new_root(LEAF, screen->width, screen->height);
+    ctermui_screen_t screen = ctermui_screen_init();
+    ctermui_layout_t root = ctermui_layout_new_root(
+            CTERMUI_HORIZONTAL, screen->width, screen->height
+                                                   );
+
+    ctermui_layout_t wiget_1 = ctermui_layout_new("left_layout", CTERMUI_VERTICAL, 50);
+    ctermui_layout_t wiget_2 = ctermui_layout_new("right_layout", CTERMUI_VERTICAL, 50);
+
+
+    ctermui_layout_t wiget_1_1 = ctermui_layout_new("wiget_1_1", CTERMUI_HORIZONTAL, 50);
+    ctermui_layout_t wiget_1_2 = ctermui_layout_new("wiget_1_2", CTERMUI_HORIZONTAL, 50);
+
+    ctermui_layout_t wiget_2_1 = ctermui_layout_new("wiget_2_1", CTERMUI_VERTICAL, 50);
+
+    ctermui_layout_t wiget_2_1_1 = ctermui_layout_new("wiget_2_1_1", LEAF, 25);
+    ctermui_layout_t wiget_2_1_2 = ctermui_layout_new("wiget_2_1_2", LEAF, 25);
+    ctermui_layout_t wiget_2_1_3 = ctermui_layout_new("wiget_2_1_3", LEAF, 25);
+    ctermui_layout_t wiget_2_2 = ctermui_layout_new("wiget_2_2", CTERMUI_HORIZONTAL, 50);
+
+
+    int cpu_usage[MAX_CORES + MAX_CORES * 4] = {0};
+    char labels[MAX_CORES][100];
+
+    for (int i = 0; i < MAX_CORES; ++i) {
+        cpu_usage[i] = 0;
+        sprintf(labels[i], "core %d", i + 1);
+    }
+
+    ctermui_component_t barchart = ctemrui_new_barchart(
+            "barchart", CTERMUI_MAGENTA, CTERMUI_EMPTY, 100, CTERMUI_HORIZONTAL, cpu_usage, labels, MAX_CORES, 1
+                                                       );
+    ctermui_layout_add_component(wiget_1_2, barchart);
+
+    float x_values[NETWORK_USAGE_RANGE];
+    float y_values[NETWORK_USAGE_RANGE];
+    generate_data(x_values, y_values);
+    ctermui_component_t linechart = ctermui_new_scatter_plot(
+            "network", x_values, y_values, NETWORK_USAGE_RANGE, CTERMUI_CYAN, CTERMUI_EMPTY, CTERMUI_RED, 'o', 1
+                                                            );
+    ctermui_layout_add_component(wiget_1_1, linechart);
+
+
+    int total, free;
+    getRamUsage(&total, &free);
+    char usage_string[100];
+    sprintf(usage_string, "%dMb/%dMb", (total - free) / 1024, total / 1024);
+    ctermui_component_t ram_usage = ctermui_new_progress_bar(
+            "ram_usage", CTERMUI_GREEN, CTERMUI_WHITE, total, free, usage_string, CTERMUI_BLACK, CTERMUI_HORIZONTAL
+                                                            );
+    ctermui_layout_add_component(wiget_2_1_3, ram_usage);
+
+    ctermui_layout_add_child(wiget_1, wiget_1_1);
+    ctermui_layout_add_child(wiget_1, wiget_1_2);
+
+    ctermui_layout_add_child(wiget_2_1, wiget_2_1_1);
+    ctermui_layout_add_child(wiget_2_1, wiget_2_1_2);
+    ctermui_layout_add_child(wiget_2_1, wiget_2_1_3);
+    ctermui_layout_add_child(wiget_2, wiget_2_1);
+    ctermui_layout_add_child(wiget_2, wiget_2_2);
+    ctermui_layout_add_child(root, wiget_1);
+    ctermui_layout_add_child(root, wiget_2);
     ctermui_screen_set_layout_root(screen, root);
-    ctermui_layout_add_component(
-            root,
-            ctermui_new_custom_component(
-                    "game", draw_game, calculate_absolute_position, &game
-                                        ));
-    ctermui_layout_add_component(
-            root,
-            ctermui_new_soft_background(
-                    "background", CTERMUI_BLACK
-                                       ));
-    ctermui_screen_keyboard_events_register(
-            screen->keyboard_events,
-            CTERMUI_KEY_RIGHT,
-            move_player_right,
-            ctermui_layout_find_component(screen->root, "game"));
-
-    ctermui_screen_keyboard_events_register(
-            screen->keyboard_events,
-            CTERMUI_KEY_LEFT,
-            move_player_left,
-            ctermui_layout_find_component(screen->root, "game"));
-
-    ctermui_screen_loop_start(screen, periodic, 10000);
-    return 0;
+    ctermui_screen_loop_start(screen, periodic, 1 * 1000000);
 }
+
 

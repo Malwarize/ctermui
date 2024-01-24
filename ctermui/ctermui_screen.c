@@ -116,6 +116,17 @@ void ctermui_screen_clear_part(
             );
         }
     }
+    for (size_t i = x; i < x + width; i++) {
+        ctermui_pencil_draw_char(
+                s->buffer,
+                i,
+                y,
+                EMPTY_CHAR,
+                CTERMUI_WHITE,
+                CTERMUI_EMPTY,
+                0
+        );
+    }
 }
 
 #define ANSI_BG_FMT "\033[48;5;%dm"
@@ -333,8 +344,9 @@ void ctermui_screen_display_part(
         ctermui_screen_t s, size_t x, size_t y, size_t width, size_t height
 ) {
     // adjust the cursor position
-    printf("\033[%zu;%zuH", y + 1, x + 1);
+    /* printf("\033[%zu;%zuH", y + 1, x + 1); */
     for (size_t i = y; i < y + height; i++) {
+        printf("\033[%zu;%zuH", i + 1, x + 1);
         for (size_t j = x; j < x + width; j++) {
             ctermui_display_cell(s->buffer[j][i]);
         }
