@@ -11,11 +11,6 @@ https://github.com/Malwarize/ctermui/assets/130087473/3a21eb8b-df69-41c1-b450-7b
 https://github.com/Malwarize/ctermui/assets/130087473/8f6ccb76-5e55-47ed-b0d3-6ed9c7888875
 
 
-
-https://github.com/Malwarize/ctermui/assets/130087473/60ccf959-8266-4f2d-9b6b-ca5d41d8f411
-
-
-
 https://github.com/Malwarize/ctermui/assets/130087473/06fa3bbe-b2e3-407a-896c-ad86d3584d9b
 
 
