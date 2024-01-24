@@ -41,7 +41,7 @@ void periodic(ctermui_screen_t *sp) {
     ctermui_screen_t s = *sp;
     ctermui_layout_t w1 =
             ctermui_layout_find(s->root, "child1");
-    ctermui_component c1 =
+    ctermui_component_t c1 =
             ctermui_layout_find_component(w1, "btn1");
     Button *btn = (Button *) c1->core_component;
     sprintf(btn->text, "%d", s->loop_count);
@@ -62,7 +62,7 @@ void ButtonSelectionExample() {
                 ctermui_layout_new(id, CTERMUI_HORIZONTAL, 20);
         char id1[100];
         sprintf(id1, "btn%zu", i);
-        ctermui_component btn1 =
+        ctermui_component_t btn1 =
                 ctermui_new_button(
                         id1,
                         "select me",
