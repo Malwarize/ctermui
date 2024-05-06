@@ -1,30 +1,56 @@
-CC=gcc
-CFLAGS=-g 
-.PHONY: all run clean 
+# Compiler
+CC = gcc
+# Compiler flags
+CFLAGS = -Wall -Wextra -pedantic -std=c99 
+DEBUG = -g
+# Directories
+SRCDIR = src
+INCDIR = include
+OBJDIR = src/obj
+LIBDIR = build
+TESTDIR = test
+# Source files
+SRCS = $(wildcard $(SRCDIR)/*.c)
+# Object files
+OBJS = $(SRCS:$(SRCDIR)/%.c=$(OBJDIR)/%.o)
+# Library
+LIBNAME = ctermui
+LIB = $(LIBDIR)/lib$(LIBNAME).a
+# Test files
+TESTSRCS = $(wildcard $(TESTDIR)/*.c)
+TESTBINS = $(TESTSRCS:$(TESTDIR)/%.c=$(TESTDIR)/%.out)
+# Targets
+all: $(LIB) $(TESTBINS)
 
-run : all
-	./build/bin/ctermui
+$(TESTDIR)/%.out: $(TESTDIR)/%.c $(LIB)
+	@mkdir -p $(TESTDIR)
+	$(CC) $(CFLAGS) -I$(INCDIR) -o $@ $< -L$(LIBDIR) -l$(LIBNAME)
 
-all: ctermui_layout.o ctermui_component.o ctermui_screen.o ctermui_events.o ctermui_pencil.o main.o
-	@$(CC) $(CFLAGS) build/ctermui_layout.o build/ctermui_component.o build/ctermui_screen.o build/ctermui_events.o build/ctermui_pencil.o build/main.o -lm -o build/bin/ctermui
+run_tests: $(TESTBINS)
+	@for testbin in $(TESTBINS); do \
+		echo "Running $$testbin"; \
+		$$testbin; \
+	done
 
-main.o : 
-	@$(CC) $(CFLAGS) -c main.c -o build/main.o 
+# Rule for creating object files
+$(OBJDIR)/%.o: $(SRCDIR)/%.c
+	@mkdir -p $(OBJDIR)
+	$(CC) $(CFLAGS) -I$(INCDIR) -c $< -o $@
 
-ctermui_layout.o:
-	@$(CC) $(CFLAGS) -c ctermui/ctermui_layout.c -o build/ctermui_layout.o
+# Rule for creating the static library
+$(LIB): $(OBJS)
+	@mkdir -p $(LIBDIR)
+	ar rcs $@ $(OBJS)
 
-ctermui_component.o:
-	@$(CC) $(CFLAGS) -c ctermui/ctermui_component.c -o build/ctermui_component.o
+# ENV run file, take the first argument as the file name
+# e.g. make run file=example
+run_file: $(LIB)
+	$(CC) $(CFLAGS) $(DEBUG) -I$(INCDIR) -o $(file).out $(file) -L$(LIBDIR) -l$(LIBNAME)
+	$(file).out
 
-ctermui_screen.o:
-	@$(CC) $(CFLAGS) -c ctermui/ctermui_screen.c  -o build/ctermui_screen.o 
-
-ctermui_events.o:
-	@$(CC) $(CFLAGS) -c ctermui/ctermui_events.c -o build/ctermui_events.o
-
-ctermui_pencil.o:
-	@$(CC) $(CFLAGS) -c ctermui/ctermui_pencil.c -o build/ctermui_pencil.o
+	
+# Clean
 clean:
-	@rm  -rf build/*.o build/ctermui 
+	rm -rf $(OBJDIR) $(LIBDIR) $(TESTDIR)/*.out 
+.PHONY: all run_tests clean
 

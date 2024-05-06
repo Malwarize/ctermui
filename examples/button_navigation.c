@@ -1,4 +1,4 @@
-#include "ctermui/ctermui_screen.h"
+#include "ctermui_screen.h"
 #include <stdio.h>
 #include <unistd.h>
 
@@ -7,92 +7,80 @@ Button *btnList[4];
 int bindex = 0;
 
 void on_click(void *arg) {
-    Button *btn = btnList[bindex];
-    strcpy(btn->text, "clicked");
+  Button *btn = btnList[bindex];
+  strcpy(btn->text, "clicked");
 }
 
 void select_button(Button *btn) {
-    btn->text_color = CTERMUI_BRIGHT_YELLOW;
-    btn->bg_color = CTERMUI_RED;
+  btn->text_color = CTERMUI_BRIGHT_YELLOW;
+  btn->bg_color = CTERMUI_RED;
 }
 
-
 void unselect_button(Button *btn) {
-    btn->text_color = CTERMUI_BLACK;
-    btn->bg_color = CTERMUI_BRIGHT_YELLOW;
+  btn->text_color = CTERMUI_BLACK;
+  btn->bg_color = CTERMUI_BRIGHT_YELLOW;
 }
 
 void on_select_arrow_up(void *arg) {
-    unselect_button(btnList[bindex]);
-    bindex = (bindex - 1) % 4;
-    if (bindex < 0) {
-        bindex = 3;
-    }
-    select_button(btnList[bindex]);
+  unselect_button(btnList[bindex]);
+  bindex = (bindex - 1) % 4;
+  if (bindex < 0) {
+    bindex = 3;
+  }
+  select_button(btnList[bindex]);
 }
 
 void on_select_arrow_down(void *arg) {
-    unselect_button(btnList[bindex]);
-    bindex = (bindex + 1) % 4;
-    select_button(btnList[bindex]);
+  unselect_button(btnList[bindex]);
+  bindex = (bindex + 1) % 4;
+  select_button(btnList[bindex]);
 }
 
 void periodic(ctermui_screen_t *sp) {
-    ctermui_screen_t s = *sp;
-    ctermui_layout_t w1 =
-            ctermui_layout_find(s->root, "child1");
-    ctermui_component_t c1 =
-            ctermui_layout_find_component(w1, "btn1");
-    Button *btn = (Button *) c1->core_component;
-    sprintf(btn->text, "%d", s->loop_count);
-    btn->bg_color = CTERMUI_BRIGHT_CYAN;
+  ctermui_screen_t s = *sp;
+  ctermui_layout_t w1 = ctermui_layout_find(s->root, "child1");
+  ctermui_component_t c1 = ctermui_layout_find_component(w1, "btn1");
+  Button *btn = (Button *)c1->core_component;
+  sprintf(btn->text, "%d", s->loop_count);
+  btn->bg_color = CTERMUI_BRIGHT_CYAN;
 
-    ctermui_screen_refresh_layout(s, s->root);
+  ctermui_screen_refresh_layout(s, s->root);
 }
 
 void ButtonSelectionExample() {
-    s = ctermui_screen_init();
-    ctermui_layout_t root = ctermui_layout_new_root(
-            CTERMUI_VERTICAL, s->width, s->height
-                                                   );
-    for (size_t i = 0; i < 4; i++) {
-        char id[100];
-        sprintf(id, "child%zu", i);
-        ctermui_layout_t child1 =
-                ctermui_layout_new(id, CTERMUI_HORIZONTAL, 20);
-        char id1[100];
-        sprintf(id1, "btn%zu", i);
-        ctermui_component_t btn1 =
-                ctermui_new_button(
-                        id1,
-                        "select me",
-                        CTERMUI_ALIGN_CENTER,
-                        CTERMUI_BLACK,
-                        CTERMUI_BRIGHT_YELLOW
-                                  );
-        ctermui_layout_add_component(child1, btn1);
-        char id2[100];
-        sprintf(id2, "frame%zu", i);
-        ctermui_layout_add_component(
-                child1,
-                ctermui_new_frame(
-                        id2, CTERMUI_BRIGHT_YELLOW, CTERMUI_BRIGHT_YELLOW
-                                 ));
-        ctermui_layout_add_child(root, child1);
-        btnList[i] = (Button *) btn1->core_component;
-    }
-    ctermui_screen_keyboard_events_register(
-            s->keyboard_events, 65, on_select_arrow_up, NULL);
-    ctermui_screen_keyboard_events_register(
-            s->keyboard_events, 66, on_select_arrow_down, NULL);
+  s = ctermui_screen_init();
+  ctermui_layout_t root =
+      ctermui_layout_new_root(CTERMUI_VERTICAL, s->width, s->height);
+  for (size_t i = 0; i < 4; i++) {
+    char id[100];
+    sprintf(id, "child%zu", i);
+    ctermui_layout_t child1 = ctermui_layout_new(id, CTERMUI_HORIZONTAL, 20);
+    char id1[100];
+    sprintf(id1, "btn%zu", i);
+    ctermui_component_t btn1 =
+        ctermui_new_button(id1, "select me", CTERMUI_ALIGN_CENTER,
+                           CTERMUI_BLACK, CTERMUI_BRIGHT_YELLOW);
+    ctermui_layout_add_component(child1, btn1);
+    char id2[100];
+    sprintf(id2, "frame%zu", i);
+    ctermui_layout_add_component(
+        child1,
+        ctermui_new_frame(id2, CTERMUI_BRIGHT_YELLOW, CTERMUI_BRIGHT_YELLOW));
+    ctermui_layout_add_child(root, child1);
+    btnList[i] = (Button *)btn1->core_component;
+  }
+  ctermui_screen_keyboard_events_register(s->keyboard_events, 65,
+                                          on_select_arrow_up, NULL);
+  ctermui_screen_keyboard_events_register(s->keyboard_events, 66,
+                                          on_select_arrow_down, NULL);
 
-    ctermui_screen_keyboard_events_register(
-            s->keyboard_events, 10, on_click, NULL);
-    ctermui_screen_set_layout_root(s, root);
-    ctermui_screen_loop_start(s, periodic, 10000);
+  ctermui_screen_keyboard_events_register(s->keyboard_events, 10, on_click,
+                                          NULL);
+  ctermui_screen_set_layout_root(s, root);
+  ctermui_screen_loop_start(s, periodic, 10000);
 }
 
 int main() {
-    ButtonSelectionExample();
-    return 0;
+  ButtonSelectionExample();
+  return 0;
 }
