@@ -8,7 +8,7 @@
 
 void ctermui_component_draw_button(ctermui_screen_t s, ctermui_component_t c) {
   // TODO: dimension Validation
-  Button *button = (Button *)c->core_component;
+  Button *button = c->core_component;
   size_t text_width = strlen(button->text);
   size_t frame_width = text_width + 2;
   size_t frame_height = 3;
@@ -24,7 +24,7 @@ void ctermui_button_calculate_absolute_position(ctermui_component_t c,
                                                 size_t parent_y,
                                                 size_t parent_width,
                                                 size_t parent_height) {
-  Button *button = (Button *)c->core_component;
+  Button *button = c->core_component;
   size_t text_width = strlen(button->text);
   size_t frame_width = text_width + 2;
   size_t frame_height = 3;

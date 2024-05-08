@@ -6,7 +6,7 @@ void ctermui_barchart_calculate_absolute_position(ctermui_component_t c,
                                                   size_t parent_y,
                                                   size_t parent_width,
                                                   size_t parent_height) {
-  BarChart *barchart = (BarChart *)c->core_component;
+  BarChart *barchart = c->core_component;
   if (barchart->orientation == CTERMUI_HORIZONTAL) {
     float bar_height_float = (float)parent_height / barchart->values_count;
     for (size_t i = 0; i < barchart->values_count; ++i) {
@@ -57,7 +57,7 @@ void ctermui_barchart_calculate_absolute_position(ctermui_component_t c,
 }
 
 void ctermui_barchart_draw(ctermui_screen_t s, ctermui_component_t c) {
-  BarChart *barchart = (BarChart *)c->core_component;
+  BarChart *barchart = c->core_component;
   for (size_t i = 0; i < barchart->values_count; ++i) {
     ctermui_component_t bar = barchart->bars[i];
     ctermui_component_t label = barchart->labels[i];

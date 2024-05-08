@@ -5,7 +5,7 @@
 
 void ctermui_component_draw_frame(ctermui_screen_t s, ctermui_component_t c) {
     // TODO: dimension Validation
-    Frame *frame = (Frame *)c->core_component;
+    Frame *frame = c->core_component;
     ctermui_pencil_draw_rect(s->buffer, c->x, c->y,
                              c->width, c->height, frame->color,
                              frame->bg_color);

@@ -3,7 +3,7 @@
 #include "ctermui_screen.h"
 
 void ctermui_scatter_plot_draw(ctermui_screen_t s, ctermui_component_t c) {
-  ScatterPlot *plt = (ScatterPlot *)c->core_component;
+  ScatterPlot *plt = c->core_component;
 
   float max_x = plt->xvalues[0];
   float max_y = plt->yvalues[0];

@@ -4,7 +4,7 @@
 void ctermui_component_draw_soft_background(ctermui_screen_t s,
                                             ctermui_component_t c) {
   // TODO: dimension Validation
-  SoftBackground *background = (SoftBackground *)c->core_component;
+  SoftBackground *background = c->core_component;
   ctermui_pencil_bucket(s->buffer, c->x, c->y, c->width, c->height,
                         background->color);
 }

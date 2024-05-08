@@ -4,16 +4,16 @@
 void ctermui_barchart_update_values(ctermui_component_t c, int *values,
                                     size_t values_length) {
 
-    BarChart *barchart = (BarChart *)c->core_component;
+    BarChart *barchart = c->core_component;
     for (size_t i = 0; i < values_length; ++i) {
-        ProgressBar *pb = (ProgressBar *)barchart->bars[i]->core_component;
+        ProgressBar *pb = barchart->bars[i]->core_component;
         pb->progress = values[i];
     }
 }
 
 
 void ctermui_progress_bar_update_value(ctermui_component_t c, size_t value) {
-    ProgressBar *progress_bar = (ProgressBar *)c->core_component;
+    ProgressBar *progress_bar = c->core_component;
     progress_bar->progress = value;
 }
 
@@ -30,7 +30,7 @@ void ctermui_progress_bar_calculate_absolute_position(ctermui_component_t c,
 
 void ctermui_component_draw_progress_bar(ctermui_screen_t s,
                                          ctermui_component_t c) {
-  ProgressBar *progress_bar = (ProgressBar *)c->core_component;
+  ProgressBar *progress_bar = c->core_component;
   if (progress_bar->orientation == CTERMUI_HORIZONTAL) {
     ctermui_pencil_solid_background(s->buffer, c->x, c->y,
                                     c->width, c->height,

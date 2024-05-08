@@ -7,7 +7,7 @@ void ctermui_text_calculate_absolute_position(ctermui_component_t c,
                                               size_t parent_x, size_t parent_y,
                                               size_t parent_width,
                                               size_t parent_height) {
-    Text *text = (Text *)c->core_component;
+    Text *text = c->core_component;
     size_t text_width = strlen(text->text);
     size_t text_height = 1;
     switch (text->align) {

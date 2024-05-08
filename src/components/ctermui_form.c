@@ -8,7 +8,7 @@ struct comp_key {
 };
 
 void ctemrui_text_input_delete(void *arg) {
-  ctermui_component_t c = (ctermui_component_t)arg;
+  ctermui_component_t c = arg;
   char *text = ((TextInput *)c->core_component)->text;
   size_t text_length = strlen(text);
   if (text_length > 0) {
@@ -17,10 +17,10 @@ void ctemrui_text_input_delete(void *arg) {
 }
 
 void ctermui_text_input_write(void *args) {
-  struct comp_key *ck = (struct comp_key *)args;
+  struct comp_key *ck = args;
   ctermui_component_t c = ck->c;
   size_t key = ck->key;
-  TextInput *text_input = (TextInput *)c->core_component;
+  TextInput *text_input = c->core_component;
   if (text_input->selected != 1) {
     return;
   }
@@ -36,18 +36,18 @@ void ctermui_text_input_calculate_absolute_position(ctermui_component_t c,
                                                     size_t parent_y,
                                                     size_t parent_width,
                                                     size_t parent_height) {
-  TextInput *text_input = (TextInput *)c->core_component;
+  TextInput *text_input = c->core_component;
   c->width =
-      (size_t)(((float)text_input->min_width / 100.0) * (int)parent_width);
+      (size_t)((float)text_input->min_width / 100.0 * (int)parent_width);
   c->height =
-      (size_t)(((float)text_input->min_height / 100.0) * (int)parent_height);
+      (size_t)((float)text_input->min_height / 100.0 * (int)parent_height);
   c->x = parent_x;
   c->y = parent_y;
 }
 
 
 void ctermui_text_input_draw(ctermui_screen_t s, ctermui_component_t c) {
-  TextInput *text_input = (TextInput *)c->core_component;
+  TextInput *text_input = c->core_component;
   size_t text_width = strlen(text_input->text);
   size_t frame_width = c->width;
   size_t frame_height = c->height;
@@ -104,7 +104,7 @@ ctermui_new_text_input(char *id, int8_t text_color, int8_t bg_color,
     }
     ck->c = c;
     ck->key = i;
-    ctermui_screen_keyboard_events_register(events, (char)i,
+    ctermui_screen_keyboard_events_register(events, i,
                                             ctermui_text_input_write, ck);
     // Todo: find a way to free ck
   }

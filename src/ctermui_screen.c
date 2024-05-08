@@ -52,7 +52,7 @@ void allocate_screen_buffer(ctermui_screen_t s) {
 
 ctermui_screen_t ctermui_screen_init() {
     ctermui_screen_t screen =
-            (ctermui_screen_t) malloc(sizeof(struct ctermui_screen));
+            malloc(sizeof(struct ctermui_screen));
     if (!screen) {
         fprintf(
                 stderr,
@@ -271,9 +271,8 @@ int ctermui_on_resize_listener(ctermui_screen_t *s) {
     if (w.ws_col != (*s)->width || w.ws_row != (*s)->height) {
         ctermui_screen_on_resize(s);
         return 1;
-    } else {
-        return 0;
     }
+    return 0;
 }
 
 int ctermui_kbhit() {
@@ -302,7 +301,7 @@ int ctermui_kbhit() {
 
 void ctermui_on_keyboard_listener(ctermui_screen_t *s) {
     if (ctermui_kbhit()) {
-        char c = (char) getchar();
+        char c = getchar();
         // arrows have 3 chars
         if (c == '\033') {
             //skip [

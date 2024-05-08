@@ -5,7 +5,7 @@
 void ctermui_component_draw_solid_background(ctermui_screen_t s,
                                              ctermui_component_t c) {
     // TODO: dimension Validation
-    SolidBackground *background = (SolidBackground *)c->core_component;
+    SolidBackground *background = c->core_component;
     for (size_t y = c->y; y < c->y + c->height; ++y) {
         for (size_t x = c->x; x < c->x + c->width; ++x) {
             ctermui_pencil_draw_char(s->buffer, x, y, s->buffer[x][y]->character,
