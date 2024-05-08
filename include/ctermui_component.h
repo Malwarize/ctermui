@@ -4,17 +4,15 @@ typedef struct ctermui_screen *ctermui_screen_t;
 typedef struct ctermui_layout *ctermui_layout_t;
 
 #include "ctermui_events.h"
-#include <signal.h>
 #include <stdint.h>
-#include <unistd.h>
 
 typedef struct ctermui_component {
   char id[100];
   uint16_t type;
-  size_t absolute_x;
-  size_t absolute_y;
-  size_t absolute_width;
-  size_t absolute_height;
+  size_t x;
+  size_t y;
+  size_t width;
+  size_t height;
 
   void (*draw)(ctermui_screen_t s, struct ctermui_component *c);
 
@@ -154,11 +152,11 @@ ctermui_component_t ctermui_new_progress_bar(char *id, int8_t bar_color,
                                              size_t orientation);
 
 ctermui_component_t ctermui_new_custom_component(
-    char *id, void (*draw)(ctermui_screen_t s, ctermui_component_t c),
+    char *id, void *core_component,
+    void (*draw)(ctermui_screen_t s, ctermui_component_t c),
     void (*calculate_absolute_position)(ctermui_component_t c, size_t parent_x,
                                         size_t parent_y, size_t parent_width,
-                                        size_t parent_height),
-    void *core_component);
+                                        size_t parent_height));
 
 void ctermui_component_draw_button(ctermui_screen_t s, ctermui_component_t c);
 

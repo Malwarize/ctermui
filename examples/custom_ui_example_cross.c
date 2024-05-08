@@ -11,14 +11,14 @@ typedef struct CustomComponentCross {
 void draw_custom_component(ctermui_screen_t s, ctermui_component_t c) {
   CustomComponentCross *cross =
       (CustomComponentCross *)c->core_component; // cast this fucking bastard
-  size_t vertical_starting_point = c->absolute_x + c->absolute_width / 2;
+  size_t vertical_starting_point = c->x + c->width / 2;
   ctermui_pencil_draw_line(s->buffer, CTERMUI_VERTICAL, vertical_starting_point,
-                           c->absolute_y, c->absolute_height,
-                           CTERMUI_VERTICAL_LINE, cross->color, cross->color);
+                           c->y, c->height, CTERMUI_VERTICAL_LINE, cross->color,
+                           cross->color);
 
-  size_t horizontal_starting_point = c->absolute_y + c->absolute_height / 2;
-  ctermui_pencil_draw_line(s->buffer, CTERMUI_HORIZONTAL, c->absolute_x,
-                           horizontal_starting_point, c->absolute_width,
+  size_t horizontal_starting_point = c->y + c->height / 2;
+  ctermui_pencil_draw_line(s->buffer, CTERMUI_HORIZONTAL, c->x,
+                           horizontal_starting_point, c->width,
                            CTERMUI_VERTICAL_LINE, cross->color, cross->color);
 }
 
@@ -27,10 +27,10 @@ void calculate_abs_position_custom_component(ctermui_component_t c,
                                              size_t parent_x, size_t parent_y,
                                              size_t parent_width,
                                              size_t parent_height) {
-  c->absolute_x = parent_x;
-  c->absolute_y = parent_y;
-  c->absolute_width = parent_width;
-  c->absolute_height = parent_height;
+  c->x = parent_x;
+  c->y = parent_y;
+  c->width = parent_width;
+  c->height = parent_height;
 }
 
 int main() {
@@ -40,8 +40,8 @@ int main() {
 
   CustomComponentCross cross = {.color = CTERMUI_RED};
   ctermui_component_t custom_component = ctermui_new_custom_component(
-      "custom_component", draw_custom_component,
-      calculate_abs_position_custom_component, (void *)&cross);
+      "custom_component", (void *)&cross, draw_custom_component,
+      calculate_abs_position_custom_component);
   ctermui_layout_add_component(root, custom_component);
   ctermui_screen_set_layout_root(screen, root);
   ctermui_screen_loop_start(screen, NULL, 0);

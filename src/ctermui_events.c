@@ -21,6 +21,10 @@ void ctermui_screen_keyboard_events_register(
   }
   ctermui_screen_keyboard_event_t event =
       malloc(sizeof(struct ctermui_screen_keyboard_event));
+  if (event == NULL) {
+    fprintf(stderr, "ctermui_screen_keyboard_events_register: event == NULL\n");
+    exit(EXIT_FAILURE);
+  }
   event->key = key;
   event->callback = callback;
   event->arg = arg;
@@ -33,6 +37,13 @@ void ctermui_screen_keyboard_events_unregister(
     if (events->events[i]->key == key) {
       free(events->events[i]);
       events->events[i] = events->events[--events->ec];
+      events->events[events->ec] = NULL;
+
+      // shift the rest of the array to the left
+      for (uint32_t j = i; j < events->ec; j++) {
+        events->events[j] = events->events[j + 1];
+      }
+      events->ec -= 1;
       return;
     }
   }

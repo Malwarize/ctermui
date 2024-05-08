@@ -31,11 +31,11 @@ typedef struct game {
 Game game;
 
 void game_create(ctermui_screen_t s, ctermui_component_t c) {
-  game.player.x = (int)c->absolute_width / 2;
-  game.player.y = (int)c->absolute_height - 1;
+  game.player.x = (int)c->width / 2;
+  game.player.y = (int)c->height - 1;
   for (int i = 0; i < ENEMY_NUMBER; i++) {
-    game.enemies[i].x = rand() % c->absolute_width;
-    game.enemies[i].y = rand() % c->absolute_height / 4;
+    game.enemies[i].x = rand() % c->width;
+    game.enemies[i].y = rand() % c->height / 4;
   }
   for (int i = 0; i < BULLET_NUMBER; i++) {
     game.bullets[i].x = game.player.x;
@@ -48,11 +48,11 @@ void enemy_horizontal_move(ctermui_screen_t s, ctermui_component_t c) {
     // random step
     int step = rand() % 2;
     if (step) {
-      game.enemies[i].x = ((game.enemies[i].x - 1) + (int)c->absolute_width) %
-                          (int)c->absolute_width;
+      game.enemies[i].x =
+          ((game.enemies[i].x - 1) + (int)c->width) % (int)c->width;
     } else {
-      game.enemies[i].x = ((game.enemies[i].x + 1) + (int)c->absolute_width) %
-                          (int)c->absolute_width;
+      game.enemies[i].x =
+          ((game.enemies[i].x + 1) + (int)c->width) % (int)c->width;
     }
   }
 }
@@ -78,7 +78,7 @@ void draw_bullet(ctermui_screen_t s, ctermui_component_t c, int target) {
 
 void draw_bullets(ctermui_screen_t s, ctermui_component_t c) {
   for (int i = 0; i < BULLET_NUMBER; i++) {
-    if (game.bullets[i].y < c->absolute_y) {
+    if (game.bullets[i].y < c->y) {
       continue;
     }
     draw_bullet(s, c, i);
@@ -131,14 +131,12 @@ void game_animate(ctermui_screen_t s, ctermui_component_t c) {
 
 void move_player_left(void *data) {
   ctermui_component_t c = (ctermui_component_t)data;
-  game.player.x =
-      ((game.player.x - 1 + (int)c->absolute_width) % (int)(c->absolute_width));
+  game.player.x = ((game.player.x - 1 + (int)c->width) % (int)(c->width));
 }
 
 void move_player_right(void *data) {
   ctermui_component_t c = (ctermui_component_t)data;
-  game.player.x =
-      ((game.player.x + 1 + (int)c->absolute_width) % (int)(c->absolute_width));
+  game.player.x = ((game.player.x + 1 + (int)c->width) % (int)(c->width));
 }
 
 void move_enemies_down(ctermui_screen_t s, ctermui_component_t c) {
@@ -167,7 +165,7 @@ void check_if_win(ctermui_screen_t s, ctermui_component_t c) {
 
 void check_if_bullet_hit_enemy(ctermui_screen_t s, ctermui_component_t c) {
   for (int i = 0; i < BULLET_NUMBER; i++) {
-    if (game.bullets[i].y < c->absolute_y) {
+    if (game.bullets[i].y < c->y) {
       continue;
     }
     for (int j = 0; j < ENEMY_NUMBER; j++) {
@@ -188,7 +186,7 @@ void check_if_enemy_hit_ground(ctermui_screen_t s, ctermui_component_t c) {
     if (game.enemies[i].y < 0) {
       continue;
     }
-    if (game.enemies[i].y == c->absolute_height - 1) {
+    if (game.enemies[i].y == c->height - 1) {
       ctermui_restore_cursor();
       fprintf(stderr, "You Lose !\n");
       exit(0);
@@ -216,21 +214,19 @@ void draw_game(ctermui_screen_t s, ctermui_component_t c) {
 
 void calculate_absolute_position(ctermui_component_t c, size_t x, size_t y,
                                  size_t width, size_t height) {
-  c->absolute_x = x;
-  c->absolute_y = y;
-  c->absolute_width = width;
-  c->absolute_height = height;
-  game.player.x =
-      ((game.player.x + (int)c->absolute_width) % (int)(c->absolute_width));
-  game.player.y = (int)c->absolute_height - 1;
+  c->x = x;
+  c->y = y;
+  c->width = width;
+  c->height = height;
+  game.player.x = ((game.player.x + (int)c->width) % (int)(c->width));
+  game.player.y = (int)c->height - 1;
   for (size_t i = 0; i < ENEMY_NUMBER; i++) {
     if (game.enemies[i].y < 0) {
       continue;
     }
-    game.enemies[i].x = ((game.enemies[i].x + (int)c->absolute_width) %
-                         (int)(c->absolute_width));
-    game.enemies[i].y = ((game.enemies[i].y + (int)c->absolute_height) %
-                         (int)(c->absolute_height));
+    game.enemies[i].x = ((game.enemies[i].x + (int)c->width) % (int)(c->width));
+    game.enemies[i].y =
+        ((game.enemies[i].y + (int)c->height) % (int)(c->height));
   }
 }
 
@@ -244,8 +240,8 @@ int main() {
       ctermui_layout_new_root(LEAF, screen->width, screen->height);
   ctermui_screen_set_layout_root(screen, root);
   ctermui_layout_add_component(
-      root, ctermui_new_custom_component("game", draw_game,
-                                         calculate_absolute_position, &game));
+      root, ctermui_new_custom_component("game", &game, draw_game,
+                                         calculate_absolute_position));
   ctermui_layout_add_component(
       root, ctermui_new_soft_background("background", CTERMUI_BLACK));
   ctermui_screen_keyboard_events_register(

@@ -57,3 +57,5 @@ build/
 build/*
 .cache/
 compile_commands.json
+obj
+.idea/

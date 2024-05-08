@@ -1,4 +1,6 @@
 #include "ctermui_screen.h"
+#include <unistd.h>
+#include <signal.h>
 
 winsize get_term_size() {
     winsize w;
@@ -276,18 +278,16 @@ int ctermui_on_resize_listener(ctermui_screen_t *s) {
 
 int ctermui_kbhit() {
     struct termios oldt, newt;
-    int ch;
-    size_t oldf;
 
     tcgetattr(STDIN_FILENO, &oldt);
     newt = oldt;
     newt.c_lflag &=
             ~(ICANON | ECHO);  // Disable canonical mode and echo
     tcsetattr(STDIN_FILENO, TCSANOW, &newt);
-    oldf = fcntl(STDIN_FILENO, F_GETFL, 0);
+    size_t oldf = fcntl(STDIN_FILENO, F_GETFL, 0);
     fcntl(STDIN_FILENO, F_SETFL, oldf | O_NONBLOCK);
 
-    ch = getchar();
+    int ch = getchar();
 
     tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
     fcntl(STDIN_FILENO, F_SETFL, oldf);
@@ -301,9 +301,8 @@ int ctermui_kbhit() {
 }
 
 void ctermui_on_keyboard_listener(ctermui_screen_t *s) {
-    char c;
     if (ctermui_kbhit()) {
-        c = (char) getchar();
+        char c = (char) getchar();
         // arrows have 3 chars
         if (c == '\033') {
             //skip [
