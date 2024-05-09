@@ -15,12 +15,12 @@ typedef struct ctermui_layout {
   struct ctermui_layout *children[MAX_layoutS];
   uint16_t type;
   uint16_t children_count;
-  ctermui_component_t component[MAX_COMPONENTS];
+  ctermui_component_t components[MAX_COMPONENTS];
   uint16_t component_count;
-  size_t absolute_x;
-  size_t absolute_y;
-  size_t absolute_width;
-  size_t absolute_height;
+  size_t x;
+  size_t y;
+  size_t width;
+  size_t height;
 } *ctermui_layout_t;
 enum ORIENTATION { CTERMUI_HORIZONTAL, CTERMUI_VERTICAL, LEAF };
 

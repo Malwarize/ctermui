@@ -57,6 +57,3 @@ void ctermui_screen_keyboard_events_handle(
     }
   }
 }
-
-void ctermui_screen_keyboard_events_handle_any_key(
-    ctermui_screen_keyboard_events_t events, char key) {}

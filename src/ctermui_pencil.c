@@ -49,7 +49,7 @@ int ctermui_pencil_draw_line(
     return 0;
 }
 
-int ctermui_pencil_draw_line_with_points(
+int ctermui_pencil_draw_line_from_points(
         screen_buffer b,
         size_t x_1,
         size_t y_1,

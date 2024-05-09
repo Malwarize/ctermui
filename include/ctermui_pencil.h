@@ -58,7 +58,7 @@ int ctermui_pencil_solid_background(screen_buffer b, size_t x, size_t y,
 int ctermui_pencil_bucket(screen_buffer b, size_t x, size_t y, size_t width,
                           size_t height, int8_t color);
 
-int ctermui_pencil_draw_line_with_points(screen_buffer b, size_t x_1,
+int ctermui_pencil_draw_line_from_points(screen_buffer b, size_t x_1,
                                          size_t y_1, size_t x_2, size_t y_2,
                                          int8_t color, int8_t bg_color, char c);
 

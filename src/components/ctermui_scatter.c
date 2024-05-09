@@ -134,7 +134,7 @@ void ctermui_scatter_plot_draw(ctermui_screen_t s, ctermui_component_t c) {
           y_position_prev =
               y_plot_starting + y_plot_height - 1 - (int)scaled_y_prev;
         }
-        ctermui_pencil_draw_line_with_points(
+        ctermui_pencil_draw_line_from_points(
             s->buffer, x_position_prev, y_position_prev, x_position, y_position,
             plt->point_color, plt->bg_color, plt->point_symbol);
       }

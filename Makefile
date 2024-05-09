@@ -1,7 +1,7 @@
 # Compiler
 CC = gcc
 # Compiler flags
-CFLAGS = -Wall -Wextra -std=c99
+CFLAGS = -Wall -Wextra -std=c99 -g
 DEBUG = -g
 # Directories
 SRCDIR = src
@@ -49,9 +49,12 @@ $(LIB): $(OBJS)
 # ENV run file, take the first argument as the file name
 # e.g. make run file=example
 run_file: $(LIB)
-	$(CC) $(CFLAGS) $(DEBUG) -I$(INCDIR) -o /tmp/$(notdir $(file)).out $(file) -L$(LIBDIR) -l$(LIBNAME) $(args)
+	$(CC) $(CFLAGS) -I$(INCDIR) -o /tmp/$(notdir $(file)).out $(file) -L$(LIBDIR) -l$(LIBNAME) $(args)
 	/tmp/$(notdir $(file)).out
-	
+
+run_worm: $(LIB)
+	$(CC) $(CFLAGS) -I$(INCDIR) -o /tmp/worm.out $(EXAMDIR)/worm_game.c -L$(LIBDIR) -l$(LIBNAME)
+	/tmp/worm.out
 # Clean
 clean:
 	rm -rf $(OBJDIR) $(LIBDIR) $(TESTDIR)/*.out  $(EXAMDIR)/*.out

@@ -44,6 +44,6 @@ int main() {
       calculate_abs_position_custom_component);
   ctermui_layout_add_component(root, custom_component);
   ctermui_screen_set_layout_root(screen, root);
-  ctermui_screen_loop_start(screen, NULL, 0);
+  ctermui_screen_loop_start(screen, NULL, 1000);
   return 0;
 }

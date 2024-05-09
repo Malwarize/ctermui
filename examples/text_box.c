@@ -3,7 +3,7 @@
 void periodic(ctermui_screen_t *screen_p) {
   ctermui_screen_t screen = *screen_p;
   ctermui_layout_t root = screen->root;
-  ctermui_component_t text_input = root->component[0];
+  ctermui_component_t text_input = root->components[0];
   if (screen->loop_count == 0) {
     TextInput *t = (TextInput *)text_input->core_component;
     t->selected = 1;
