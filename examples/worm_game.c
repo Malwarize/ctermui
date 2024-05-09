@@ -192,7 +192,7 @@ ctermui_component_t create_worm(size_t x, size_t y) {
   worm->body = createDeque();
   worm->score = 0;
   // add initial worm body
-  for (int i = 1; i < 2; i++) {
+  for (int i = 1; i < 4; i++) {
     addToBack(worm->body, x - i, y);
   }
   return ctermui_new_custom_component("worm", worm, draw_worm,
@@ -377,7 +377,7 @@ int main() {
   ctermui_layout_add_component(game_l, worm);
 
   ctermui_component_t frame =
-      ctermui_new_frame("frame", CTERMUI_BRIGHT_WHITE, CTERMUI_BRIGHT_WHITE);
+      ctermui_new_frame("frame", CTERMUI_BRIGHT_BLUE, CTERMUI_BRIGHT_BLUE);
   ctermui_layout_add_component(game_l, frame);
 
   ctermui_layout_t score_l =
