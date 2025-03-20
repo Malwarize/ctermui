@@ -15,7 +15,7 @@ void generate_data(float xvalues[], float yvalues[]) {
 void periodic(ctermui_screen_t *screen_p) {
   ctermui_screen_t screen = *screen_p;
   ctermui_layout_t root = screen->root;
-  ctermui_component_t c = root->component[0];
+  ctermui_component_t c = root->components[0];
   ScatterPlot *plt = (ScatterPlot *)c->core_component;
   float xvalues[SIZE];
   float yvalues[SIZE];

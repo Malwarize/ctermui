@@ -1,4 +1,15 @@
 #include "ctermui_screen.h"
+#define _POSIX_C_SOURCE 200809L
+#include <time.h>
+#include <unistd.h>
+
+void sleep_microseconds(long microseconds) {
+  struct timespec req;
+  req.tv_sec = microseconds / 1000000; // Convert to seconds
+  req.tv_nsec =
+      (microseconds % 1000000) * 1000; // Convert remainder to nanoseconds
+  nanosleep(&req, NULL);
+}
 
 winsize get_term_size() {
   winsize w;
@@ -322,7 +333,7 @@ void ctermui_screen_loop_start(ctermui_screen_t s,
   ctermui_screen_refresh_layouts(s);
   while (1) {
     if (s->loop_idle) {
-      usleep(every);
+      sleep_microseconds(every);
       continue;
     }
 
@@ -338,7 +349,7 @@ void ctermui_screen_loop_start(ctermui_screen_t s,
       ctermui_restore_cursor();
       break;
     }
-    usleep(every);
+    sleep_microseconds(every);
     s->loop_count++;
   }
 }

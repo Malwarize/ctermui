@@ -1,8 +1,10 @@
 # Compiler
 CC = gcc
+
 # Compiler flags
-CFLAGS = -Wall -Wextra -std=c99 -g
+CFLAGS = -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -lm
 DEBUG = -g
+
 # Directories
 SRCDIR = src
 INCDIR = include
@@ -12,16 +14,21 @@ TESTDIR = test
 EXAMDIR = examples
 
 EXAMSRCS = $(wildcard $(EXAMDIR)/*.c)
+
 # Source files
 SRCS = $(wildcard $(SRCDIR)/*.c) $(wildcard $(SRCDIR)/components/*.c)
+
 # Object files
 OBJS = $(SRCS:$(SRCDIR)/%.c=$(OBJDIR)/%.o)
+
 # Library
 LIBNAME = ctermui
 LIB = $(LIBDIR)/lib$(LIBNAME).a
+
 # Test files
 TESTSRCS = $(wildcard $(TESTDIR)/*.c)
 TESTBINS = $(TESTSRCS:$(TESTDIR)/%.c=$(TESTDIR)/%.out)
+
 # Targets
 all: $(LIB) $(TESTBINS)
 
@@ -43,7 +50,6 @@ $(OBJDIR)/%.o: $(SRCDIR)/%.c
 # Rule for creating the static library
 $(LIB): $(OBJS)
 	@mkdir -p $(LIBDIR)
-	#ar rcs $@  $(OBJDIR)/$(notdir $(OBJS))
 	ar rcs $@ $(addprefix $(OBJDIR)/, $(notdir $(OBJS)))
 
 # ENV run file, take the first argument as the file name
@@ -55,8 +61,9 @@ run_file: $(LIB)
 run_worm: $(LIB)
 	$(CC) $(CFLAGS) -I$(INCDIR) -o /tmp/worm.out $(EXAMDIR)/worm_game.c -L$(LIBDIR) -l$(LIBNAME)
 	/tmp/worm.out
+
 # Clean
 clean:
 	rm -rf $(OBJDIR) $(LIBDIR) $(TESTDIR)/*.out  $(EXAMDIR)/*.out
-.PHONY: all run_tests clean
 
+.PHONY: all run_tests clean
