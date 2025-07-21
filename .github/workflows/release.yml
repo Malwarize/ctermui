@@ -1,0 +1,68 @@
+name: Build and Release CTERMUI
+
+on:
+  push:
+    branches: [main]
+    tags: ['*']
+  release:
+    types: [created]
+
+jobs:
+  build:
+    name: Build on Linux
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up build tools
+        run: |
+          sudo apt-get update || true
+          sudo apt-get install -y build-essential cmake || true
+
+      - name: Build static and shared library (Make)
+        run: |
+          make clean || true
+          make static || true
+          make shared || true
+        shell: bash
+        continue-on-error: true
+
+      - name: Find built artifacts
+        id: find_artifacts
+        run: |
+          STATIC=$(find . -name '*.a' | head -n 1)
+          SHARED=$(find . -name '*.so' | head -n 1)
+          echo "static=$STATIC" >> $GITHUB_OUTPUT
+          echo "shared=$SHARED" >> $GITHUB_OUTPUT
+        shell: bash
+
+      - name: Upload static library artifact
+        if: steps.find_artifacts.outputs.static != ''
+        uses: actions/upload-artifact@v3
+        with:
+          name: ctermui-static-linux
+          path: ${{ steps.find_artifacts.outputs.static }}
+
+      - name: Upload shared library artifact
+        if: steps.find_artifacts.outputs.shared != ''
+        uses: actions/upload-artifact@v3
+        with:
+          name: ctermui-shared-linux
+          path: ${{ steps.find_artifacts.outputs.shared }}
+
+  release:
+    name: Attach Artifacts to Release
+    needs: build
+    if: github.event_name == 'release'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v3
+        with:
+          path: ./artifacts
+
+      - name: Upload release assets
+        uses: softprops/action-gh-release@v1
+        with:
+          files: ./artifacts/**/* 
