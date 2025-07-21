@@ -6,6 +6,14 @@
 #include "ctermui_screen.h"
 #include <string.h>
 
+/**
+ * @brief Draw a button component on the screen.
+ *
+ * Draws the button's background and centers the text within the button frame.
+ *
+ * @param s Pointer to the screen structure.
+ * @param c Pointer to the button component.
+ */
 void ctermui_component_draw_button(ctermui_screen_t s, ctermui_component_t c) {
   // TODO: dimension Validation
   Button *button = c->core_component;
@@ -19,6 +27,17 @@ void ctermui_component_draw_button(ctermui_screen_t s, ctermui_component_t c) {
                            button->text_color, button->bg_color);
 }
 
+/**
+ * @brief Calculate the absolute position and size of a button component.
+ *
+ * Sets the x, y, width, and height fields of the button based on its alignment and parent layout.
+ *
+ * @param c Pointer to the button component.
+ * @param parent_x X coordinate of the parent layout.
+ * @param parent_y Y coordinate of the parent layout.
+ * @param parent_width Width of the parent layout.
+ * @param parent_height Height of the parent layout.
+ */
 void ctermui_button_calculate_absolute_position(ctermui_component_t c,
                                                 size_t parent_x,
                                                 size_t parent_y,
@@ -80,6 +99,19 @@ void ctermui_button_calculate_absolute_position(ctermui_component_t c,
   c->height = frame_height;
 }
 
+/**
+ * @brief Create a new button component.
+ *
+ * Allocates and initializes a new button with the given parameters.
+ *
+ * @param id String identifier for the button.
+ * @param text Button label text.
+ * @param align Alignment of the button within its parent layout.
+ * @param text_color Color of the button text.
+ * @param bg_color Background color of the button.
+ * @return Pointer to the new button component. Exits on allocation failure.
+ * @note Caller is responsible for freeing the component (if a free function exists).
+ */
 ctermui_component_t ctermui_new_button(char *id, char *text, size_t align,
                                        int8_t text_color, int8_t bg_color) {
   Button *button_component = malloc(sizeof(Button));

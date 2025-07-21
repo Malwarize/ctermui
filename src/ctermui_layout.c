@@ -1,5 +1,17 @@
 #include "ctermui_layout.h"
 
+/**
+ * @brief Create a new root layout for the UI.
+ *
+ * This function allocates and initializes a root layout structure with the given orientation and size.
+ * The root layout always has 100% percentage and is positioned at (0,0).
+ *
+ * @param type Layout orientation (CTERMUI_HORIZONTAL or CTERMUI_VERTICAL).
+ * @param width Width of the root layout in characters.
+ * @param height Height of the root layout in characters.
+ * @return Pointer to the newly allocated layout structure. Exits on allocation failure.
+ * @note The caller is responsible for freeing the layout (if a free function exists).
+ */
 ctermui_layout_t ctermui_layout_new_root(
         uint16_t type,
         size_t width,
@@ -29,6 +41,17 @@ ctermui_layout_t ctermui_layout_new_root(
     return layout;
 }
 
+/**
+ * @brief Create a new (non-root) layout.
+ *
+ * This function allocates and initializes a layout structure with the given ID, orientation, and percentage size.
+ *
+ * @param id String identifier for the layout (copied internally).
+ * @param type Layout orientation (CTERMUI_HORIZONTAL or CTERMUI_VERTICAL).
+ * @param percentage Size of this layout as a percentage of its parent.
+ * @return Pointer to the newly allocated layout structure. Exits on allocation failure.
+ * @note The caller is responsible for freeing the layout (if a free function exists).
+ */
 ctermui_layout_t ctermui_layout_new(
         char *id,
         uint16_t type,
@@ -51,6 +74,15 @@ ctermui_layout_t ctermui_layout_new(
     return layout;
 }
 
+/**
+ * @brief Recursively calculate absolute positions and sizes for all layouts and components.
+ *
+ * This function updates the x, y, width, and height fields of all child layouts and components
+ * based on their parent's dimensions and their own percentage or alignment settings.
+ *
+ * @param root_layout The root layout to start calculation from.
+ * @note This should be called after modifying the layout tree or resizing the screen.
+ */
 void ctermui_calculate_abs_position(
         ctermui_layout_t root_layout
 ) {
@@ -107,6 +139,14 @@ void ctermui_calculate_abs_position(
     }
 }
 
+/**
+ * @brief Add a child layout to a parent layout.
+ *
+ * @param parent The parent layout.
+ * @param child The child layout to add.
+ * @return 0 on success.
+ * @note No bounds checking is performed; ensure you do not exceed the maximum children.
+ */
 int ctermui_layout_add_child(
         ctermui_layout_t parent,
         ctermui_layout_t child
@@ -115,6 +155,15 @@ int ctermui_layout_add_child(
     return 0;
 }
 
+/**
+ * @brief Add a UI component to a layout.
+ *
+ * @param layout The layout to add the component to.
+ * @param c The component to add.
+ * @return 0 on success.
+ * @note No bounds checking is performed; ensure you do not exceed the maximum components.
+ *       The component's parent pointer is set to this layout.
+ */
 int ctermui_layout_add_component(
         ctermui_layout_t layout,
         ctermui_component_t c
@@ -124,6 +173,13 @@ int ctermui_layout_add_component(
     return 0;
 }
 
+/**
+ * @brief Recursively search for a layout by ID in the layout tree.
+ *
+ * @param root The root layout to start searching from.
+ * @param id The string ID to search for.
+ * @return Pointer to the layout with the matching ID, or NULL if not found.
+ */
 ctermui_layout_t ctermui_layout_find(
         ctermui_layout_t root,
         char *id
@@ -141,6 +197,13 @@ ctermui_layout_t ctermui_layout_find(
     return NULL;
 }
 
+/**
+ * @brief Search for a component by ID within a layout.
+ *
+ * @param layout The layout to search in.
+ * @param id The string ID of the component.
+ * @return Pointer to the component with the matching ID, or NULL if not found.
+ */
 ctermui_component_t ctermui_layout_find_component(
         ctermui_layout_t layout, char *id
 ) {

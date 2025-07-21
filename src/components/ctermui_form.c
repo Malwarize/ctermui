@@ -7,6 +7,11 @@ struct comp_key {
   size_t key;
 };
 
+/**
+ * @brief Delete the last character from the text input.
+ *
+ * @param arg Pointer to the text input component.
+ */
 void ctemrui_text_input_delete(void *arg) {
   ctermui_component_t c = arg;
   char *text = ((TextInput *)c->core_component)->text;
@@ -16,6 +21,11 @@ void ctemrui_text_input_delete(void *arg) {
   }
 }
 
+/**
+ * @brief Write a character to the text input component.
+ *
+ * @param args Pointer to a comp_key struct containing the component and key.
+ */
 void ctermui_text_input_write(void *args) {
   struct comp_key *ck = args;
   ctermui_component_t c = ck->c;
@@ -31,6 +41,15 @@ void ctermui_text_input_write(void *args) {
   }
 }
 
+/**
+ * @brief Calculate the absolute position and size of a text input component.
+ *
+ * @param c Pointer to the text input component.
+ * @param parent_x X coordinate of the parent layout.
+ * @param parent_y Y coordinate of the parent layout.
+ * @param parent_width Width of the parent layout.
+ * @param parent_height Height of the parent layout.
+ */
 void ctermui_text_input_calculate_absolute_position(ctermui_component_t c,
                                                     size_t parent_x,
                                                     size_t parent_y,
@@ -45,7 +64,12 @@ void ctermui_text_input_calculate_absolute_position(ctermui_component_t c,
   c->y = parent_y;
 }
 
-
+/**
+ * @brief Draw the text input component on the screen.
+ *
+ * @param s Pointer to the screen structure.
+ * @param c Pointer to the text input component.
+ */
 void ctermui_text_input_draw(ctermui_screen_t s, ctermui_component_t c) {
   TextInput *text_input = c->core_component;
   size_t text_width = strlen(text_input->text);
@@ -61,6 +85,20 @@ void ctermui_text_input_draw(ctermui_screen_t s, ctermui_component_t c) {
                            text_input->bg_color);
 }
 
+/**
+ * @brief Create a new text input component.
+ *
+ * Allocates and initializes a new text input with the given parameters and registers keyboard events.
+ *
+ * @param id String identifier for the text input.
+ * @param text_color Color of the text.
+ * @param bg_color Background color.
+ * @param min_width Minimum width as a percentage of parent.
+ * @param min_height Minimum height as a percentage of parent.
+ * @param events Keyboard events handler to register input callbacks.
+ * @return Pointer to the new text input component. Exits on allocation failure.
+ * @note Caller is responsible for freeing the component (if a free function exists).
+ */
 ctermui_component_t
 ctermui_new_text_input(char *id, int8_t text_color, int8_t bg_color,
                        size_t min_width, size_t min_height,

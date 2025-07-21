@@ -21,6 +21,18 @@
 // call ctermui_new_custom_component(id, ctermui_component_draw_button,
 // ctermui_button_calculate_absolute_position, button_component)
 
+/**
+ * @brief Create a new custom component.
+ *
+ * Allocates and initializes a new component with user-defined draw and position calculation functions.
+ *
+ * @param id String identifier for the component.
+ * @param core_component Pointer to the custom data struct for this component.
+ * @param draw Function pointer to the draw function for this component.
+ * @param calculate_absolute_position Function pointer to the position calculation function.
+ * @return Pointer to the new custom component. Exits on allocation failure.
+ * @note Caller is responsible for freeing the component (if a free function exists).
+ */
 ctermui_component_t ctermui_new_custom_component(
     char *id, void *core_component,
     void (*draw)(ctermui_screen_t s, ctermui_component_t c),

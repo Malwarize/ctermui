@@ -2,6 +2,18 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+/**
+ * @brief Draw a single character at a given position in the screen buffer.
+ *
+ * @param b The screen buffer.
+ * @param x The x-coordinate.
+ * @param y The y-coordinate.
+ * @param c The character to draw.
+ * @param fg_color Foreground color.
+ * @param bg_color Background color.
+ * @param flag Additional flag for cell state.
+ * @return 0 on success.
+ */
 int ctermui_pencil_draw_char(
         screen_buffer b,
         size_t x,
@@ -17,6 +29,19 @@ int ctermui_pencil_draw_char(
     return 0;
 }
 
+/**
+ * @brief Draw a horizontal or vertical line in the screen buffer.
+ *
+ * @param b The screen buffer.
+ * @param orientation 0 for horizontal, 1 for vertical.
+ * @param x Starting x-coordinate.
+ * @param y Starting y-coordinate.
+ * @param length Length of the line.
+ * @param c Character to use for the line.
+ * @param color Foreground color.
+ * @param bg_color Background color.
+ * @return 0 on success. Exits on invalid orientation.
+ */
 int ctermui_pencil_draw_line(
         screen_buffer b,
         size_t orientation,
@@ -49,6 +74,19 @@ int ctermui_pencil_draw_line(
     return 0;
 }
 
+/**
+ * @brief Draw a line between two points in the screen buffer (Bresenham's algorithm).
+ *
+ * @param b The screen buffer.
+ * @param x_1 Starting x-coordinate.
+ * @param y_1 Starting y-coordinate.
+ * @param x_2 Ending x-coordinate.
+ * @param y_2 Ending y-coordinate.
+ * @param color Foreground color.
+ * @param bg_color Background color.
+ * @param c Character to use for the line.
+ * @return 0 on success.
+ */
 int ctermui_pencil_draw_line_from_points(
         screen_buffer b,
         size_t x_1,
@@ -84,6 +122,18 @@ int ctermui_pencil_draw_line_from_points(
     return 0;
 }
 
+/**
+ * @brief Draw a rectangle (box) in the screen buffer.
+ *
+ * @param b The screen buffer.
+ * @param x Top-left x-coordinate.
+ * @param y Top-left y-coordinate.
+ * @param width Width of the rectangle.
+ * @param height Height of the rectangle.
+ * @param color Foreground color.
+ * @param bg_color Background color.
+ * @return 0 on success.
+ */
 int ctermui_pencil_draw_rect(
         screen_buffer b,
         size_t x,
@@ -166,6 +216,17 @@ int ctermui_pencil_draw_rect(
     return 0;
 }
 
+/**
+ * @brief Draw a string of text at a given position in the screen buffer.
+ *
+ * @param b The screen buffer.
+ * @param x Starting x-coordinate.
+ * @param y Starting y-coordinate.
+ * @param text The text string to draw.
+ * @param color Foreground color.
+ * @param bg_color Background color.
+ * @return 0 on success.
+ */
 int ctermui_pencil_draw_text(
         screen_buffer b,
         size_t x,
@@ -185,6 +246,17 @@ int ctermui_pencil_draw_text(
     return 0;
 }
 
+/**
+ * @brief Fill a rectangular area with a solid background color.
+ *
+ * @param b The screen buffer.
+ * @param x Top-left x-coordinate.
+ * @param y Top-left y-coordinate.
+ * @param width Width of the area.
+ * @param height Height of the area.
+ * @param color Background color to fill.
+ * @return 0 on success.
+ */
 int ctermui_pencil_solid_background(
         screen_buffer b,
         size_t x,
@@ -209,6 +281,17 @@ int ctermui_pencil_solid_background(
     return 0;
 }
 
+/**
+ * @brief Fill a rectangular area with a background color only if the cell is empty.
+ *
+ * @param b The screen buffer.
+ * @param x Top-left x-coordinate.
+ * @param y Top-left y-coordinate.
+ * @param width Width of the area.
+ * @param height Height of the area.
+ * @param color Background color to fill.
+ * @return 0 on success.
+ */
 int ctermui_pencil_bucket(
         screen_buffer b,
         size_t x,

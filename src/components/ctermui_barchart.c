@@ -1,6 +1,18 @@
 #include "ctermui_component.h"
 #include "ctermui_screen.h"
 
+/**
+ * @brief Calculate absolute positions for all bars and labels in the bar chart.
+ *
+ * This function updates the position and size of each bar and label in the bar chart
+ * based on the parent layout's dimensions and the chart's orientation.
+ *
+ * @param c Pointer to the bar chart component.
+ * @param parent_x X coordinate of the parent layout.
+ * @param parent_y Y coordinate of the parent layout.
+ * @param parent_width Width of the parent layout.
+ * @param parent_height Height of the parent layout.
+ */
 void ctermui_barchart_calculate_absolute_position(ctermui_component_t c,
                                                   size_t parent_x,
                                                   size_t parent_y,
@@ -56,6 +68,12 @@ void ctermui_barchart_calculate_absolute_position(ctermui_component_t c,
   }
 }
 
+/**
+ * @brief Draw the bar chart component (all bars and labels).
+ *
+ * @param s Pointer to the screen structure.
+ * @param c Pointer to the bar chart component.
+ */
 void ctermui_barchart_draw(ctermui_screen_t s, ctermui_component_t c) {
   BarChart *barchart = c->core_component;
   for (size_t i = 0; i < barchart->values_count; ++i) {
@@ -66,6 +84,13 @@ void ctermui_barchart_draw(ctermui_screen_t s, ctermui_component_t c) {
   }
 }
 
+/**
+ * @brief Find the length of the longest label in the bar chart.
+ *
+ * @param labels Array of label strings.
+ * @param values_length Number of labels.
+ * @return Length of the longest label.
+ */
 size_t biggest_text_length(char (*labels)[100], size_t values_length) {
   size_t max = 0;
   for (size_t i = 0; i < values_length; ++i) {
@@ -77,6 +102,23 @@ size_t biggest_text_length(char (*labels)[100], size_t values_length) {
   return max;
 }
 
+/**
+ * @brief Create a new bar chart component.
+ *
+ * Allocates and initializes a new bar chart with the given parameters, including bars and labels.
+ *
+ * @param id String identifier for the bar chart.
+ * @param bar_color Color of the bars.
+ * @param bg_color Background color.
+ * @param max Maximum value for the bars.
+ * @param orientation Orientation (CTERMUI_HORIZONTAL or CTERMUI_VERTICAL).
+ * @param values Array of values for each bar.
+ * @param labels Array of label strings for each bar.
+ * @param values_length Number of bars/labels.
+ * @param gap Gap between bars.
+ * @return Pointer to the new bar chart component. Exits on allocation failure.
+ * @note Caller is responsible for freeing the component (if a free function exists).
+ */
 ctermui_component_t ctemrui_new_barchart(char *id, int8_t bar_color,
                                          int8_t bg_color, size_t max,
                                          size_t orientation, int *values,
