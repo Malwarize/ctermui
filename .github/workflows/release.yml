@@ -39,14 +39,14 @@ jobs:
 
       - name: Upload static library artifact
         if: steps.find_artifacts.outputs.static != ''
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ctermui-static-linux
           path: ${{ steps.find_artifacts.outputs.static }}
 
       - name: Upload shared library artifact
         if: steps.find_artifacts.outputs.shared != ''
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ctermui-shared-linux
           path: ${{ steps.find_artifacts.outputs.shared }}
