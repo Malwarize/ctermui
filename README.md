@@ -1,80 +1,79 @@
-# CTERMUI
+<div align="center">
 
-A simple, modular terminal UI library for C.
+<img src="https://github.com/Malwarize/ctermui/assets/130087473/ca6b76b4-a2ec-4c2b-8c50-ba7c6fad8eca" alt="CTERMUI Logo" width="400">
 
-![ctermui_logo](https://github.com/Malwarize/ctermui/assets/130087473/ca6b76b4-a2ec-4c2b-8c50-ba7c6fad8eca)
+<h2>🖥️ Build Modern Terminal UIs in C</h2>
 
-## Features
-- Build interactive terminal user interfaces in C
-- Layout system (horizontal/vertical, nested)
-- Components: buttons, labels, progress bars, bar charts, scatter plots, forms, and more
-- Custom component support
-- Keyboard event handling
+[![GitHub release](https://img.shields.io/github/v/release/Malwarize/ctermui?color=blue&label=release)]()
+[![GitHub license](https://img.shields.io/github/license/Malwarize/ctermui?color=green)]()
+[![GitHub issues](https://img.shields.io/github/issues/Malwarize/ctermui?color=red)]()
+[![GitHub stars](https://img.shields.io/github/stars/Malwarize/ctermui?color=yellow)]()
+[![GitHub forks](https://img.shields.io/github/forks/Malwarize/ctermui?color=orange)]()
+[![GitHub watchers](https://img.shields.io/github/watchers/Malwarize/ctermui?color=blue)]()
 
-## Installation
+✨ **Create interactive, component-based terminal applications with ease.**
+
+</div>
+
+---
+
+## 🗺️ Table of Contents
+- [`📦 Installation`](#-installation)
+- [`⚡ Features`](#-features)
+- [`🚀 Usage`](#-usage)
+- [`📌 Examples`](#-examples)
+- [`🤝 Contributing`](#-contributing)
+
+---
+
+## ⚡ Features
+
+- 🧩 **Component-Based UI**: Buttons, labels, progress bars, bar charts, scatter plots, forms, and more
+- 📐 **Flexible Layouts**: Horizontal/vertical, nested, and percentage-based
+- 🎨 **Custom Components**: Easily extend with your own draw logic
+- ⌨️ **Keyboard Event Handling**: Register callbacks for interactive UIs
+- 🛠️ **Simple API**: Clean, modular, and easy to use
+
+---
+
+## 📦 Installation
 
 Clone the repository and build with `make`:
 ```sh
+git clone https://github.com/Malwarize/ctermui.git
+cd ctermui
 make
 ```
 
-## Getting Started
+---
 
-1. **Initialize the screen:**
-```c
-ctermui_screen_t screen = ctermui_screen_init();
-```
+## 🚀 Usage
 
-2. **Create a root layout:**
+### Minimal Example
 ```c
-ctermui_layout_t root = ctermui_layout_new_root(
-    CTERMUI_HORIZONTAL, screen->width, screen->height
-);
-```
+#include <ctermui_screen.h>
+#include <ctermui_layout.h>
+#include <ctermui_component.h>
 
-3. **Create and add a component:**
-```c
-float xvalues[SIZE];
-float yvalues[SIZE];
-generate_data(xvalues, yvalues);
-ctermui_component_t plt = ctermui_new_scatter_plot(
-    "scatter_plot",
-    xvalues,
-    yvalues,
-    SIZE,
-    CTERMUI_BRIGHT_CYAN,
-    CTERMUI_EMPTY,
-    CTERMUI_BRIGHT_RED,
-    '*',
-    1
-);
-ctermui_layout_add_component(root, plt);
-ctermui_screen_set_layout_root(screen, root);
-```
-
-4. **Start the main loop:**
-```c
-ctermui_screen_loop_start(screen, periodic, n);
-```
-
-5. **Example periodic function:**
-```c
-void periodic(ctermui_screen_t *screen_p) {
-    ctermui_screen_t screen = *screen_p;
-    ctermui_layout_t root = screen->root;
-    ctermui_component_t c = root->components[0];
-    ScatterPlot *plt = (ScatterPlot *) c->core_component;
-    if (screen->loop_count % 100 == 0) {
-        for (int i = 0; i < SIZE; i++) {
-            plt->xvalues[i]++;
-            plt->yvalues[i] = sin(plt->xvalues[i]);
-        }
-        ctermui_screen_refresh_layout(screen, root);
-    }
+int main() {
+    ctermui_screen_t screen = ctermui_screen_init();
+    ctermui_layout_t root = ctermui_layout_new_root(
+        CTERMUI_HORIZONTAL, screen->width, screen->height
+    );
+    ctermui_component_t label = ctermui_new_text(
+        "hello_label", "Hello, CTERMUI!", CTERMUI_BRIGHT_CYAN, CTERMUI_EMPTY, CTERMUI_ALIGN_CENTER
+    );
+    ctermui_layout_add_component(root, label);
+    ctermui_screen_set_layout_root(screen, root);
+    ctermui_screen_loop_start(screen, NULL, 10000);
+    return 0;
 }
 ```
 
-## Examples
+---
+
+## 📌 Examples
+
 - [Button navigation](examples/button_navigation.c)
 - [System usage](examples/grabage_linux_sys_usage.c)
 - [Star Wars](examples/star_wars.c)
@@ -82,7 +81,13 @@ void periodic(ctermui_screen_t *screen_p) {
 - [Progress bar](examples/progress_bar.c)
 - [Bar chart](examples/two_barcharts.c)
 
+Explore more in the [`examples/`](examples/) directory.
+
 ---
 
-For more details, see the example programs in the `examples/` directory.
+## 🤝 Contributing
+
+💡 Pull requests are welcome! Open an issue before major changes.
+
+---
 
